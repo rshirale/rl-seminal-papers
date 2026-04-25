@@ -27,6 +27,9 @@ make install-full
 ### 2. Run Experiments
 You can run specific chapter experiments directly from the root:
 ```bash
+# Chapter 1: Agent-Environment Loop
+make run-ch1
+
 # Chapter 2: Grid World TD(0) value estimation
 make run-ch2-gridworld
 

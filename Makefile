@@ -1,7 +1,7 @@
 # Makefile for "RL: The Seminal Papers"
 # ==========================================
 
-.PHONY: help install install-full clean run-ch2-gridworld run-ch2-cliff
+.PHONY: help install install-full clean run-ch1 run-ch2-gridworld run-ch2-cliff
 
 # Default command: show help
 help:
@@ -10,6 +10,9 @@ help:
 	@echo "Setup Commands:"
 	@echo "  make install             - Install Foundation stack (Chapters 1-2) - ~50MB"
 	@echo "  make install-full        - Install Full Deep RL stack (Chapter 3+) - ~1.5GB"
+	@echo ""
+	@echo "Chapter 1: Introduction"
+	@echo "  make run-ch1             - Run minimal Agent-Environment loop (CartPole)"
 	@echo ""
 	@echo "Chapter 2: Fundamentals"
 	@echo "  make run-ch2-gridworld   - Run TD(0) value estimation on 4x3 Grid World"
@@ -27,6 +30,14 @@ install:
 install-full: install
 	@echo "Installing Deep RL stack (PyTorch, Gymnasium, MuJoCo)..."
 	pip install -r requirements-deep.txt
+
+# --- Chapter 1 Commands ---
+
+CH1_DIR = src/part_1_foundations/ch01_intro
+
+run-ch1:
+	@echo "Running Chapter 1: Agent-Environment Loop..."
+	@cd $(CH1_DIR) && python agent_loop_test.py
 
 # --- Chapter 2 Commands ---
 
