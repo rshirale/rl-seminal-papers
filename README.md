@@ -6,6 +6,40 @@ This is the official companion repository for the book **Reinforcement Learning 
 ## 🚀 The Mission: "Papers-to-Code"
 Academic papers are the blueprints of the AI revolution, but they are often written in a dialect of "Greek-symbol math" that can feel inaccessible to practitioners. This repository treats every seminal paper—from the birth of DQN to the reasoning leaps of DeepSeek-R1—as a **technical specification**. We refactor that math into modular Python so you don't just use these algorithms—you know them.
 
+## ⚡ Quick Start
+This repository includes a **Makefile** to simplify environment setup and running experiments.
+
+### 1. Setup
+Choose your installation depth based on which part of the book you are reading:
+
+**Option A: Foundations (Chapters 1 & 2)**
+Lightweight setup (~50MB). Only installs NumPy, Matplotlib, and Pandas.
+```bash
+make install
+```
+
+**Option B: Full Stack (Chapters 3–14)**
+Complete Deep RL setup (~1.5GB). Installs PyTorch, Gymnasium (Atari/MuJoCo), and foundations.
+```bash
+make install-full
+```
+
+### 2. Run Experiments
+You can run specific chapter experiments directly from the root:
+```bash
+# Chapter 2: Grid World TD(0) value estimation
+make run-ch2-gridworld
+
+# Chapter 2: Cliff Walking Benchmark (Q-Learning vs SARSA)
+make run-ch2-cliff
+```
+
+### 3. Cleanup
+```bash
+# Remove temporary files and generated plots
+make clean
+```
+
 ## 🗺️ The Roadmap
 The repository follows the book’s three-part journey from mathematical foundations to the cutting edge of LLMs and robotics.
 
