@@ -47,27 +47,43 @@ make clean
 The repository follows the book’s three-part journey from mathematical foundations to the cutting edge of LLMs and robotics.
 
 ### Part I: Foundations
-| Chapter | Topic | Focus |
-| :--- | :--- | :--- |
-| **Ch 1** | **Introduction** | The RL Loop and the "code-first" mental model. |
-| **Ch 2** | **RL Fundamentals** | MDPs, Bellman Equations, and Tabular Methods. |
+| Chapter | Topic | Focus | Interactive |
+| :--- | :--- | :--- | :--- |
+| **Ch 1** | **Introduction** | The RL Loop and the "code-first" mental model | [🔗 Script](src/part_1_foundations/ch01_intro/agent_loop_test.py) |
+| **Ch 2** | **RL Fundamentals** | MDPs, Bellman Equations, and Tabular Methods | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb) |
 
 ### Part II: Deep Reinforcement Learning (Methods)
-| Chapter | Algorithm | Seminal Paper Reference |
-| :--- | :--- | :--- |
-| **Ch 3** | **DQN** | *Playing Atari with Deep Reinforcement Learning* (Mnih et al., 2013). |
-| **Ch 4** | **DDPG** | *Continuous control with deep reinforcement learning* (Lillicrap et al., 2015). |
-| **Ch 5** | **PPO** | *Proximal Policy Optimization Algorithms* (Schulman et al., 2017). |
-| **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy RL with Entropy Regularization* (Haarnoja et al., 2018). |
-| **Ch 7** | **GRPO** | RL for reasoning models (DeepSeek-related work). |
+| Chapter | Algorithm | Seminal Paper Reference | Status |
+| :--- | :--- | :--- | :--- |
+| **Ch 3** | **DQN** | *Playing Atari with Deep Reinforcement Learning* (2013) | 🚧 Coming Soon |
+| **Ch 4** | **DDPG** | *Continuous control with deep reinforcement learning* (2015) | 🚧 Coming Soon |
+| **Ch 5** | **PPO** | *Proximal Policy Optimization Algorithms* (2017) | 🚧 Coming Soon |
+| **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy RL with Entropy Regularization* (2018) | 🚧 Coming Soon |
+| **Ch 7** | **GRPO** | RL for reasoning models (DeepSeek-related work) | 🚧 Coming Soon |
 
 ### Part III: Real-World Applications
-| Chapter | Application | Key Implementation |
-| :--- | :--- | :--- |
-| **Ch 8** | **AlphaGo** | Deep Learning + Monte Carlo Tree Search. |
-| **Ch 10** | **RLHF** | Alignment via Human Feedback (Christiano et al., 2017). |
-| **Ch 11** | **Robotics** | Dexterous Manipulation and Sim-to-Real transfer. |
-| **Ch 14** | **DeepSeek-R1** | RL-only pipelines for Incentivizing Reasoning. |
+| Chapter | Application | Key Implementation | Status |
+| :--- | :--- | :--- | :--- |
+| **Ch 8** | **AlphaGo** | Deep Learning + Monte Carlo Tree Search | 🚧 Coming Soon |
+| **Ch 10** | **RLHF** | Alignment via Human Feedback (2017) | 🚧 Coming Soon |
+| **Ch 11** | **Robotics** | Dexterous Manipulation and Sim-to-Real transfer | 🚧 Coming Soon |
+| **Ch 14** | **DeepSeek-R1** | RL-only pipelines for Incentivizing Reasoning | 🚧 Coming Soon |
+
+## 🌟 The Mathematical North Star: From Paper to Code
+What makes this repository unique is the direct, line-by-line mapping from academic math to Python. We don't just implement the "vibe" of a paper—we implement the **math**.
+
+### **Example: The TD(0) Value Update**
+📄 **Seminal Paper**: *Sutton (1988)*
+> $$V(S_t) \leftarrow V(S_t) + \alpha [R_{t+1} + \gamma V(S_{t+1}) - V(S_t)]$$
+
+💻 **The Implementation** (`ch02_fundamentals/algorithms.py`):
+```python
+# Bootstrapped TD Target minus the current belief
+td_error = (reward + gamma * V[next_state]) - V[state]
+V[state] += alpha * td_error
+```
+
+---
 
 ## 🛠️ Practitioner's Stack
 To run these experiments, you should be comfortable with:
