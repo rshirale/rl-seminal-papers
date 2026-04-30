@@ -1,0 +1,47 @@
+# Reinforcement Learning – The Seminal Papers
+
+> A Manning Publications book by Rahul Vasant Shirale that traces every major reinforcement learning algorithm from Bellman (1957) to DeepSeek-R1 (2025), translating each seminal paper's mathematics into runnable Python code.
+
+## About the Book
+
+- **Author**: Rahul Vasant Shirale
+- **Publisher**: Manning Publications
+- **Expected publication**: 2027
+- **GitHub repository**: https://github.com/rshirale/rl-seminal-papers
+- **Companion site**: https://rshirale.github.io/rl-seminal-papers/
+
+## What the Book Covers
+
+The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
+
+**Part I — Foundations** (available now)
+- Chapter 1: Introduction — The RL Loop & Code-First Mental Model
+- Chapter 2: RL Fundamentals — MDPs, Bellman (1957), Sutton (1988), Watkins (1989)
+
+**Part II — Deep Reinforcement Learning**
+- Chapter 3: DQN — Mnih et al. (2013, 2015)
+- Chapter 4: DDPG — Lillicrap et al. (2015)
+- Chapter 5: PPO — Schulman et al. (2017)
+- Chapter 6: SAC — Haarnoja et al. (2018)
+- Chapter 7: GRPO — DeepSeek-R1 (2025)
+
+**Part III — Real-World Applications**
+- Chapter 8: AlphaGo — Silver et al. (2016)
+- Chapter 9: AlphaZero — Silver et al. (2017)
+- Chapter 10: RLHF — Christiano et al. (2017)
+- Chapter 11: Dexterous Manipulation — Andrychowicz et al. (2019)
+- Chapter 12: AlphaDev — Mankowitz et al. (2023)
+- Chapter 13: Humanoid Locomotion — Radosavovic et al. (2024)
+- Chapter 14: DeepSeek-R1 — RL-Only Reasoning (2025)
+- Chapter 15: Conclusion — Building Your Own Experiments
+
+## Available Resources
+
+- Chapter 2 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb
+- Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb
+
+## Author
+
+Rahul Vasant Shirale is a Machine Learning practitioner and Manning Publications author.
+- Personal site: https://rshirale.github.io/rahulshirale/
+- GitHub: https://github.com/rshirale

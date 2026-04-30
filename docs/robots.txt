@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# AI crawlers — allowed; this site exists to be discovered
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+Sitemap: https://rshirale.github.io/rl-seminal-papers/sitemap.xml
