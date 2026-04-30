@@ -6,6 +6,16 @@
   <title>Reinforcement Learning – The Seminal Papers | Rahul Shirale</title>
   <meta name="description" content="A Manning Publications book turning the seminal papers of Reinforcement Learning into clear, runnable Python code. From DQN to DeepSeek-R1." />
 
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content="https://rshirale.github.io/rl-seminal-papers/" />
+  <meta property="og:title"       content="Reinforcement Learning – The Seminal Papers" />
+  <meta property="og:description" content="A Manning Publications book turning the seminal RL papers into clear, runnable Python code. From DQN to DeepSeek-R1." />
+  <meta property="og:image"       content="https://rshirale.github.io/rl-seminal-papers/assets/og-card.png" />
+  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:title"      content="Reinforcement Learning – The Seminal Papers" />
+  <meta name="twitter:description" content="From tabular Q-Learning to DeepSeek-R1 — every algorithm traced to its origin. Manning Publications, 2027." />
+
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-TWJ6VHJSB6"></script>
   <script>
@@ -19,15 +29,40 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --orange:   #e8501a;
-      --orange-dk:#c43d10;
-      --dark:     #1a1a2e;
-      --mid:      #16213e;
-      --card:     #0f3460;
-      --text:     #e0e0e0;
-      --muted:    #9ca3af;
-      --white:    #ffffff;
-      --radius:   8px;
+      --orange:    #e8501a;
+      --orange-dk: #c43d10;
+      --orange-lt: #ff8c55;  /* text links on dark/card backgrounds — passes 4.5:1 */
+      --dark:      #1a1a2e;
+      --mid:       #16213e;
+      --card:      #0f3460;
+      --text:      #e0e0e0;
+      --muted:     #b8bfd0;  /* lifted from #9ca3af for WCAG AA on card bg */
+      --white:     #ffffff;
+      --radius:    8px;
+    }
+
+    /* ── SKIP NAV ── */
+    .skip-nav {
+      position: absolute;
+      top: -999px;
+      left: -999px;
+      background: var(--orange);
+      color: var(--white);
+      padding: 0.6rem 1.2rem;
+      border-radius: var(--radius);
+      font-weight: 700;
+      z-index: 9999;
+      text-decoration: none;
+    }
+    .skip-nav:focus {
+      top: 0.75rem;
+      left: 0.75rem;
+    }
+
+    /* ── GLOBAL FOCUS ── */
+    :focus-visible {
+      outline: 3px solid var(--orange-lt);
+      outline-offset: 3px;
     }
 
     body {
@@ -37,8 +72,8 @@
       line-height: 1.6;
     }
 
-    a { color: var(--orange); text-decoration: none; }
-    a:hover { color: var(--orange-dk); text-decoration: underline; }
+    a { color: var(--orange-lt); text-decoration: none; }
+    a:hover { color: var(--orange); text-decoration: underline; }
 
     /* ── NAV ── */
     nav {
@@ -54,10 +89,59 @@
       z-index: 100;
     }
     nav .brand { font-weight: 700; font-size: 0.95rem; color: var(--white); }
-    nav .brand span { color: var(--orange); }
-    nav ul { list-style: none; display: flex; gap: 1.5rem; }
+    nav .brand span { color: var(--orange-lt); }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+    }
     nav ul a { color: var(--text); font-size: 0.9rem; }
-    nav ul a:hover { color: var(--orange); text-decoration: none; }
+    nav ul a:hover { color: var(--orange-lt); text-decoration: none; }
+
+    /* ── HAMBURGER ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: space-around;
+      width: 28px;
+      height: 22px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+    .hamburger[aria-expanded="true"] span:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+    .hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+    .hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+
+    @media (max-width: 680px) {
+      .hamburger { display: flex; }
+      nav ul {
+        display: none;
+        position: absolute;
+        top: 56px;
+        left: 0;
+        right: 0;
+        background: var(--mid);
+        flex-direction: column;
+        gap: 0;
+        border-top: 1px solid #2a2a4a;
+        padding: 0.5rem 0;
+      }
+      nav ul.open { display: flex; }
+      nav ul li a {
+        display: block;
+        padding: 0.75rem 2rem;
+      }
+    }
 
     /* ── HERO ── */
     .hero {
@@ -85,7 +169,7 @@
       line-height: 1.2;
       margin-bottom: 0.5rem;
     }
-    .hero h1 span { color: var(--orange); }
+    .hero h1 span { color: var(--orange-lt); }
     .hero .subtitle {
       font-size: 1.1rem;
       color: var(--muted);
@@ -150,7 +234,7 @@
     th {
       text-align: left;
       padding: 0.8rem 1rem;
-      color: var(--orange);
+      color: var(--orange-lt);
       font-weight: 700;
       font-size: 0.8rem;
       text-transform: uppercase;
@@ -162,7 +246,7 @@
     .status-soon   { color: var(--muted); }
     .part-header td {
       background: var(--mid);
-      color: var(--orange);
+      color: var(--orange-lt);
       font-weight: 700;
       font-size: 0.8rem;
       text-transform: uppercase;
@@ -241,6 +325,47 @@
       color: #a5d6ff;
     }
 
+    /* ── STAY UPDATED ── */
+    .notify-box {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      text-align: center;
+      border: 1px solid #2a3a6a;
+    }
+    .notify-box h2 { display: block; border-bottom: none; padding-bottom: 0; margin-bottom: 0.75rem; }
+    .notify-box p { color: var(--muted); margin-bottom: 1.5rem; max-width: 540px; margin-left: auto; margin-right: auto; }
+    .notify-actions { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 2px solid #4a5a7a;
+      padding: 0.65rem 1.4rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 0.9rem;
+      display: inline-block;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--orange-lt); color: var(--orange-lt); text-decoration: none; }
+
+    /* ── AUTHOR ── */
+    .author-card {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 1.8rem;
+    }
+    .author-card .author-info h3 { color: var(--white); font-size: 1.05rem; margin-bottom: 0.3rem; }
+    .author-card .author-info p { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.75rem; }
+    .author-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .author-links a { font-size: 0.85rem; }
+    @media (max-width: 500px) {
+      .author-card { flex-direction: column; }
+    }
+
     /* ── FOOTER ── */
     footer {
       background: var(--mid);
@@ -252,220 +377,318 @@
     }
     footer strong { color: var(--white); }
     footer .links { margin-top: 0.5rem; display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+    footer .links a { color: var(--muted); }
+    footer .links a:hover { color: var(--orange-lt); }
   </style>
 </head>
 
 <body>
 
+  <!-- SKIP NAV -->
+  <a class="skip-nav" href="#main-content">Skip to main content</a>
+
   <!-- NAV -->
-  <nav>
+  <nav aria-label="Site navigation">
     <div class="brand">RL <span>Seminal Papers</span></div>
-    <ul>
+    <button class="hamburger" aria-expanded="false" aria-controls="nav-list" aria-label="Toggle navigation menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul id="nav-list" role="list">
       <li><a href="#learn">Learn</a></li>
+      <li><a href="#code-examples">Papers → Code</a></li>
       <li><a href="#roadmap">Roadmap</a></li>
       <li><a href="#quickstart">Quick Start</a></li>
-      <li><a href="https://github.com/rshirale/rl-seminal-papers" target="_blank">GitHub</a></li>
+      <li><a href="https://github.com/rshirale/rl-seminal-papers" target="_blank" rel="noopener noreferrer">GitHub</a></li>
     </ul>
   </nav>
 
-  <!-- HERO -->
-  <div class="hero">
-    <div class="badge">Manning Publications — Coming 2027</div>
-    <h1>Reinforcement Learning<br><span>The Seminal Papers</span></h1>
-    <p class="subtitle">From tabular Q-Learning to DeepSeek-R1 — every algorithm traced to its origin.</p>
-    <p class="author">By <strong>Rahul Vasant Shirale</strong></p>
-    <div class="cta-group">
-      <a class="btn btn-primary" href="https://github.com/rshirale/rl-seminal-papers" target="_blank">View on GitHub</a>
-      <a class="btn btn-secondary" href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb" target="_blank">Run Chapter 2 in Colab</a>
-    </div>
-  </div>
+  <main id="main-content">
 
-  <!-- WHAT YOU WILL LEARN -->
-  <section id="learn">
-    <h2>What You Will Learn</h2>
-    <p class="section-intro">A practitioner's bridge between dense academic research and runnable Python. Every mathematical step has a corresponding code-level "aha!" moment.</p>
-    <div class="learn-grid">
-      <div class="learn-card">
-        <h3>Translate Research to Code</h3>
-        <p>Convert mathematical objectives from seminal papers into functional Python — line by line.</p>
-      </div>
-      <div class="learn-card">
-        <h3>Master Core Algorithms</h3>
-        <p>Build DQN, PPO, SAC, and DDPG from scratch. Understand why each innovation was necessary.</p>
-      </div>
-      <div class="learn-card">
-        <h3>From Pixels to Actions</h3>
-        <p>Train agents on Atari games end-to-end from raw pixels using the original DQN architecture.</p>
-      </div>
-      <div class="learn-card">
-        <h3>Reasoning Pipelines</h3>
-        <p>Implement GRPO — the algorithm behind DeepSeek-R1 — to incentivise self-correction in language models.</p>
-      </div>
-      <div class="learn-card">
-        <h3>Real-World Applications</h3>
-        <p>Apply RL to AlphaGo, RLHF alignment, and humanoid robotics with sim-to-real transfer.</p>
-      </div>
-      <div class="learn-card">
-        <h3>Historical Context</h3>
-        <p>Every algorithm traced to its founding paper — Bellman (1957) through DeepSeek-R1 (2025).</p>
+    <!-- HERO -->
+    <div class="hero">
+      <div class="badge">Manning Publications — Coming 2027</div>
+      <h1>Reinforcement Learning<br><span>The Seminal Papers</span></h1>
+      <p class="subtitle">From tabular Q-Learning to DeepSeek-R1 — every algorithm traced to its origin.</p>
+      <p class="author">By <strong>Rahul Vasant Shirale</strong></p>
+      <div class="cta-group">
+        <a class="btn btn-primary" href="https://github.com/rshirale/rl-seminal-papers" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+        <a class="btn btn-secondary" href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb" target="_blank" rel="noopener noreferrer">Run Chapter 2 in Colab</a>
       </div>
     </div>
-  </section>
 
-  <!-- MATH TO CODE EXAMPLE -->
-  <section>
-    <h2>Papers → Code</h2>
-    <p class="section-intro">Every equation in the book maps directly to a line of Python. No black boxes.</p>
-    <div class="math-to-code">
-      <div>
-        <div class="label">📄 Sutton (1988) — TD(0) Update</div>
-        <div class="code-eq">V(Sₜ) ← V(Sₜ) + α [ Rₜ₊₁ + γ V(Sₜ₊₁) − V(Sₜ) ]</div>
+    <!-- WHAT YOU WILL LEARN -->
+    <section id="learn">
+      <h2>What You Will Learn</h2>
+      <p class="section-intro">A practitioner's bridge between dense academic research and runnable Python. Every mathematical step has a corresponding code-level "aha!" moment.</p>
+      <div class="learn-grid">
+        <div class="learn-card">
+          <h3>Translate Research to Code</h3>
+          <p>Convert mathematical objectives from seminal papers into functional Python — line by line.</p>
+        </div>
+        <div class="learn-card">
+          <h3>Master Core Algorithms</h3>
+          <p>Build DQN, PPO, SAC, and DDPG from scratch. Understand why each innovation was necessary.</p>
+        </div>
+        <div class="learn-card">
+          <h3>From Pixels to Actions</h3>
+          <p>Train agents on Atari games end-to-end from raw pixels using the original DQN architecture.</p>
+        </div>
+        <div class="learn-card">
+          <h3>Reasoning Pipelines</h3>
+          <p>Implement GRPO — the algorithm behind DeepSeek-R1 — to incentivise self-correction in language models.</p>
+        </div>
+        <div class="learn-card">
+          <h3>Real-World Applications</h3>
+          <p>Apply RL to AlphaGo, AlphaZero, RLHF alignment, AlphaDev, and humanoid robotics with sim-to-real transfer.</p>
+        </div>
+        <div class="learn-card">
+          <h3>Historical Context</h3>
+          <p>Every algorithm traced to its founding paper — Bellman (1957) through DeepSeek-R1 (2025).</p>
+        </div>
       </div>
-      <div>
-        <div class="label">💻 Python Implementation</div>
-        <div class="code-block">
+    </section>
+
+    <!-- MATH TO CODE EXAMPLE -->
+    <section id="code-examples">
+      <h2>Papers → Code</h2>
+      <p class="section-intro">Every equation in the book maps directly to a line of Python. No black boxes.</p>
+      <div class="math-to-code">
+        <div>
+          <div class="label">Sutton (1988) — TD(0) Update</div>
+          <div class="code-eq">V(Sₜ) ← V(Sₜ) + α [ Rₜ₊₁ + γ V(Sₜ₊₁) − V(Sₜ) ]</div>
+        </div>
+        <div>
+          <div class="label">Python Implementation</div>
+          <div class="code-block">
 <pre><span class="comment"># Bootstrapped TD error</span>
 td_error = (reward + gamma * V[next_s]) - V[s]
 V[s] += alpha * td_error</pre>
+          </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ROADMAP -->
-  <section id="roadmap">
-    <h2>Chapter Roadmap</h2>
-    <p class="section-intro">15 chapters across three parts — from foundational theory to production-ready systems.</p>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Chapter</th>
-            <th>Algorithm</th>
-            <th>Seminal Paper</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="part-header"><td colspan="4">Part I — Foundations</td></tr>
-          <tr>
-            <td>Ch 1</td>
-            <td>Introduction</td>
-            <td>The RL Loop &amp; Code-First Mental Model</td>
-            <td class="status-done">✓ Available</td>
-          </tr>
-          <tr>
-            <td>Ch 2</td>
-            <td>RL Fundamentals</td>
-            <td>MDPs, Bellman (1957), Sutton (1988), Watkins (1989)</td>
-            <td class="status-done">✓ Available</td>
-          </tr>
-          <tr class="part-header"><td colspan="4">Part II — Methods</td></tr>
-          <tr>
-            <td>Ch 3</td>
-            <td>DQN</td>
-            <td>Mnih et al. (2013, 2015)</td>
-            <td class="status-soon">Coming Soon</td>
-          </tr>
-          <tr>
-            <td>Ch 4</td>
-            <td>DDPG</td>
-            <td>Lillicrap et al. (2015)</td>
-            <td class="status-soon">Coming Soon</td>
-          </tr>
-          <tr>
-            <td>Ch 5</td>
-            <td>PPO</td>
-            <td>Schulman et al. (2017)</td>
-            <td class="status-soon">Coming Soon</td>
-          </tr>
-          <tr>
-            <td>Ch 6</td>
-            <td>SAC</td>
-            <td>Haarnoja et al. (2018)</td>
-            <td class="status-soon">Coming Soon</td>
-          </tr>
-          <tr>
-            <td>Ch 7</td>
-            <td>GRPO</td>
-            <td>DeepSeek-R1 (2025)</td>
-            <td class="status-soon">Coming Soon</td>
-          </tr>
-          <tr class="part-header"><td colspan="4">Part III — Applications</td></tr>
-          <tr>
-            <td>Ch 8</td>
-            <td>AlphaGo</td>
-            <td>Silver et al. (2016)</td>
-            <td class="status-soon">Coming Soon</td>
-          </tr>
-          <tr>
-            <td>Ch 10</td>
-            <td>RLHF</td>
-            <td>Christiano et al. (2017)</td>
-            <td class="status-soon">Coming Soon</td>
-          </tr>
-          <tr>
-            <td>Ch 11</td>
-            <td>Robotics</td>
-            <td>Sim-to-Real Transfer</td>
-            <td class="status-soon">Coming Soon</td>
-          </tr>
-          <tr>
-            <td>Ch 14</td>
-            <td>DeepSeek-R1</td>
-            <td>RL-Only Reasoning Pipelines (2025)</td>
-            <td class="status-soon">Coming Soon</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
+    <!-- ROADMAP -->
+    <section id="roadmap">
+      <h2>Chapter Roadmap</h2>
+      <p class="section-intro">15 chapters across three parts — from foundational theory to production-ready systems.</p>
+      <div class="table-wrap">
+        <table aria-label="Book chapter roadmap: 15 chapters across three parts">
+          <caption class="sr-only">Book chapter roadmap — Part I: Foundations (Ch 1–2), Part II: Deep RL Methods (Ch 3–7), Part III: Applications (Ch 8–15)</caption>
+          <thead>
+            <tr>
+              <th scope="col">Chapter</th>
+              <th scope="col">Algorithm</th>
+              <th scope="col">Seminal Paper</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="part-header"><td colspan="4">Part I — Foundations</td></tr>
+            <tr>
+              <td>Ch 1</td>
+              <td>Introduction</td>
+              <td>The RL Loop &amp; Code-First Mental Model</td>
+              <td class="status-done">✓ Available</td>
+            </tr>
+            <tr>
+              <td>Ch 2</td>
+              <td>RL Fundamentals</td>
+              <td>MDPs, Bellman (1957), Sutton (1988), Watkins (1989)</td>
+              <td class="status-done">✓ Available</td>
+            </tr>
+            <tr class="part-header"><td colspan="4">Part II — Deep Reinforcement Learning</td></tr>
+            <tr>
+              <td>Ch 3</td>
+              <td>DQN</td>
+              <td>Mnih et al. (2013, 2015)</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 4</td>
+              <td>DDPG</td>
+              <td>Lillicrap et al. (2015)</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 5</td>
+              <td>PPO</td>
+              <td>Schulman et al. (2017)</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 6</td>
+              <td>SAC</td>
+              <td>Haarnoja et al. (2018)</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 7</td>
+              <td>GRPO</td>
+              <td>DeepSeek-R1 (2025)</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr class="part-header"><td colspan="4">Part III — Real-World Applications</td></tr>
+            <tr>
+              <td>Ch 8</td>
+              <td>AlphaGo</td>
+              <td>Silver et al. (2016)</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 9</td>
+              <td>AlphaZero</td>
+              <td>Silver et al. (2017) — Tabula Rasa Self-Play</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 10</td>
+              <td>RLHF</td>
+              <td>Christiano et al. (2017)</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 11</td>
+              <td>Dexterous Manipulation</td>
+              <td>Andrychowicz et al. (2019) — Sim-to-Real</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 12</td>
+              <td>AlphaDev</td>
+              <td>Mankowitz et al. (2023) — Program Synthesis</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 13</td>
+              <td>Humanoid Locomotion</td>
+              <td>Radosavovic et al. (2024) — Physical Deployment</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 14</td>
+              <td>DeepSeek-R1</td>
+              <td>RL-Only Reasoning Pipelines (2025)</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+            <tr>
+              <td>Ch 15</td>
+              <td>Conclusion</td>
+              <td>Distilling Recurring Ideas — Building Your Own Experiments</td>
+              <td class="status-soon">Coming Soon</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-  <!-- QUICK START -->
-  <section id="quickstart">
-    <h2>Quick Start</h2>
-    <p class="section-intro">Clone the repo and run any chapter experiment in minutes.</p>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h3>Clone the repository</h3>
-          <code>git clone https://github.com/rshirale/rl-seminal-papers.git</code>
+    <!-- QUICK START -->
+    <section id="quickstart">
+      <h2>Quick Start</h2>
+      <p class="section-intro">Clone the repo and run any chapter experiment in minutes.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num" aria-hidden="true">1</div>
+          <div class="step-body">
+            <h3>Clone the repository</h3>
+            <code>git clone https://github.com/rshirale/rl-seminal-papers.git</code>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" aria-hidden="true">2</div>
+          <div class="step-body">
+            <h3>Install dependencies</h3>
+            <code>make install</code> &nbsp;(Foundations — lightweight) &nbsp;|&nbsp; <code>make install-full</code> &nbsp;(Full Deep RL stack)
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" aria-hidden="true">3</div>
+          <div class="step-body">
+            <h3>Run an experiment</h3>
+            <code>make run-ch2-cliff</code> &nbsp;— Q-Learning vs SARSA on Cliff Walking
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num" aria-hidden="true">4</div>
+          <div class="step-body">
+            <h3>Or open in Colab — no setup required</h3>
+            <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb" target="_blank" rel="noopener noreferrer">&#9654; Chapter 2: RL Fundamentals</a>
+          </div>
         </div>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h3>Install dependencies</h3>
-          <code>make install</code> &nbsp;(Foundations — lightweight) &nbsp;|&nbsp; <code>make install-full</code> &nbsp;(Full Deep RL stack)
+    </section>
+
+    <!-- STAY UPDATED -->
+    <section id="notify">
+      <div class="notify-box">
+        <h2>Stay Updated</h2>
+        <p>New chapters and code notebooks are released as the book progresses toward its 2027 publication. Watch the repository to get notified the moment Chapter 3 (DQN) drops.</p>
+        <div class="notify-actions">
+          <a class="btn btn-primary" href="https://github.com/rshirale/rl-seminal-papers/subscription" target="_blank" rel="noopener noreferrer">&#9733; Watch on GitHub</a>
+          <a class="btn-ghost" href="https://rshirale.github.io/rahulshirale/" target="_blank" rel="noopener noreferrer">Author Website</a>
         </div>
       </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h3>Run an experiment</h3>
-          <code>make run-ch2-cliff</code> &nbsp;— Q-Learning vs SARSA on Cliff Walking
+    </section>
+
+    <!-- AUTHOR -->
+    <section id="author">
+      <h2>About the Author</h2>
+      <div class="author-card">
+        <div class="author-info">
+          <h3>Rahul Vasant Shirale</h3>
+          <p>Machine Learning practitioner and author with Manning Publications. Writing <em>RL – The Seminal Papers</em> to bridge the gap between academic research and production code. Based in the San Francisco Bay Area.</p>
+          <div class="author-links">
+            <a href="https://rshirale.github.io/rahulshirale/" target="_blank" rel="noopener noreferrer">Personal Site</a>
+            <a href="https://github.com/rshirale" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://www.manning.com" target="_blank" rel="noopener noreferrer">Manning Publications</a>
+          </div>
         </div>
       </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-body">
-          <h3>Or open in Colab — no setup required</h3>
-          <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb" target="_blank">▶ Chapter 2: RL Fundamentals</a>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
+
+  </main>
 
   <!-- FOOTER -->
   <footer>
     <div><strong>Reinforcement Learning – The Seminal Papers</strong> &nbsp;·&nbsp; Rahul Vasant Shirale &nbsp;·&nbsp; Manning Publications (2027)</div>
     <div class="links">
-      <a href="https://github.com/rshirale/rl-seminal-papers" target="_blank">GitHub</a>
-      <a href="https://www.manning.com" target="_blank">Manning Publications</a>
-      <a href="https://rshirale.github.io/rahulshirale/" target="_blank">Author Website</a>
+      <a href="https://github.com/rshirale/rl-seminal-papers" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://www.manning.com" target="_blank" rel="noopener noreferrer">Manning Publications</a>
+      <a href="https://rshirale.github.io/rahulshirale/" target="_blank" rel="noopener noreferrer">Author Website</a>
     </div>
   </footer>
+
+  <!-- sr-only helper -->
+  <style>
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+
+  <script>
+    // Mobile nav toggle
+    const hamburger = document.querySelector('.hamburger');
+    const navList   = document.getElementById('nav-list');
+    hamburger.addEventListener('click', () => {
+      const open = navList.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', open);
+    });
+    // Close nav when a link is clicked
+    navList.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        navList.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+  </script>
 
 </body>
 </html>
