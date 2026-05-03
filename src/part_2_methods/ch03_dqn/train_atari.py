@@ -1,0 +1,182 @@
+import gymnasium as gym
+import numpy as np
+import torch
+import argparse
+from collections import deque
+import cv2
+
+from dqn_agent import DQNAgent
+
+# --- Atari Preprocessing Wrappers ---
+# (These mirror the preprocessing pipeline described in Mnih et al. 2015, Methods)
+
+class FireResetEnv(gym.Wrapper):
+    """Take action on reset for environments that are fixed until firing."""
+    def __init__(self, env):
+        super().__init__(env)
+        assert env.unwrapped.get_action_meanings()[1] == 'FIRE'
+        assert len(env.unwrapped.get_action_meanings()) >= 3
+
+    def reset(self, **kwargs):
+        self.env.reset(**kwargs)
+        obs, _, terminated, truncated, _ = self.env.step(1)
+        if terminated or truncated:
+            self.env.reset(**kwargs)
+        obs, _, terminated, truncated, _ = self.env.step(2)
+        if terminated or truncated:
+            self.env.reset(**kwargs)
+        return obs, {}
+
+class MaxAndSkipEnv(gym.Wrapper):
+    """Return only every `skip`-th frame (Frame Skipping). Max-pool over last 2 frames to fix sprite flicker."""
+    def __init__(self, env, skip=4):
+        super().__init__(env)
+        self._obs_buffer = np.zeros((2,)+env.observation_space.shape, dtype=np.uint8)
+        self._skip = skip
+
+    def step(self, action):
+        total_reward = 0.0
+        done = None
+        for i in range(self._skip):
+            obs, reward, terminated, truncated, info = self.env.step(action)
+            done = terminated or truncated
+            if i == self._skip - 2: self._obs_buffer[0] = obs
+            if i == self._skip - 1: self._obs_buffer[1] = obs
+            total_reward += reward
+            if done:
+                break
+        max_frame = self._obs_buffer.max(axis=0)
+        return max_frame, total_reward, terminated, truncated, info
+
+    def reset(self, **kwargs):
+        obs, info = self.env.reset(**kwargs)
+        self._obs_buffer[0] = obs
+        self._obs_buffer[1] = obs
+        return obs, info
+
+class WarpFrame(gym.ObservationWrapper):
+    """Warp frames to 84x84 and convert to grayscale."""
+    def __init__(self, env):
+        super().__init__(env)
+        self.width = 84
+        self.height = 84
+        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(self.height, self.width, 1), dtype=np.uint8)
+
+    def observation(self, frame):
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2GRAY)
+        frame = cv2.resize(frame, (self.width, self.height), interpolation=cv2.INTER_AREA)
+        return frame[:, :, None]
+
+class FrameStack(gym.Wrapper):
+    """Stack the last `k` frames to provide temporal context to the CNN."""
+    def __init__(self, env, k):
+        super().__init__(env)
+        self.k = k
+        self.frames = deque([], maxlen=k)
+        shp = env.observation_space.shape
+        self.observation_space = gym.spaces.Box(low=0, high=255, shape=(k, shp[0], shp[1]), dtype=np.uint8)
+
+    def reset(self, **kwargs):
+        obs, info = self.env.reset(**kwargs)
+        for _ in range(self.k):
+            self.frames.append(obs)
+        return self._get_ob(), info
+
+    def step(self, action):
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        self.frames.append(obs)
+        return self._get_ob(), reward, terminated, truncated, info
+
+    def _get_ob(self):
+        assert len(self.frames) == self.k
+        return np.stack(self.frames, axis=0).squeeze() # Shape (4, 84, 84)
+
+class ClipRewardEnv(gym.RewardWrapper):
+    """Clip rewards to [-1, 1] as described in Mnih et al. 2015."""
+    def reward(self, reward):
+        return np.sign(reward)
+
+def make_atari_env(env_id):
+    """Creates the fully wrapped Atari environment."""
+    # We use NoFrameskip-v4 to implement our own frame skipping and max pooling
+    env = gym.make(env_id + "NoFrameskip-v4")
+    env = MaxAndSkipEnv(env, skip=4)
+    if 'FIRE' in env.unwrapped.get_action_meanings():
+        env = FireResetEnv(env)
+    env = WarpFrame(env)
+    env = ClipRewardEnv(env)
+    env = FrameStack(env, k=4)
+    return env
+
+# --- Main Training Loop ---
+
+def main():
+    parser = argparse.ArgumentParser(description="Train DQN on Atari Pong")
+    parser.add_argument("--env", type=str, default="Pong", help="Atari environment ID")
+    parser.add_argument("--episodes", type=int, default=1000, help="Number of episodes to train")
+    args = parser.parse_args()
+
+    # 1. Setup Environment
+    env = make_atari_env(args.env)
+    num_actions = env.action_space.n
+    input_channels = 4 # Due to frame stacking
+
+    # 2. Setup Agent
+    device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+    print(f"Training on device: {device}")
+    
+    agent = DQNAgent(
+        input_channels=input_channels, 
+        num_actions=num_actions, 
+        device=device,
+        buffer_capacity=100000, # Scaled down for local testing (Paper used 1M)
+        batch_size=32
+    )
+
+    # 3. Epsilon Annealing Schedule
+    epsilon_start = 1.0
+    epsilon_final = 0.1
+    epsilon_decay_frames = 100000 # Paper used 1M frames, scaled down for faster local observation
+    
+    frame_idx = 0
+
+    # 4. Training Loop (Algorithm 1)
+    for episode in range(1, args.episodes + 1):
+        state, _ = env.reset()
+        
+        # Normalize pixel values to [0, 1] before passing to agent
+        state = np.array(state, dtype=np.float32) / 255.0 
+        
+        episode_reward = 0
+        done = False
+
+        while not done:
+            # Calculate current epsilon
+            epsilon = epsilon_final + (epsilon_start - epsilon_final) * \
+                      np.exp(-1. * frame_idx / epsilon_decay_frames)
+            
+            # Select action
+            action = agent.select_action(state, epsilon)
+            
+            # Execute action
+            next_state, reward, terminated, truncated, _ = env.step(action)
+            done = terminated or truncated
+            
+            # Normalize next state
+            next_state = np.array(next_state, dtype=np.float32) / 255.0
+            
+            # Store and learn
+            agent.step(state, action, reward, next_state, done)
+            
+            state = next_state
+            episode_reward += reward
+            frame_idx += 1
+
+        if episode % 10 == 0:
+            print(f"Episode {episode} | Frames: {frame_idx} | Epsilon: {epsilon:.3f} | Clipped Reward: {episode_reward}")
+
+    env.close()
+    print("Training completed.")
+
+if __name__ == "__main__":
+    main()
