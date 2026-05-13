@@ -35,6 +35,9 @@ make run-ch2-gridworld
 
 # Chapter 2: Cliff Walking Benchmark (Q-Learning vs SARSA)
 make run-ch2-cliff
+
+# Chapter 3: DQN on CartPole-v1 (~2 min on CPU)
+make run-ch3-cartpole
 ```
 
 ### 3. Cleanup
@@ -53,9 +56,9 @@ The repository follows the book’s three-part journey from mathematical foundat
 | **Ch 2** | **RL Fundamentals** | MDPs, Bellman Equations, and Tabular Methods | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb) |
 
 ### Part II: Deep Reinforcement Learning (Methods)
-| Chapter | Algorithm | Seminal Paper Reference | Status |
+| Chapter | Algorithm | Seminal Paper Reference | Interactive |
 | :--- | :--- | :--- | :--- |
-| **Ch 3** | **DQN** | *Playing Atari with Deep Reinforcement Learning* (2013) | 🚧 Coming Soon |
+| **Ch 3** | **DQN** | *Playing Atari with Deep Reinforcement Learning* (2013) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb) |
 | **Ch 4** | **DDPG** | *Continuous control with deep reinforcement learning* (2015) | 🚧 Coming Soon |
 | **Ch 5** | **PPO** | *Proximal Policy Optimization Algorithms* (2017) | 🚧 Coming Soon |
 | **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy RL with Entropy Regularization* (2018) | 🚧 Coming Soon |

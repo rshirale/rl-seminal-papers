@@ -1,7 +1,7 @@
 # Makefile for "RL: The Seminal Papers"
 # ==========================================
 
-.PHONY: help install install-full clean run-ch1 run-ch2-gridworld run-ch2-cliff notebook
+.PHONY: help install install-full clean run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole notebook
 
 # Default command: show help
 help:
@@ -17,6 +17,9 @@ help:
 	@echo "Chapter 2: Fundamentals"
 	@echo "  make run-ch2-gridworld   - Run TD(0) value estimation on 4x3 Grid World"
 	@echo "  make run-ch2-cliff       - Run Q-Learning vs SARSA on Cliff Walking"
+	@echo ""
+	@echo "Chapter 3: DQN"
+	@echo "  make run-ch3-cartpole    - Train DQN on CartPole-v1 (~2 min on CPU)"
 	@echo ""
 	@echo "Jupyter Notebooks:"
 	@echo "  make notebook            - Launch Jupyter Lab to view interactive chapters"
@@ -53,6 +56,14 @@ run-ch2-gridworld:
 run-ch2-cliff:
 	@echo "Running Chapter 2: Cliff Walking Benchmark..."
 	@cd $(CH2_DIR) && python run_cliff_benchmark.py
+
+# --- Chapter 3 Commands ---
+
+CH3_DIR = src/part_2_methods/ch03_dqn
+
+run-ch3-cartpole:
+	@echo "Running Chapter 3: DQN on CartPole-v1..."
+	@cd $(CH3_DIR) && python train_cartpole.py
 
 # --- Notebooks ---
 

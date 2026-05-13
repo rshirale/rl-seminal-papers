@@ -38,7 +38,14 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 ## Available Resources
 
 - Chapter 2 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb
-- Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb
+- Chapter 2 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb
+- Chapter 3 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb
+- Chapter 3 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb
+- Chapter 3 DQN network (CNN + SimpleDQN MLP): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/dqn_network.py
+- Chapter 3 Replay buffer: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/replay_buffer.py
+- Chapter 3 DQN agent: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/dqn_agent.py
+- Chapter 3 CartPole training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/train_cartpole.py
+- Chapter 3 Atari training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/train_atari.py
 
 ## Author
 

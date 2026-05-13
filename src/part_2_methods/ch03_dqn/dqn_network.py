@@ -1,6 +1,23 @@
 import torch
 import torch.nn as nn
 
+
+class SimpleDQN(nn.Module):
+    """MLP Q-network for vector-based environments (e.g. CartPole)."""
+    def __init__(self, input_dim: int, num_actions: int):
+        super(SimpleDQN, self).__init__()
+        self.net = nn.Sequential(
+            nn.Linear(input_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 128),
+            nn.ReLU(),
+            nn.Linear(128, num_actions)
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.net(x)
+
+
 class DQN(nn.Module):
     """
     Deep Q-Network (DQN) Architecture from Mnih et al. (2015) - Nature paper.
