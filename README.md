@@ -38,6 +38,9 @@ make run-ch2-cliff
 
 # Chapter 3: DQN on CartPole-v1 (~2 min on CPU)
 make run-ch3-cartpole
+
+# Chapter 4: DDPG on Pendulum-v1 (~10 min on CPU)
+make run-ch4-pendulum
 ```
 
 ### 3. Cleanup
@@ -59,7 +62,7 @@ The repository follows the book’s three-part journey from mathematical foundat
 | Chapter | Algorithm | Seminal Paper Reference | Interactive |
 | :--- | :--- | :--- | :--- |
 | **Ch 3** | **DQN** | *Playing Atari with Deep Reinforcement Learning* (2013) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb) |
-| **Ch 4** | **DDPG** | *Continuous control with deep reinforcement learning* (2015) | 🚧 Coming Soon |
+| **Ch 4** | **DDPG** | *Continuous control with deep reinforcement learning* (2015) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb) |
 | **Ch 5** | **PPO** | *Proximal Policy Optimization Algorithms* (2017) | 🚧 Coming Soon |
 | **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy RL with Entropy Regularization* (2018) | 🚧 Coming Soon |
 | **Ch 7** | **GRPO** | RL for reasoning models (DeepSeek-related work) | 🚧 Coming Soon |

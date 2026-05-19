@@ -1,7 +1,7 @@
 # Makefile for "RL: The Seminal Papers"
 # ==========================================
 
-.PHONY: help install install-full clean run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole notebook
+.PHONY: help install install-full clean run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole run-ch4-pendulum notebook
 
 # Default command: show help
 help:
@@ -20,6 +20,9 @@ help:
 	@echo ""
 	@echo "Chapter 3: DQN"
 	@echo "  make run-ch3-cartpole    - Train DQN on CartPole-v1 (~2 min on CPU)"
+	@echo ""
+	@echo "Chapter 4: DDPG"
+	@echo "  make run-ch4-pendulum    - Train DDPG on Pendulum-v1 (~10 min on CPU)"
 	@echo ""
 	@echo "Jupyter Notebooks:"
 	@echo "  make notebook            - Launch Jupyter Lab to view interactive chapters"
@@ -64,6 +67,14 @@ CH3_DIR = src/part_2_methods/ch03_dqn
 run-ch3-cartpole:
 	@echo "Running Chapter 3: DQN on CartPole-v1..."
 	@cd $(CH3_DIR) && python train_cartpole.py
+
+# --- Chapter 4 Commands ---
+
+CH4_DIR = src/part_2_methods/ch04_ddpg
+
+run-ch4-pendulum:
+	@echo "Running Chapter 4: DDPG on Pendulum-v1..."
+	@cd $(CH4_DIR) && python train_pendulum.py
 
 # --- Notebooks ---
 
