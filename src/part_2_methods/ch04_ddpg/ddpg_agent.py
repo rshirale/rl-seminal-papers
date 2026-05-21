@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 from .actor import Actor
 from .critic import Critic
-from .ou_noise import OUNoise
+from .gaussian_noise import GaussianNoise
 from .replay_buffer import ReplayBuffer
 
 
@@ -19,7 +19,7 @@ class DDPGAgent:
       - Deterministic actor  μ(s | θᵘ)  trained via policy gradient
       - Action-value critic  Q(s,a | θQ)  trained via Bellman backup
       - Soft target updates (τ = 0.001) for both actor and critic targets
-      - Ornstein-Uhlenbeck exploration noise
+      - Gaussian exploration noise (modern default)
       - Experience replay buffer (capacity 1,000,000)
     """
 
@@ -61,11 +61,11 @@ class DDPGAgent:
         )
 
         self.replay = ReplayBuffer(buffer_size)
-        self.noise = OUNoise(action_dim)
+        self.noise = GaussianNoise(action_dim)
 
     def select_action(self, state: np.ndarray,
                       explore: bool = True) -> np.ndarray:
-        """Return a clipped action, optionally with OU exploration noise."""
+        """Return a clipped action, optionally with Gaussian exploration noise."""
         s_t = torch.FloatTensor(state).to(self.device)
         with torch.no_grad():
             action = self.actor(s_t).cpu().numpy()
