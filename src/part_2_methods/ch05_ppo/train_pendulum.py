@@ -3,17 +3,17 @@ import numpy as np
 import torch
 from ppo_agent import PPOAgent
 
-SEED          = 42
-MAX_EPISODES  = 400
+SEED = 42
+MAX_EPISODES = 400
 MAX_TIMESTEPS = 200
-UPDATE_EVERY  = 2048
-LOG_EVERY     = 50
+UPDATE_EVERY = 2048
+LOG_EVERY = 50
 
 torch.manual_seed(SEED)
 np.random.seed(SEED)
 
 env = gym.make("Pendulum-v1")
-state_dim  = env.observation_space.shape[0]
+state_dim = env.observation_space.shape[0]
 action_dim = env.action_space.shape[0]
 max_action = float(env.action_space.high[0])
 
@@ -23,11 +23,11 @@ agent = PPOAgent(
     eps_clip=0.2, k_epochs=10, batch_size=64
 )
 
-rollouts   = []
-timestep   = 0
+rollouts = []
+timestep = 0
 ep_rewards = []
-approx_kl  = 0.0
-clip_frac  = 0.0
+approx_kl = 0.0
+clip_frac = 0.0
 
 for episode in range(1, MAX_EPISODES + 1):
     state, _ = env.reset(seed=SEED + episode)
@@ -43,7 +43,7 @@ for episode in range(1, MAX_EPISODES + 1):
             (state, action, reward, next_state,
              float(done or truncated), logprob, value)
         )
-        state      = next_state
+        state = next_state
         ep_reward += reward
 
         if timestep % UPDATE_EVERY == 0:
