@@ -42,8 +42,14 @@ class DQNAgent:
         # The 2015 paper used RMSprop. (Adam is also common today, but we stick to the original)
         self.optimizer = optim.RMSprop(self.online_net.parameters(), lr=learning_rate, momentum=0.95, eps=0.01)
         
-        # Initialize Replay Memory D
-        self.memory = ReplayBuffer(capacity=buffer_capacity)
+        # Initialize Replay Memory D. Frames are stacks of input_channels x 84 x 84.
+        # Stored as float32 here (the Atari loop normalizes before pushing). For the
+        # full 1M-frame buffer, store state_dtype=np.uint8 (~6.6 GB vs ~26 GB) and
+        # move the /255 normalization into _learn after sampling.
+        self.memory = ReplayBuffer(
+            capacity=buffer_capacity,
+            state_shape=(input_channels, 84, 84),
+        )
         
         # Huber Loss (Smooth L1 Loss)
         self.criterion = nn.SmoothL1Loss()

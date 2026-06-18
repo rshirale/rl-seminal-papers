@@ -26,7 +26,10 @@ class DQNAgentCartPole:
         self.env = env
         self.num_actions = env.action_space.n
         self.gamma = gamma
-        self.memory = ReplayBuffer(capacity=100000)
+        self.memory = ReplayBuffer(
+            capacity=100000,
+            state_shape=env.observation_space.shape,
+        )
 
         input_dim = env.observation_space.shape[0]
         self.online_net = SimpleDQN(input_dim, self.num_actions).to(device)
