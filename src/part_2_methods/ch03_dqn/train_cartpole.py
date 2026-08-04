@@ -5,8 +5,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
-from dqn_network import SimpleDQN
-from replay_buffer import ReplayBuffer
+if __package__:
+    from .dqn_network import SimpleDQN
+    from .replay_buffer import ReplayBuffer
+else:  # pragma: no cover - direct script execution fallback.
+    from dqn_network import SimpleDQN
+    from replay_buffer import ReplayBuffer
 
 BATCH_SIZE = 32
 GAMMA = 0.99

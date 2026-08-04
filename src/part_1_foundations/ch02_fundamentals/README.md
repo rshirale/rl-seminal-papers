@@ -13,7 +13,7 @@ This directory contains the Python implementations and benchmarks for Chapter 2 
 
 You can install dependencies for just this chapter:
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 Alternatively, if you are following the whole book, use the master list in the root directory:

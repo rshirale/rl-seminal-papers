@@ -1,7 +1,11 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from actor_critic import Actor, Critic
+
+if __package__:
+    from .actor_critic import Actor, Critic
+else:  # pragma: no cover - only used by direct script execution.
+    from actor_critic import Actor, Critic
 
 
 class PPOAgent:
@@ -31,6 +35,10 @@ class PPOAgent:
         return action.squeeze(0).numpy(), logprob, value
 
     def update(self, rollouts):
+        """Run PPO updates over a collected rollout and return diagnostics."""
+        if not rollouts:
+            return 0.0, 0.0
+
         states, actions, rewards, next_states, dones, \
             old_logprobs, values = zip(*rollouts)
 
@@ -68,9 +76,8 @@ class PPOAgent:
 
         advantages = torch.FloatTensor(np.array(advantages))
         returns = torch.FloatTensor(np.array(returns))
-        advantages = (
-            (advantages - advantages.mean())
-            / (advantages.std() + 1e-8)
+        advantages = (advantages - advantages.mean()) / (
+            advantages.std(unbiased=False) + 1e-8
         )
 
         n = len(rollouts)
@@ -91,7 +98,7 @@ class PPOAgent:
                 dist = self.actor(mb_states)
                 logprobs = dist.log_prob(mb_actions).sum(dim=-1)
                 dist_entropy = dist.entropy().sum(dim=-1)
-                state_values = self.critic(mb_states).squeeze()
+                state_values = self.critic(mb_states).squeeze(-1)
 
                 ratios = torch.exp(logprobs - mb_old_lp)
 

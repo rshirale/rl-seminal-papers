@@ -16,7 +16,10 @@ agent typically achieves episode returns above –200.
 import gymnasium as gym
 import numpy as np
 
-from .ddpg_agent import DDPGAgent
+if __package__:
+    from .ddpg_agent import DDPGAgent
+else:  # pragma: no cover - direct script execution fallback.
+    from ddpg_agent import DDPGAgent
 
 EPISODES      = 300
 MAX_STEPS     = 200   # Pendulum-v1 default horizon

@@ -5,7 +5,10 @@ import argparse
 from collections import deque
 import cv2
 
-from dqn_agent import DQNAgent
+if __package__:
+    from .dqn_agent import DQNAgent
+else:  # pragma: no cover - direct script execution fallback.
+    from dqn_agent import DQNAgent
 
 # --- Atari Preprocessing Wrappers ---
 # (These mirror the preprocessing pipeline described in Mnih et al. 2015, Methods)

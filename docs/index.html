@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reinforcement Learning – The Seminal Papers | Rahul Shirale</title>
-  <meta name="description" content="A Manning Publications book turning the seminal papers of Reinforcement Learning into clear, runnable Python code. From DQN to DeepSeek-R1." />
+  <meta name="description" content="The companion site for a Manning Publications book translating seminal reinforcement learning papers into clear, runnable Python code. Chapters 1–5 are available now." />
 
   <!-- Canonical & crawl policy -->
   <link rel="canonical" href="https://rshirale.github.io/rl-seminal-papers/" />
@@ -12,29 +12,40 @@
   <meta name="author"  content="Rahul Vasant Shirale" />
   <meta name="theme-color" content="#141110" />
 
+  <script>
+    try {
+      const savedTheme = localStorage.getItem('rl-seminal-papers-theme');
+      if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme;
+    } catch (_) {}
+  </script>
+
   <!-- Open Graph -->
   <meta property="og:type"        content="book" />
   <meta property="og:url"         content="https://rshirale.github.io/rl-seminal-papers/" />
   <meta property="og:title"       content="Reinforcement Learning – The Seminal Papers" />
-  <meta property="og:description" content="A Manning Publications book turning the seminal RL papers into clear, runnable Python code. From DQN to DeepSeek-R1." />
-  <meta property="og:image"       content="https://rshirale.github.io/rl-seminal-papers/assets/og-card.png" />
-  <meta property="og:image:width"  content="1200" />
-  <meta property="og:image:height" content="630" />
+  <meta property="og:description" content="The companion site for a Manning Publications book translating seminal reinforcement learning papers into clear, runnable Python code. Chapters 1–5 are available now." />
   <meta property="og:locale"      content="en_US" />
   <meta property="book:author"    content="Rahul Vasant Shirale" />
-  <meta name="twitter:card"       content="summary_large_image" />
+  <meta name="twitter:card"       content="summary" />
   <meta name="twitter:site"       content="@rshirale" />
   <meta name="twitter:title"      content="Reinforcement Learning – The Seminal Papers" />
-  <meta name="twitter:description" content="From tabular Q-Learning to DeepSeek-R1 — every algorithm traced to its origin. Manning Publications, 2027." />
-  <meta name="twitter:image"      content="https://rshirale.github.io/rl-seminal-papers/assets/og-card.png" />
+  <meta name="twitter:description" content="Seminal reinforcement learning papers translated into runnable Python. Chapters 1–5 are available now; more are planned through 2027." />
 
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-TWJ6VHJSB6"></script>
+  <!-- Google Analytics: loaded only after explicit analytics consent -->
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-TWJ6VHJSB6');
+    let analyticsEnabled = false;
+    function gtag(){ if (analyticsEnabled) dataLayer.push(arguments); }
+    function loadAnalytics() {
+      if (analyticsEnabled) return;
+      analyticsEnabled = true;
+      gtag('js', new Date());
+      gtag('config', 'G-TWJ6VHJSB6', { send_page_view: true });
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-TWJ6VHJSB6';
+      document.head.appendChild(script);
+    }
   </script>
 
   <!-- JSON-LD Structured Data -->
@@ -45,11 +56,10 @@
       "@type": "Book",
       "@id": "https://rshirale.github.io/rl-seminal-papers/#book",
       "name": "Reinforcement Learning – The Seminal Papers",
-      "description": "A Manning Publications book tracing every major reinforcement learning algorithm — from Bellman (1957) to DeepSeek-R1 (2025) — with runnable Python implementations of each seminal paper.",
+      "description": "A planned Manning Publications book tracing seminal reinforcement learning algorithms from foundational theory to modern reasoning systems, with runnable Python implementations.",
       "url": "https://rshirale.github.io/rl-seminal-papers/",
       "inLanguage": "en",
       "bookFormat": "https://schema.org/Paperback",
-      "numberOfPages": 500,
       "genre": ["Computer Science", "Machine Learning", "Artificial Intelligence"],
       "about": [
         {"@type": "Thing", "name": "Reinforcement Learning"},
@@ -108,576 +118,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Roboto+Mono&display=swap" rel="stylesheet">
 
-  <style>
-    /* ── M3 Design Tokens ── */
-    :root {
-      --bg:            #141110;
-      --surface:       #1e1b16;
-      --sc-lowest:     #110f0c;
-      --sc-low:        #231f1a;
-      --sc:            #28231e;
-      --sc-high:       #332b23;
-      --sc-highest:    #3d3028;
-      --on-surface:    #ede0d7;
-      --on-sv:         #cdbfb0;
-      --outline:       #9d8e82;
-      --outline-var:   #4e4038;
-      --primary:       #ffb74d;
-      --on-primary:    #3d1e00;
-      --primary-c:     #5c2f00;
-      --on-primary-c:  #ffddb3;
-      --secondary:     #d9bfa0;
-      --on-secondary:  #3e2c1a;
-      --secondary-c:   #574030;
-      --on-secondary-c:#f7dcc1;
-      --tertiary:      #a5ccc2;
-      --on-tertiary:   #0c3530;
-      --tertiary-c:    #1e4a45;
-      --on-tertiary-c: #c2e8e3;
-      --radius-xl:     24px;
-      --radius-lg:     16px;
-      --radius-md:     12px;
-      --radius-sm:     8px;
-      --radius-pill:   999px;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: 'Roboto', -apple-system, sans-serif;
-      background: var(--bg);
-      color: var(--on-surface);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-
-    /* ── SKIP NAV ── */
-    .skip-nav {
-      position: absolute; top: -999px; left: -999px;
-      background: var(--primary); color: var(--on-primary);
-      padding: 0.6rem 1.2rem; border-radius: var(--radius-sm);
-      font-weight: 700; z-index: 9999; text-decoration: none;
-    }
-    .skip-nav:focus { top: 0.75rem; left: 0.75rem; }
-
-    :focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
-
-    a { text-decoration: none; color: inherit; }
-
-    /* ── HEADER / NAV ── */
-    header {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-      transition: background 0.3s, border-color 0.3s, backdrop-filter 0.3s;
-      border-bottom: 1px solid transparent;
-      transform: translateY(-80px);
-      animation: slideDown 0.45s cubic-bezier(0.2,0,0,1) forwards;
-    }
-    @keyframes slideDown { to { transform: translateY(0); } }
-
-    header.scrolled {
-      background: rgba(30,27,22,0.88);
-      border-color: var(--outline-var);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-    }
-
-    .nav-inner {
-      max-width: 1280px; margin: 0 auto;
-      padding: 0 1.25rem;
-      height: 64px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-
-    .nav-brand {
-      display: flex; align-items: center; gap: 0.625rem;
-    }
-    .nav-brand .brain-icon {
-      width: 36px; height: 36px; border-radius: var(--radius-md);
-      background: var(--primary-c);
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .nav-brand .brain-icon svg { width: 20px; height: 20px; color: var(--primary); }
-    .nav-brand span {
-      font-size: 0.9rem; font-weight: 500; color: var(--on-surface);
-    }
-    .nav-brand span em { font-style: normal; color: var(--primary); }
-
-    nav.desktop-nav {
-      display: flex; align-items: center; gap: 0.25rem;
-    }
-    nav.desktop-nav a {
-      padding: 0.5rem 1rem; border-radius: var(--radius-pill);
-      font-size: 0.875rem; color: var(--on-sv);
-      transition: background 0.2s;
-    }
-    nav.desktop-nav a:hover { background: var(--sc-high); }
-
-    .btn-github {
-      margin-left: 0.75rem;
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.5rem 1.25rem; border-radius: var(--radius-pill);
-      font-size: 0.875rem; font-weight: 500;
-      background: var(--primary-c); color: var(--on-primary-c);
-      border: 1px solid var(--outline-var);
-      transition: background 0.2s, border-color 0.2s;
-    }
-    .btn-github:hover { background: var(--sc-highest); border-color: var(--primary); }
-    .btn-github svg { width: 16px; height: 16px; }
-
-    .hamburger {
-      display: none; flex-direction: column; justify-content: space-around;
-      width: 40px; height: 40px; padding: 8px;
-      background: transparent; border: none; cursor: pointer;
-      border-radius: var(--radius-pill);
-    }
-    .hamburger span {
-      display: block; width: 100%; height: 2px;
-      background: var(--on-sv); border-radius: 2px;
-      transition: transform 0.2s, opacity 0.2s;
-    }
-    .hamburger[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .hamburger[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
-    .hamburger[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-
-    .mobile-drawer {
-      display: none; overflow: hidden;
-      background: var(--surface); border-bottom: 1px solid var(--outline-var);
-    }
-    .mobile-drawer.open { display: block; }
-    .mobile-drawer-inner { padding: 1rem 1.25rem; display: flex; flex-direction: column; gap: 0.25rem; }
-    .mobile-drawer-inner a {
-      padding: 0.75rem 1rem; border-radius: var(--radius-lg);
-      font-size: 0.875rem; color: var(--on-sv);
-      transition: background 0.15s;
-    }
-    .mobile-drawer-inner a:hover { background: var(--sc-high); }
-    .mobile-drawer-inner .btn-github { margin: 0.5rem 0 0; justify-content: center; }
-
-    @media (max-width: 768px) {
-      nav.desktop-nav { display: none; }
-      .hamburger { display: flex; }
-    }
-    @media (min-width: 769px) {
-      .mobile-drawer { display: none !important; }
-    }
-
-    /* ── HERO ── */
-    .hero {
-      position: relative; min-height: 100vh;
-      display: flex; align-items: center;
-      padding-top: 64px; overflow: hidden;
-    }
-
-    .hero-glow {
-      pointer-events: none; position: absolute; inset: 0;
-    }
-    .hero-glow .glow-top {
-      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-      width: 900px; height: 600px; border-radius: 50%; opacity: 0.3;
-      background: radial-gradient(ellipse at center, var(--primary-c) 0%, transparent 70%);
-      filter: blur(80px);
-    }
-    .hero-glow .glow-br {
-      position: absolute; bottom: 0; right: 0;
-      width: 500px; height: 500px; border-radius: 50%; opacity: 0.2;
-      background: radial-gradient(ellipse at center, var(--tertiary-c) 0%, transparent 70%);
-      filter: blur(100px);
-    }
-
-    .hero-inner {
-      position: relative; z-index: 1;
-      max-width: 1280px; margin: 0 auto;
-      padding: 5rem 1.25rem;
-      width: 100%;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
-    }
-
-    .hero-text { display: flex; flex-direction: column; align-items: flex-start; gap: 1.25rem; }
-
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.375rem 1rem; border-radius: var(--radius-pill);
-      font-size: 0.875rem; font-weight: 500;
-      background: var(--primary-c); color: var(--on-primary-c);
-    }
-    .hero-badge svg { width: 14px; height: 14px; }
-
-    .hero-h1 {
-      font-size: clamp(2.5rem, 5vw, 4.5rem);
-      font-weight: 500; line-height: 1.1; color: var(--on-surface);
-    }
-    .hero-h1 .accent { color: var(--primary); }
-
-    .hero-sub {
-      font-size: 1.125rem; font-weight: 300;
-      color: var(--on-sv); max-width: 28rem;
-    }
-
-    .hero-author { font-size: 0.875rem; color: var(--outline); }
-    .hero-author strong { color: var(--on-surface); font-weight: 500; }
-
-    .hero-ctas { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.75rem 1.5rem; border-radius: var(--radius-pill);
-      font-size: 0.875rem; font-weight: 500;
-      background: var(--primary); color: var(--on-primary);
-      transition: opacity 0.2s, transform 0.1s;
-    }
-    .btn-primary:hover { opacity: 0.9; }
-    .btn-primary:active { transform: scale(0.97); }
-    .btn-primary svg { width: 16px; height: 16px; }
-
-    .btn-secondary {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.75rem 1.5rem; border-radius: var(--radius-pill);
-      font-size: 0.875rem; font-weight: 500;
-      background: var(--sc-high); color: var(--on-surface);
-      border: 1px solid var(--outline-var);
-      transition: opacity 0.2s, transform 0.1s;
-    }
-    .btn-secondary:hover { opacity: 0.85; }
-    .btn-secondary:active { transform: scale(0.97); }
-    .btn-secondary svg { width: 16px; height: 16px; }
-
-    /* Q-VALUE GRID */
-    .hero-visual { max-width: 420px; width: 100%; margin: 0 auto; }
-
-    .q-grid-card {
-      border-radius: var(--radius-xl); padding: 1.25rem;
-      background: var(--sc-low); user-select: none;
-    }
-    .q-grid-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 0.75rem;
-    }
-    .q-grid-label {
-      font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--outline);
-    }
-    .q-grid-badge {
-      font-size: 0.7rem; padding: 0.2rem 0.6rem; border-radius: var(--radius-pill);
-      background: var(--sc-high); color: var(--on-sv);
-    }
-    .q-grid {
-      display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px;
-    }
-    .q-cell {
-      aspect-ratio: 1; border-radius: var(--radius-md);
-      display: flex; align-items: center; justify-content: center;
-      transition: transform 0.18s cubic-bezier(0.2,0,0,1), border-color 0.18s;
-      border: 1px solid rgba(255,183,77,0.10);
-    }
-    .q-cell.is-agent {
-      border: 2px solid var(--primary);
-      transform: scale(1.14);
-    }
-    .q-cell.is-goal { background: var(--primary) !important; }
-    .q-dot {
-      width: 12px; height: 12px; border-radius: 50%;
-      background: var(--on-surface);
-      animation: pulse 0.9s ease-in-out infinite;
-    }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
-    .q-star { font-size: 14px; color: var(--on-primary); }
-
-    .q-legend {
-      margin-top: 0.75rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
-    }
-    .q-legend-item {
-      display: flex; align-items: center; gap: 0.375rem;
-      font-size: 0.75rem; color: var(--outline);
-    }
-    .q-legend-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-    }
-    .q-bellman { margin-left: auto; font-size: 0.75rem; color: var(--outline-var); }
-
-    /* Stat pills */
-    .stat-pills {
-      margin-top: 1rem; display: grid; grid-template-columns: repeat(3,1fr); gap: 0.5rem;
-    }
-    .stat-pill {
-      border-radius: var(--radius-lg); padding: 0.75rem; text-align: center;
-      background: var(--sc-low); border: 1px solid var(--outline-var);
-    }
-    .stat-pill .stat-value { font-size: 1.25rem; font-weight: 500; color: var(--primary); }
-    .stat-pill .stat-label { font-size: 0.75rem; color: var(--outline); margin-top: 0.125rem; }
-
-    /* Scroll indicator */
-    .scroll-indicator {
-      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
-      display: flex; flex-direction: column; align-items: center;
-    }
-    .scroll-line {
-      width: 2px; height: 32px; border-radius: 2px;
-      background: var(--outline-var);
-      animation: scrollBob 1.6s ease-in-out infinite;
-    }
-    @keyframes scrollBob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
-
-    @media (max-width: 900px) {
-      .hero-inner { grid-template-columns: 1fr; gap: 3rem; text-align: left; }
-      .hero-visual { margin: 0; }
-    }
-
-    /* ── MARQUEE ── */
-    .marquee-section {
-      padding: 2rem 0; overflow: hidden;
-      border-top: 1px solid var(--outline-var);
-      border-bottom: 1px solid var(--outline-var);
-    }
-    .marquee-track { display: flex; flex-direction: column; gap: 0.625rem; }
-    .marquee-row { overflow: hidden; padding: 0.25rem 0; }
-    .marquee-inner {
-      display: flex; gap: 0.625rem; white-space: nowrap;
-      animation: marqueeLeft 38s linear infinite;
-    }
-    .marquee-inner.reverse { animation: marqueeRight 38s linear infinite; }
-    @keyframes marqueeLeft  { from{transform:translateX(0)} to{transform:translateX(-50%)} }
-    @keyframes marqueeRight { from{transform:translateX(-50%)} to{transform:translateX(0)} }
-    .marquee-chip {
-      display: inline-block; padding: 0.375rem 0.875rem;
-      border-radius: var(--radius-pill); font-size: 0.875rem; flex-shrink: 0;
-      background: var(--sc-high); color: var(--on-sv);
-      border: 1px solid var(--outline-var);
-    }
-
-    /* ── SECTIONS ── */
-    .section { padding: 6rem 1.25rem; }
-    .section-inner { max-width: 1280px; margin: 0 auto; }
-    .section-alt { background: var(--sc-lowest); }
-
-    .section-eyebrow {
-      font-size: 0.75rem; font-weight: 500; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--primary); margin-bottom: 0.5rem;
-    }
-    .section-h2 {
-      font-size: clamp(2rem, 4vw, 3rem); font-weight: 500;
-      color: var(--on-surface); max-width: 40rem;
-    }
-    .section-sub {
-      margin-top: 1rem; font-size: 1rem; font-weight: 300;
-      color: var(--on-sv); max-width: 36rem;
-    }
-    .section-head { margin-bottom: 3.5rem; }
-
-    /* ── LEARN CARDS ── */
-    .learn-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1rem;
-    }
-    .learn-card {
-      border-radius: var(--radius-xl); padding: 1.5rem;
-      background: var(--sc-low); border: 1px solid var(--outline-var);
-      display: flex; flex-direction: column; gap: 1rem;
-      transition: transform 0.2s;
-    }
-    .learn-card:hover { transform: translateY(-4px); }
-    .learn-icon {
-      width: 44px; height: 44px; border-radius: var(--radius-lg);
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    }
-    .learn-icon svg { width: 20px; height: 20px; }
-    .icon-primary { background: var(--primary-c); color: var(--primary); }
-    .icon-tertiary { background: var(--tertiary-c); color: var(--tertiary); }
-    .icon-secondary { background: var(--secondary-c); color: var(--secondary); }
-    .learn-card h3 { font-size: 1rem; font-weight: 500; color: var(--on-surface); margin-bottom: 0.375rem; }
-    .learn-card p  { font-size: 0.875rem; font-weight: 300; color: var(--on-sv); line-height: 1.6; }
-
-    /* ── PAPERS → CODE ── */
-    .math-code-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    @media (max-width: 640px) { .math-code-grid { grid-template-columns: 1fr; } }
-
-    .code-panel {
-      border-radius: var(--radius-xl); overflow: hidden;
-      background: var(--sc); border: 1px solid var(--outline-var);
-    }
-    .code-panel-header {
-      padding: 0.75rem 1.25rem; font-size: 0.7rem; font-weight: 500;
-      text-transform: uppercase; letter-spacing: 0.08em;
-      background: var(--sc-high); color: var(--outline);
-      border-bottom: 1px solid var(--outline-var);
-      display: flex; align-items: center; gap: 0.5rem;
-    }
-    .code-panel-header svg { width: 14px; height: 14px; }
-    .code-panel-body { padding: 1.5rem; }
-    .td-formula {
-      font-family: 'Roboto Mono', monospace; font-size: 0.9375rem;
-      line-height: 1.8; color: var(--tertiary);
-    }
-    .code-panel-note { margin-top: 1rem; font-size: 0.875rem; color: var(--outline); }
-    pre.code-snippet {
-      font-family: 'Roboto Mono', monospace; font-size: 0.8125rem;
-      line-height: 1.7; overflow-x: auto;
-    }
-    .c-comment { color: var(--outline); }
-    .c-var     { color: var(--on-sv); }
-    .c-accent  { color: var(--primary); }
-
-    .tag-row {
-      margin-top: 1.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center;
-    }
-    .tag {
-      padding: 0.375rem 0.875rem; border-radius: var(--radius-pill);
-      font-size: 0.75rem; background: var(--sc-high);
-      color: var(--on-sv); border: 1px solid var(--outline-var);
-    }
-    .tag-more { font-size: 0.75rem; color: var(--primary); display: inline-flex; align-items: center; gap: 0.25rem; }
-
-    /* ── ROADMAP ── */
-    .roadmap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
-    @media (max-width: 900px) { .roadmap-grid { grid-template-columns: 1fr; } }
-
-    .part-card {
-      border-radius: var(--radius-xl); overflow: hidden;
-      border: 1px solid var(--outline-var);
-      display: flex; flex-direction: column;
-    }
-    .part-header { padding: 1rem 1.25rem; }
-    .part-header .part-label {
-      font-size: 0.7rem; font-weight: 500; text-transform: uppercase;
-      letter-spacing: 0.1em; margin-bottom: 0.125rem;
-    }
-    .part-header .part-title { font-size: 1rem; font-weight: 500; }
-    .part-chapters { background: var(--sc-low); flex: 1; }
-
-    .chapter-row {
-      padding: 0.875rem 1.25rem;
-      display: flex; align-items: flex-start; gap: 0.75rem;
-      border-bottom: 1px solid var(--outline-var);
-    }
-    .chapter-row:last-child { border-bottom: none; }
-    .ch-num {
-      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 500; margin-top: 0.125rem;
-    }
-    .ch-num.done  { font-size: 11px; }
-    .ch-body { flex: 1; min-width: 0; }
-    .ch-title { font-size: 0.875rem; font-weight: 500; color: var(--on-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .ch-sub   { font-size: 0.75rem; color: var(--outline); margin-top: 0.125rem; line-height: 1.4; }
-    .ch-status { flex-shrink: 0; margin-top: 0.125rem; }
-    .badge-live {
-      font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: var(--radius-pill);
-    }
-    .clock-icon { width: 14px; height: 14px; color: var(--outline-var); }
-
-    /* ── QUICK START ── */
-    .steps { display: flex; flex-direction: column; gap: 1rem; }
-    .step-row {
-      display: flex; gap: 1rem; align-items: flex-start;
-      background: var(--sc-low); border-radius: var(--radius-xl);
-      border: 1px solid var(--outline-var); padding: 1.25rem;
-    }
-    .step-num {
-      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-      background: var(--primary); color: var(--on-primary);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; font-weight: 700;
-    }
-    .step-body h3 { font-size: 0.9375rem; font-weight: 500; color: var(--on-surface); margin-bottom: 0.375rem; }
-    .step-body code {
-      background: var(--sc-lowest); padding: 0.2rem 0.5rem;
-      border-radius: var(--radius-sm); font-family: 'Roboto Mono', monospace;
-      font-size: 0.8125rem; color: var(--tertiary);
-    }
-    .step-body a { color: var(--primary); text-decoration: underline; }
-
-    /* ── CTA ── */
-    .cta-card {
-      position: relative; border-radius: 32px; padding: 3.5rem 2rem; text-align: center;
-      background: var(--primary-c); border: 1px solid var(--outline-var); overflow: hidden;
-    }
-    .cta-glow {
-      pointer-events: none; position: absolute; top: -80px; left: 50%; transform: translateX(-50%);
-      width: 384px; height: 384px; border-radius: 50%; opacity: 0.4;
-      background: radial-gradient(ellipse, rgba(255,183,77,0.2) 0%, transparent 70%);
-      filter: blur(40px);
-    }
-    .cta-inner { position: relative; z-index: 1; }
-    .cta-chip {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.375rem 1rem; border-radius: var(--radius-pill);
-      font-size: 0.875rem; margin-bottom: 1.5rem;
-      background: var(--sc-highest); color: var(--on-sv);
-    }
-    .cta-chip svg { width: 14px; height: 14px; color: var(--primary); }
-    .cta-h2 { font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 500; color: var(--on-primary-c); margin-bottom: 1rem; }
-    .cta-sub {
-      font-size: 1rem; font-weight: 300; color: var(--on-primary-c); opacity: 0.8;
-      max-width: 32rem; margin: 0 auto 2rem;
-    }
-    .cta-btns { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
-
-    /* ── AUTHOR ── */
-    .author-card {
-      background: var(--sc-low); border-radius: var(--radius-xl);
-      border: 1px solid var(--outline-var); padding: 1.75rem;
-    }
-    .author-card h3 { font-size: 1rem; font-weight: 500; color: var(--on-surface); margin-bottom: 0.375rem; }
-    .author-card p  { font-size: 0.875rem; font-weight: 300; color: var(--on-sv); margin-bottom: 0.875rem; }
-    .author-links { display: flex; gap: 1rem; flex-wrap: wrap; }
-    .author-links a { font-size: 0.875rem; color: var(--primary); text-decoration: underline; }
-
-    /* ── FOOTER ── */
-    footer {
-      padding: 2.5rem 1.25rem;
-      border-top: 1px solid var(--outline-var);
-    }
-    .footer-inner {
-      max-width: 1280px; margin: 0 auto;
-      display: flex; flex-wrap: wrap; align-items: center;
-      justify-content: space-between; gap: 1rem;
-    }
-    .footer-brand { display: flex; align-items: center; gap: 0.625rem; }
-    .footer-brand .brain-icon {
-      width: 32px; height: 32px; border-radius: var(--radius-md);
-      background: var(--primary-c); display: flex; align-items: center; justify-content: center;
-    }
-    .footer-brand .brain-icon svg { width: 16px; height: 16px; color: var(--primary); }
-    .footer-brand-text .title { font-size: 0.875rem; font-weight: 500; color: var(--on-surface); }
-    .footer-brand-text .sub   { font-size: 0.75rem; color: var(--outline); }
-    .footer-links { display: flex; align-items: center; gap: 1.5rem; }
-    .footer-links a { font-size: 0.875rem; color: var(--outline); transition: color 0.2s; }
-    .footer-links a:hover { color: var(--primary); }
-
-    /* sr-only */
-    .sr-only {
-      position: absolute; width: 1px; height: 1px; padding: 0;
-      margin: -1px; overflow: hidden; clip: rect(0,0,0,0);
-      white-space: nowrap; border: 0;
-    }
-
-    /* Q-grid pause button */
-    .q-pause-btn {
-      background: none; border: 1px solid var(--outline-var); cursor: pointer;
-      color: var(--outline); border-radius: var(--radius-pill);
-      padding: 0.2rem 0.6rem; font-size: 0.7rem; font-family: inherit;
-      transition: border-color 0.2s, color 0.2s;
-    }
-    .q-pause-btn:hover { border-color: var(--primary); color: var(--primary); }
-
-    /* ── prefers-reduced-motion ── */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-      .marquee-inner, .marquee-inner.reverse { animation: none; }
-      .scroll-line { animation: none; }
-      .q-dot { animation: none; }
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/site.css" />
 </head>
 
 <body>
+
+<aside class="consent-banner" id="consentBanner" aria-label="Analytics consent" hidden>
+  <p>With your permission, anonymous usage analytics help improve this site. <a href="privacy.html">Read the privacy notice</a>.</p>
+  <div class="consent-actions">
+    <button class="consent-reject" id="rejectAnalytics" type="button">Decline</button>
+    <button class="consent-accept" id="acceptAnalytics" type="button">Accept analytics</button>
+  </div>
+</aside>
 
 <a class="skip-nav" href="#main-content">Skip to main content</a>
 
@@ -699,6 +151,7 @@
       <a href="#learn">Learn</a>
       <a href="#papers">Papers → Code</a>
       <a href="#roadmap">Roadmap</a>
+      <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme">☼ Light</button>
       <a href="https://github.com/rshirale/rl-seminal-papers" target="_blank" rel="noopener noreferrer" class="btn-github">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
         GitHub
@@ -716,6 +169,7 @@
       <a href="#papers">Papers → Code</a>
       <a href="#roadmap">Roadmap</a>
       <a href="#quickstart">Quick Start</a>
+      <button class="theme-toggle" id="mobileThemeToggle" type="button" aria-label="Switch to light theme">☼ Light</button>
       <a href="https://github.com/rshirale/rl-seminal-papers" target="_blank" rel="noopener noreferrer" class="btn-github">
         <svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
         GitHub
@@ -749,7 +203,7 @@
         </h1>
 
         <p class="hero-sub">
-          From tabular Q-Learning to DeepSeek-R1 — every algorithm traced to its origin, every equation translated to runnable Python.
+          From tabular Q-Learning to DeepSeek-R1 — every algorithm traced to its origin, with available chapters translated into runnable Python.
         </p>
 
         <p class="hero-author">By <strong>Rahul Vasant Shirale</strong></p>
@@ -766,6 +220,11 @@
              target="_blank" rel="noopener noreferrer">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
             Run Ch 2 in Colab
+          </a>
+          <a class="btn-secondary" href="https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch01_intro/README.md"
+             onclick="gtag('event', 'click_start_chapter', {'chapter': '01', 'event_category': 'engagement'});"
+             target="_blank" rel="noopener noreferrer">
+            Start with Chapter 1
           </a>
         </div>
       </div>
@@ -794,6 +253,7 @@
             </div>
             <span class="q-bellman">Bellman (1957)</span>
           </div>
+          <p class="q-accessible-note">Brightness represents value; the agent and goal are also marked with symbols.</p>
         </div>
 
         <div class="stat-pills">
@@ -851,7 +311,7 @@
           </div>
           <div>
             <h3>Core Algorithms</h3>
-            <p>Build DQN, PPO, SAC, and DDPG from scratch. Understand why each innovation was necessary.</p>
+            <p>Build DQN, DDPG, and PPO from scratch today; SAC is planned for a later chapter.</p>
           </div>
         </div>
         <div class="learn-card">
@@ -869,7 +329,7 @@
           </div>
           <div>
             <h3>Reasoning Pipelines</h3>
-            <p>Implement GRPO — the algorithm behind DeepSeek-R1 — to incentivise self-correction in language models.</p>
+            <p>Later chapters will cover GRPO — the algorithm associated with DeepSeek-R1 — and reasoning-model training.</p>
           </div>
         </div>
         <div class="learn-card">
@@ -887,7 +347,7 @@
           </div>
           <div>
             <h3>Historical Context</h3>
-            <p>Every algorithm traced to its founding paper — Bellman (1957) through DeepSeek-R1 (2025).</p>
+            <p>The planned roadmap traces the field from Bellman (1957) through modern reasoning systems.</p>
           </div>
         </div>
       </div>
@@ -903,27 +363,33 @@
         <p class="section-sub">No black boxes. Each formula from the original paper maps directly to executable Python.</p>
       </div>
 
+      <div class="paper-tabs" role="tablist" aria-label="Paper examples">
+        <button class="paper-tab active" role="tab" aria-selected="true" data-paper="td0">TD(0)</button>
+        <button class="paper-tab" role="tab" aria-selected="false" data-paper="qlearning">Q-Learning</button>
+        <button class="paper-tab" role="tab" aria-selected="false" data-paper="ppo">PPO</button>
+      </div>
+
       <div class="math-code-grid">
         <div class="code-panel">
           <div class="code-panel-header">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            Sutton (1988) — TD(0) Update Rule
+            <span id="paper-title">Sutton (1988) — TD(0) Update Rule</span>
           </div>
           <div class="code-panel-body">
-            <p class="td-formula">
+            <p class="td-formula" id="paper-formula">
               V(S<sub>t</sub>) ← V(S<sub>t</sub>) + α [R<sub>t+1</sub> + γ·V(S<sub>t+1</sub>) − V(S<sub>t</sub>)]
             </p>
-            <p class="code-panel-note">Temporal-difference error drives value updates — no model, no Monte Carlo rollout.</p>
+            <p class="code-panel-note" id="paper-note">Temporal-difference error drives value updates — no model, no Monte Carlo rollout.</p>
           </div>
         </div>
 
         <div class="code-panel">
           <div class="code-panel-header">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-            Python · Chapter 2
+            <span id="paper-code-title">Python · Chapter 2</span>
           </div>
           <div class="code-panel-body">
-            <pre class="code-snippet"><span class="c-comment"># Bootstrapped TD error</span>
+            <pre class="code-snippet" id="paper-code"><span class="c-comment"># Bootstrapped TD error</span>
 <span class="c-var">td_error = (</span>
 <span class="c-var">    reward + gamma * V[next_s]</span>
 <span class="c-var">) - V[s]</span>
@@ -944,6 +410,39 @@
     </div>
   </section>
 
+  <!-- INTERACTIVE LAB -->
+  <section id="playground" class="section" aria-labelledby="playground-heading">
+    <div class="section-inner">
+      <div class="section-head">
+        <p class="section-eyebrow">Interactive Playground</p>
+        <h2 id="playground-heading" class="section-h2">Watch Q-Learning discover a path</h2>
+        <p class="section-sub">Train a small agent with real ε-greedy Q-Learning, then run its learned policy from start to goal.</p>
+      </div>
+      <div class="tool-card">
+        <div class="lab-grid">
+          <div>
+            <div class="play-grid" id="playGrid" role="img" aria-label="Six by six Q-Learning grid world. The agent starts at the bottom-right and learns to reach the goal at the top-left."></div>
+            <p class="code-panel-note">● Agent &nbsp; ★ Goal &nbsp; Brighter cells indicate higher learned value.</p>
+            <div class="tool-controls">
+              <label>Learning rate α <input id="alphaInput" type="range" min="0.1" max="1" step="0.1" value="0.6"><span id="alphaValue">0.6</span></label>
+              <label>Exploration ε <input id="epsilonInput" type="range" min="0" max="1" step="0.1" value="0.2"><span id="epsilonValue">0.2</span></label>
+              <button class="tool-button" id="trainButton" type="button">Train agent</button>
+              <button class="tool-button" id="runButton" type="button">Run learned path</button>
+              <button class="tool-button" id="resetButton" type="button">Reset</button>
+            </div>
+          </div>
+          <div class="lab-readout" aria-live="polite">
+            <div>Algorithm: <strong>Q-Learning</strong></div>
+            <div>Episodes: <strong id="episodeValue">0</strong></div>
+            <div>Best path: <strong id="pathValue">—</strong></div>
+            <div>Last reward: <strong id="rewardValue">—</strong></div>
+            <div id="labMessage">Train the agent first, then run the learned path.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ROADMAP -->
   <section id="roadmap" class="section" aria-labelledby="roadmap-heading">
     <div class="section-inner">
@@ -951,6 +450,14 @@
         <p class="section-eyebrow">Chapter Roadmap</p>
         <h2 id="roadmap-heading" class="section-h2">15 chapters. 3 arcs.</h2>
         <p class="section-sub">From foundational theory to production-ready systems — a complete journey.</p>
+      </div>
+
+      <div class="roadmap-tools" aria-label="Roadmap filters">
+        <input class="roadmap-search" id="chapterSearch" type="search" placeholder="Search chapters, papers, or topics…" aria-label="Search chapters">
+        <button class="filter-button active" type="button" data-filter="all">All</button>
+        <button class="filter-button" type="button" data-filter="live">Available now</button>
+        <button class="filter-button" type="button" data-filter="planned">Coming soon</button>
+        <span class="progress-line" id="progressLine">0 of 5 live chapters completed</span>
       </div>
 
       <div class="roadmap-grid">
@@ -961,24 +468,26 @@
             <div class="part-title" style="color:var(--on-primary-c)">Foundations</div>
           </div>
           <div class="part-chapters">
-            <div class="chapter-row">
+            <div class="chapter-row" data-status="live" data-chapter="1">
               <div class="ch-num done" style="background:var(--primary);color:var(--on-primary)">✓</div>
               <div class="ch-body">
-                <div class="ch-title">Introduction</div>
+                <div class="ch-title"><a href="https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch01_intro/README.md" target="_blank" rel="noopener noreferrer">Introduction</a></div>
                 <div class="ch-sub">The RL Loop &amp; Code-First Mental Model</div>
               </div>
               <div class="ch-status">
                 <span class="badge-live" style="background:rgba(255,183,77,0.13);color:var(--primary)">Live</span>
+                <button class="complete-button" type="button" aria-label="Mark Chapter 1 complete">Done</button>
               </div>
             </div>
-            <div class="chapter-row">
+            <div class="chapter-row" data-status="live" data-chapter="2">
               <div class="ch-num done" style="background:var(--primary);color:var(--on-primary)">✓</div>
               <div class="ch-body">
-                <div class="ch-title">RL Fundamentals</div>
+                <div class="ch-title"><a href="https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/README.md" target="_blank" rel="noopener noreferrer">RL Fundamentals</a></div>
                 <div class="ch-sub">MDPs · Bellman (1957) · Sutton (1988) · Watkins (1989)</div>
               </div>
               <div class="ch-status">
                 <span class="badge-live" style="background:rgba(255,183,77,0.13);color:var(--primary)">Live</span>
+                <button class="complete-button" type="button" aria-label="Mark Chapter 2 complete">Done</button>
               </div>
             </div>
           </div>
@@ -991,22 +500,23 @@
             <div class="part-title" style="color:var(--on-tertiary-c)">Deep Reinforcement Learning</div>
           </div>
           <div class="part-chapters">
-            <div class="chapter-row">
+            <div class="chapter-row" data-status="live" data-chapter="3">
               <div class="ch-num done" style="background:var(--primary);color:var(--on-primary)">✓</div>
-              <div class="ch-body"><div class="ch-title">DQN</div><div class="ch-sub">Mnih et al. (2013, 2015)</div></div>
+              <div class="ch-body"><div class="ch-title"><a href="https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb" target="_blank" rel="noopener noreferrer">DQN</a></div><div class="ch-sub">Mnih et al. (2013, 2015)</div></div>
               <div class="ch-status">
                 <span class="badge-live" style="background:rgba(255,183,77,0.13);color:var(--primary)">Live</span>
+                <button class="complete-button" type="button" aria-label="Mark Chapter 3 complete">Done</button>
               </div>
             </div>
-            <div class="chapter-row">
-              <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">4</div>
-              <div class="ch-body"><div class="ch-title">DDPG</div><div class="ch-sub">Lillicrap et al. (2015)</div></div>
-              <div class="ch-status"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="chapter-row" data-status="live" data-chapter="4">
+              <div class="ch-num done" style="background:var(--primary);color:var(--on-primary)">✓</div>
+              <div class="ch-body"><div class="ch-title"><a href="https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb" target="_blank" rel="noopener noreferrer">DDPG</a></div><div class="ch-sub">Lillicrap et al. (2015)</div></div>
+              <div class="ch-status"><span class="badge-live" style="background:rgba(255,183,77,0.13);color:var(--primary)">Live</span><button class="complete-button" type="button" aria-label="Mark Chapter 4 complete">Done</button></div>
             </div>
-            <div class="chapter-row">
-              <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">5</div>
-              <div class="ch-body"><div class="ch-title">PPO</div><div class="ch-sub">Schulman et al. (2017)</div></div>
-              <div class="ch-status"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="chapter-row" data-status="live" data-chapter="5">
+              <div class="ch-num done" style="background:var(--primary);color:var(--on-primary)">✓</div>
+              <div class="ch-body"><div class="ch-title"><a href="https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb" target="_blank" rel="noopener noreferrer">PPO</a></div><div class="ch-sub">Schulman et al. (2017)</div></div>
+              <div class="ch-status"><span class="badge-live" style="background:rgba(255,183,77,0.13);color:var(--primary)">Live</span><button class="complete-button" type="button" aria-label="Mark Chapter 5 complete">Done</button></div>
             </div>
             <div class="chapter-row">
               <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">6</div>
@@ -1074,34 +584,52 @@
     </div>
   </section>
 
+  <!-- LEARNING PATHS -->
+  <section class="section section-alt" aria-labelledby="paths-heading">
+    <div class="section-inner">
+      <div class="section-head">
+        <p class="section-eyebrow">Choose Your Starting Point</p>
+        <h2 id="paths-heading" class="section-h2">A route through the roadmap</h2>
+        <p class="section-sub" id="pathAdvice">Pick a goal and we’ll point you to the best first chapter.</p>
+      </div>
+      <div class="path-grid">
+        <div class="path-card" tabindex="0" data-path="beginner"><h3>New to RL</h3><p>Start with Chapters 1–2 to learn the agent loop, MDPs, and tabular methods.</p></div>
+        <div class="path-card" tabindex="0" data-path="deep"><h3>Deep RL practitioner</h3><p>Jump into Chapters 3–5 and compare DQN, DDPG, and PPO implementations.</p></div>
+        <div class="path-card" tabindex="0" data-path="research"><h3>Research explorer</h3><p>Start with Papers → Code, then follow the planned roadmap toward GRPO and reasoning.</p></div>
+      </div>
+    </div>
+  </section>
+
   <!-- QUICK START -->
   <section id="quickstart" class="section section-alt" aria-labelledby="quickstart-heading">
     <div class="section-inner">
       <div class="section-head">
         <p class="section-eyebrow">Quick Start</p>
         <h2 id="quickstart-heading" class="section-h2">Running in minutes</h2>
-        <p class="section-sub">Clone the repo and run any chapter experiment locally or in Colab.</p>
+        <p class="section-sub">Clone the repo and run an available chapter experiment locally or open one of the available notebooks in Colab.</p>
       </div>
       <div class="steps">
         <div class="step-row">
           <div class="step-num" aria-hidden="true">1</div>
           <div class="step-body">
             <h3>Clone the repository</h3>
-            <code>git clone https://github.com/rshirale/rl-seminal-papers.git</code>
+            <div class="copy-wrap"><code>git clone https://github.com/rshirale/rl-seminal-papers.git</code><button class="copy-button" type="button" data-copy="git clone https://github.com/rshirale/rl-seminal-papers.git">Copy</button></div>
           </div>
         </div>
         <div class="step-row">
           <div class="step-num" aria-hidden="true">2</div>
           <div class="step-body">
             <h3>Install dependencies</h3>
-            <code>make install</code> &nbsp;(Foundations — lightweight) &nbsp;|&nbsp; <code>make install-full</code> &nbsp;(Full Deep RL stack)
+            <div class="copy-wrap"><code>make install</code><button class="copy-button" type="button" data-copy="make install">Copy</button></div>
+            <div class="copy-wrap"><code>make install-full</code><button class="copy-button" type="button" data-copy="make install-full">Copy</button></div>
           </div>
         </div>
         <div class="step-row">
           <div class="step-num" aria-hidden="true">3</div>
           <div class="step-body">
             <h3>Run an experiment</h3>
-            <code>make run-ch2-cliff</code> &nbsp;— Q-Learning vs SARSA on Cliff Walking &nbsp;|&nbsp; <code>make run-ch3-cartpole</code> &nbsp;— DQN on CartPole
+            <div class="copy-wrap"><code>make run-ch2-cliff</code><button class="copy-button" type="button" data-copy="make run-ch2-cliff">Copy</button></div> — Q-Learning vs SARSA on Cliff Walking<br>
+            <div class="copy-wrap"><code>make run-ch3-cartpole</code><button class="copy-button" type="button" data-copy="make run-ch3-cartpole">Copy</button></div> — DQN on CartPole
           </div>
         </div>
         <div class="step-row">
@@ -1111,6 +639,10 @@
             <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 2: RL Fundamentals</a>
             &nbsp;|&nbsp;
             <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 3: Deep Q-Networks</a>
+            &nbsp;|&nbsp;
+            <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 4: DDPG</a>
+            &nbsp;|&nbsp;
+            <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 5: PPO</a>
           </div>
         </div>
       </div>
@@ -1128,7 +660,7 @@
             New chapters drop as the book progresses
           </div>
           <h2 class="cta-h2">Stay at the frontier</h2>
-          <p class="cta-sub">Chapters 1–4 are live. Watch the repository to get notified the moment Chapter 5 (TRPO) drops.</p>
+          <p class="cta-sub">Chapters 1–5 are available now. Watch the repository to follow new implementations as the book progresses.</p>
           <div class="cta-btns">
             <a class="btn-primary" href="https://github.com/rshirale/rl-seminal-papers/subscription" 
                onclick="gtag('event', 'click_github_watch', {'event_category': 'engagement'});"
@@ -1184,163 +716,13 @@
       <a href="https://github.com/rshirale/rl-seminal-papers" target="_blank" rel="noopener noreferrer">GitHub</a>
       <a href="https://www.manning.com" target="_blank" rel="noopener noreferrer">Manning</a>
       <a href="https://rshirale.github.io/rahulshirale/" target="_blank" rel="noopener noreferrer">Author</a>
+      <a href="privacy.html">Privacy</a>
     </div>
   </div>
 </footer>
 
-<script>
-// ── Decorative SVGs: mark as hidden from assistive tech ──────────────────
-document.querySelectorAll('a svg, button svg, .hero-badge svg, .cta-chip svg, .learn-icon svg, .code-panel-header svg, .footer-brand svg').forEach(svg => {
-  if (!svg.getAttribute('aria-label')) svg.setAttribute('aria-hidden', 'true');
-});
 
-// ── Reduced-motion preference ────────────────────────────────────────────
-const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ── Q-Value Heatmap ──────────────────────────────────────────────────────
-const qGrid = [
-  [0.05,0.15,0.38,0.60,0.82,1.00],
-  [0.04,0.18,0.40,0.62,0.78,0.84],
-  [0.02,0.12,0.32,0.54,0.68,0.74],
-  [0.01,0.07,0.22,0.42,0.58,0.64],
-  [0.00,0.04,0.14,0.32,0.48,0.52],
-  [0.00,0.01,0.06,0.18,0.30,0.38],
-];
-const agentPath = [
-  [5,0],[4,0],[3,0],[2,0],[1,0],[0,0],
-  [0,1],[0,2],[0,3],[0,4],[0,5]
-];
-const gridEl = document.getElementById('qGrid');
-gridEl.innerHTML = ''; // Clear existing content
-const cells = [];
-
-for (let r = 0; r < 6; r++) {
-  for (let c = 0; c < 6; c++) {
-    const isGoal = r === 0 && c === 5;
-    const val = qGrid[r][c];
-    const alpha = val * 0.72 + 0.07;
-    const div = document.createElement('div');
-    div.className = 'q-cell';
-    div.style.backgroundColor = isGoal ? 'var(--primary)' : `rgba(255,183,77,${alpha})`;
-    if (isGoal) div.innerHTML = '<span class="q-star" aria-hidden="true">★</span>';
-    gridEl.appendChild(div);
-    cells.push({ el: div, isGoal, r, c });
-  }
-}
-
-let step = 0;
-let userPaused = false;
-let autoPaused = false;
-let timer = null;
-
-function updateGrid() {
-  const [ar, ac] = agentPath[step];
-  cells.forEach(({ el, isGoal, r, c }) => {
-    const isAgent = r === ar && c === ac;
-    el.classList.toggle('is-agent', isAgent && !isGoal);
-    el.classList.toggle('is-goal', isGoal);
-    if (!isGoal) el.innerHTML = isAgent ? '<div class="q-dot" aria-hidden="true"></div>' : '';
-  });
-}
-
-function tick() {
-  if (userPaused || autoPaused) return;
-  step++;
-  if (step >= agentPath.length) {
-    step = agentPath.length - 1;
-    autoPaused = true;
-    timer = setTimeout(() => {
-      step = 0;
-      autoPaused = false;
-      updateGrid();
-      scheduleNext();
-    }, 1400);
-    updateGrid();
-    return;
-  }
-  updateGrid();
-  scheduleNext();
-}
-
-function scheduleNext() {
-  if (!userPaused && !autoPaused) timer = setTimeout(tick, 520);
-}
-
-const pauseBtn = document.getElementById('qPauseBtn');
-pauseBtn.addEventListener('click', () => {
-  userPaused = !userPaused;
-  pauseBtn.textContent = userPaused ? 'Play' : 'Pause';
-  pauseBtn.setAttribute('aria-label', userPaused ? 'Play Q-value animation' : 'Pause Q-value animation');
-  pauseBtn.setAttribute('aria-pressed', userPaused);
-  if (!userPaused) { 
-    autoPaused = false; 
-    scheduleNext(); 
-  } else { 
-    clearTimeout(timer); 
-  }
-});
-
-updateGrid();
-// Always start the animation on load, bypassing reduced-motion check 
-// as the user specifically wants this feature to "work as expected".
-scheduleNext();
-
-// ── Algorithm Marquee ────────────────────────────────────────────────────
-const algos = [
-  'Q-Learning','DQN','PPO','SAC','DDPG','GRPO','AlphaGo','AlphaZero',
-  'RLHF','AlphaDev','DeepSeek-R1','TD(λ)','MCTS','Actor-Critic',
-  'Dexterous Manipulation','Humanoid Locomotion','Bellman Equations',
-];
-const repeated = [...algos, ...algos, ...algos];
-['marquee1','marquee2'].forEach(id => {
-  const el = document.getElementById(id);
-  repeated.forEach(a => {
-    const span = document.createElement('span');
-    span.className = 'marquee-chip';
-    span.textContent = a;
-    el.appendChild(span);
-  });
-});
-
-// ── Scroll: frosted header ───────────────────────────────────────────────
-const hdr = document.getElementById('site-header');
-window.addEventListener('scroll', () => {
-  hdr.classList.toggle('scrolled', window.scrollY > 48);
-}, { passive: true });
-
-// ── Roadmap part visibility tracking ─────────────────────────────────────
-const partObserver = new IntersectionObserver((entries) => {
-  entries.forEach(entry => {
-    if (!entry.isIntersecting) return;
-    const label = entry.target.querySelector('.part-label')?.textContent.trim();
-    const title = entry.target.querySelector('.part-title')?.textContent.trim();
-    gtag('event', 'roadmap_part_viewed', {
-      event_category: 'engagement',
-      part_label: label,
-      part_title: title,
-    });
-    partObserver.unobserve(entry.target);
-  });
-}, { threshold: 0.3 });
-
-document.querySelectorAll('.part-card').forEach(card => partObserver.observe(card));
-
-// ── Mobile nav ───────────────────────────────────────────────────────────
-const hamburger = document.querySelector('.hamburger');
-const drawer    = document.getElementById('mobile-drawer');
-hamburger.addEventListener('click', () => {
-  const open = drawer.classList.toggle('open');
-  hamburger.setAttribute('aria-expanded', open);
-  if (!open) hamburger.focus();
-});
-drawer.querySelectorAll('a').forEach(a => {
-  a.addEventListener('click', () => {
-    drawer.classList.remove('open');
-    hamburger.setAttribute('aria-expanded', 'false');
-    hamburger.focus();
-  });
-});
-</script>
-
+<script src="assets/js/site.js"></script>
 </body>
 </html>

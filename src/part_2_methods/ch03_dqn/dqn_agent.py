@@ -3,8 +3,12 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 
-from .dqn_network import DQN
-from .replay_buffer import ReplayBuffer
+if __package__:
+    from .dqn_network import DQN
+    from .replay_buffer import ReplayBuffer
+else:  # pragma: no cover - direct script execution fallback.
+    from dqn_network import DQN
+    from replay_buffer import ReplayBuffer
 
 class DQNAgent:
     """
