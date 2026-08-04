@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Notice | RL – The Seminal Papers</title>
+  <meta name="description" content="Privacy notice for the Reinforcement Learning – The Seminal Papers companion site.">
+  <style>
+    :root { color-scheme: dark; --bg:#141110; --surface:#231f1a; --text:#ede0d7; --muted:#cdbfb0; --accent:#ffb74d; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.7 system-ui,-apple-system,sans-serif; }
+    main { max-width:760px; margin:0 auto; padding:4rem 1.25rem; }
+    h1 { line-height:1.15; }
+    h2 { margin-top:2rem; }
+    p, li { color:var(--muted); }
+    a { color:var(--accent); }
+    button { background:var(--accent); color:#3d1e00; border:0; border-radius:999px; padding:.65rem 1rem; cursor:pointer; font:inherit; }
+    .back { display:inline-block; margin-bottom:2rem; }
+    code { color:var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <a class="back" href="index.html">← Back to the companion site</a>
+    <h1>Privacy notice</h1>
+    <p>Last updated: 2026-08-04</p>
+
+    <h2>Analytics</h2>
+    <p>This site uses Google Analytics 4 only when you choose “Accept analytics.” It helps measure aggregate page visits and interactions such as chapter navigation, paper-example selection, playground usage, and command copies. Analytics data may be pseudonymous rather than personally identifying.</p>
+    <p>Analytics is not loaded and no analytics page view is sent when you decline. Your choice is stored locally in your browser under <code>rl-seminal-papers-analytics-consent</code>.</p>
+    <p><button id="changeConsent" type="button">Change analytics preference</button></p>
+
+    <h2>Local preferences</h2>
+    <p>The site may store completed chapter numbers locally in your browser so your progress remains available when you return. This information is not sent to the site.</p>
+
+    <h2>Third-party services</h2>
+    <p>Links to GitHub, Google Colab, Google Fonts, Google Analytics, Manning Publications, and the author’s website are third-party services with their own privacy policies. Opening those links or loading those resources may involve their own data collection.</p>
+
+    <h2>Contact</h2>
+    <p>For questions about this site, contact the project author through the <a href="https://github.com/rshirale" target="_blank" rel="noopener noreferrer">author’s GitHub profile</a>.</p>
+  </main>
+  <script>
+    document.getElementById('changeConsent').addEventListener('click', () => {
+      localStorage.removeItem('rl-seminal-papers-analytics-consent');
+      window.location.href = 'index.html';
+    });
+  </script>
+</body>
+</html>
