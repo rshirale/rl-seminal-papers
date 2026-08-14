@@ -9,7 +9,10 @@ help:
 	@echo "======================================"
 	@echo "Setup Commands:"
 	@echo "  make install             - Install Foundation stack (Chapters 1-2) - ~60MB"
-	@echo "  make install-full        - Install Full Deep RL stack (Chapter 3+) - ~1.5GB"
+	@echo "  make install-full        - Install Deep RL stack (Chapters 3-5)"
+	@echo "  make install-atari      - Install optional Atari dependencies"
+	@echo "  make install-test        - Install test dependencies"
+	@echo "  make test                - Run automated tests"
 	@echo ""
 	@echo "Chapter 1: Introduction"
 	@echo "  make run-ch1             - Run minimal Agent-Environment loop (CartPole)"
@@ -36,12 +39,22 @@ help:
 # Install Foundation dependencies (Includes base Gymnasium for Ch 1)
 install:
 	@echo "Installing Foundation dependencies (NumPy, Matplotlib, Gymnasium)..."
-	pip install -r requirements.txt
+	python -m pip install -r requirements.txt
 
 # Install everything (Foundation + Deep RL stack)
 install-full: install
-	@echo "Installing Full Deep RL stack (PyTorch, Gymnasium[all])..."
-	pip install -r requirements-deep.txt
+	@echo "Installing Deep RL stack (PyTorch, classic-control environments)..."
+	python -m pip install -r requirements-deep.txt
+
+install-atari:
+	@echo "Installing optional Atari dependencies..."
+	python -m pip install -r requirements-atari.txt
+
+install-test:
+	python -m pip install -r requirements-test.txt
+
+test:
+	python -m pytest -q
 
 # --- Chapter 1 Commands ---
 

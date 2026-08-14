@@ -1,6 +1,6 @@
 # Reinforcement Learning – The Seminal Papers
 
-> A Manning Publications book by Rahul Vasant Shirale that traces every major reinforcement learning algorithm from Bellman (1957) to DeepSeek-R1 (2025), translating each seminal paper's mathematics into runnable Python code.
+> A Manning Publications book by Rahul Vasant Shirale translating seminal reinforcement learning papers into runnable Python code. Chapters 1–5 are available now; later chapters are planned through 2027.
 
 ## About the Book
 
@@ -19,13 +19,13 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 2: RL Fundamentals — MDPs, Bellman (1957), Sutton (1988), Watkins (1989)
 
 **Part II — Deep Reinforcement Learning**
-- Chapter 3: DQN — Mnih et al. (2013, 2015)
-- Chapter 4: DDPG — Lillicrap et al. (2015)
-- Chapter 5: PPO — Schulman et al. (2017)
-- Chapter 6: SAC — Haarnoja et al. (2018)
-- Chapter 7: GRPO — DeepSeek-R1 (2025)
+- Chapter 3: DQN — Mnih et al. (2013, 2015) (available now)
+- Chapter 4: DDPG — Lillicrap et al. (2015) (available now)
+- Chapter 5: PPO — Schulman et al. (2017) (available now)
+- Chapter 6: SAC — Haarnoja et al. (2018) (planned)
+- Chapter 7: GRPO — DeepSeek-R1 (2025) (planned)
 
-**Part III — Real-World Applications**
+**Part III — Real-World Applications** (planned)
 - Chapter 8: AlphaGo — Silver et al. (2016)
 - Chapter 9: AlphaZero — Silver et al. (2017)
 - Chapter 10: RLHF — Christiano et al. (2017)
@@ -39,6 +39,11 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 
 - Chapter 2 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb
 - Chapter 2 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb
+- Chapter 1 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch01_intro/README.md
+- Chapter 1 agent loop: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch01_intro/agent_loop_test.py
+- Chapter 2 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/README.md
+- Chapter 2 algorithms: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/algorithms.py
+- Chapter 2 environments: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/environments.py
 - Chapter 3 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb
 - Chapter 3 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb
 - Chapter 3 DQN network (CNN + SimpleDQN MLP): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/dqn_network.py
@@ -46,6 +51,12 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 3 DQN agent: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/dqn_agent.py
 - Chapter 3 CartPole training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/train_cartpole.py
 - Chapter 3 Atari training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/train_atari.py
+- Chapter 4 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb
+- Chapter 4 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb
+- Chapter 4 implementation: https://github.com/rshirale/rl-seminal-papers/tree/main/src/part_2_methods/ch04_ddpg
+- Chapter 5 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb
+- Chapter 5 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb
+- Chapter 5 implementation: https://github.com/rshirale/rl-seminal-papers/tree/main/src/part_2_methods/ch05_ppo
 
 ## Author
 

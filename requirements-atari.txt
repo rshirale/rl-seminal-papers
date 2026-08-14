@@ -1,0 +1,5 @@
+# Optional dependencies for the Chapter 3 Atari training script.
+# This is intentionally separate from requirements-deep.txt because Atari
+# packages require additional native libraries on some operating systems.
+gymnasium[atari]>=0.29.1,<1.1
+opencv-python>=4.5.0

@@ -1,27 +1,75 @@
 # Reinforcement Learning – The Seminal Papers
 **Author: Rahul Vasant Shirale**
 
-This is the official companion repository for the book **Reinforcement Learning – The Seminal Papers** (Manning Publications). This project acts as a functional bridge between academic research and production-ready implementation, turning influential papers into clear, runnable Python code.
+This is the official companion repository for the book **Reinforcement Learning – The Seminal Papers** (Manning Publications). Chapters 1–5 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
+
+## 🌐 Companion Website
+
+Explore the interactive companion site, browser-based Q-Learning playground,
+paper-to-code examples, roadmap, theme controls, and available Colab notebooks:
+
+https://rshirale.github.io/rl-seminal-papers/
+
+The site’s privacy notice is available at [docs/privacy.html](docs/privacy.html).
 
 ## 🚀 The Mission: "Papers-to-Code"
-Academic papers are the blueprints of the AI revolution, but they are often written in a dialect of "Greek-symbol math" that can feel inaccessible to practitioners. This repository treats every seminal paper—from the birth of DQN to the reasoning leaps of DeepSeek-R1—as a **technical specification**. We refactor that math into modular Python so you don't just use these algorithms—you know them.
+Academic papers are the blueprints of the AI revolution, but they are often written in a dialect of "Greek-symbol math" that can feel inaccessible to practitioners. This repository treats each implemented paper as a **technical specification**, translating its mathematics into modular Python so you don't just use these algorithms—you know them.
 
 ## ⚡ Quick Start
 This repository includes a **Makefile** to simplify environment setup and running experiments.
+
+### Prerequisites
+
+- Python **3.10–3.13** is recommended.
+- A virtual environment is strongly recommended.
+- Chapters 3–5 require PyTorch. PyTorch availability depends on your operating system, CPU architecture, and Python version.
+
+Create and activate a virtual environment before installing dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate          # macOS/Linux
+# .venv\Scripts\activate            # Windows PowerShell
+python -m pip install --upgrade pip
+```
 
 ### 1. Setup
 Choose your installation depth based on which part of the book you are reading:
 
 **Option A: Foundations (Chapters 1 & 2)**
-Lightweight setup (~50MB). Only installs NumPy, Matplotlib, and Pandas.
+Lightweight setup. Installs NumPy, Matplotlib, Pandas, Gymnasium, and Jupyter.
 ```bash
 make install
 ```
 
-**Option B: Full Stack (Chapters 3–14)**
-Complete Deep RL setup (~1.5GB). Installs PyTorch, Gymnasium (Atari/MuJoCo), and foundations.
+**Option B: Deep RL (Chapters 3–5 currently available)**
+Installs PyTorch, classic-control environments, OpenCV, and the foundation dependencies.
 ```bash
 make install-full
+```
+
+The Atari training script is optional and has additional native dependencies.
+Install it separately only if you plan to run Atari experiments:
+
+```bash
+make install-atari
+```
+
+Atari installation may require platform-specific tools such as SDL2 and a C++
+toolchain. The CartPole and Pendulum chapters do not require Atari.
+
+If PyTorch reports `No matching distribution found`, check `python --version`,
+`python -m pip --version`, and `uname -m` on macOS/Linux. This usually means
+that the active Python version or platform has no compatible PyTorch wheel, or
+that pip is using a package mirror that does not provide PyTorch. Use the
+[official PyTorch installation selector](https://pytorch.org/get-started/locally/)
+for a platform-specific install command, then run `make install-full` again.
+
+**Option C: Tests**
+Install pytest and run the automated checks:
+```bash
+make install-test
+make test
 ```
 
 ### 2. Run Experiments
@@ -41,6 +89,9 @@ make run-ch3-cartpole
 
 # Chapter 4: DDPG on Pendulum-v1 (~10 min on CPU)
 make run-ch4-pendulum
+
+# Chapter 5: PPO on Pendulum-v1
+python -m src.part_2_methods.ch05_ppo.train_pendulum --episodes 10
 ```
 
 ### 3. Cleanup
@@ -67,13 +118,17 @@ The repository follows the book’s three-part journey from mathematical foundat
 | **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy RL with Entropy Regularization* (2018) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb) |
 | **Ch 7** | **GRPO** | RL for reasoning models (DeepSeek-related work) | 🚧 Coming Soon |
 
-### Part III: Real-World Applications
+### Part III: Real-World Applications (planned)
 | Chapter | Application | Key Implementation | Status |
 | :--- | :--- | :--- | :--- |
 | **Ch 8** | **AlphaGo** | Deep Learning + Monte Carlo Tree Search | 🚧 Coming Soon |
+| **Ch 9** | **AlphaZero** | Self-play with Monte Carlo Tree Search | 🚧 Coming Soon |
 | **Ch 10** | **RLHF** | Alignment via Human Feedback (2017) | 🚧 Coming Soon |
-| **Ch 11** | **Robotics** | Dexterous Manipulation and Sim-to-Real transfer | 🚧 Coming Soon |
+| **Ch 11** | **Dexterous Manipulation** | Robotics and Sim-to-Real transfer | 🚧 Coming Soon |
+| **Ch 12** | **AlphaDev** | Reinforcement learning for algorithm discovery | 🚧 Coming Soon |
+| **Ch 13** | **Humanoid Locomotion** | Learning-based control and transfer | 🚧 Coming Soon |
 | **Ch 14** | **DeepSeek-R1** | RL-only pipelines for Incentivizing Reasoning | 🚧 Coming Soon |
+| **Ch 15** | **Conclusion** | Building Your Own Experiments | 🚧 Coming Soon |
 
 ## 🌟 The Mathematical North Star: From Paper to Code
 What makes this repository unique is the direct, line-by-line mapping from academic math to Python. We don't just implement the "vibe" of a paper—we implement the **math**.
@@ -101,6 +156,17 @@ To run these experiments, you should be comfortable with:
 ## 🎯 Key Takeaways
 Upon finishing this book and exploring this code, you will be equipped to:
 * **Translate Research to Code**: Convert mathematical objectives from papers into functional Python.
-* **Master Core Engines**: Write foundational Deep RL algorithms (DQN, PPO, SAC) from scratch.
-* **Build Reasoning Pipelines**: Implement GRPO to incentivize self-correction in models.
+* **Master Core Engines**: Write foundational Deep RL algorithms (DQN, DDPG, and PPO) from scratch, with SAC planned for a later chapter.
+* **Build Reasoning Pipelines**: Understand planned GRPO implementations for incentivizing self-correction in models.
 * **Navigate Sim-to-Real**: Prepare agents for deployment on physical humanoid hardware.
+
+## 🧪 Verification
+
+The automated tests cover the Chapter 2 environments and algorithms plus PPO
+policy/action and rollout-update smoke tests. PPO tests are skipped when
+PyTorch is not installed, allowing the foundation tests to run with the
+lightweight setup:
+
+```bash
+make test
+```
