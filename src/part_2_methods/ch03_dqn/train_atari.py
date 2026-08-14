@@ -125,12 +125,15 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
     print(f"Training on device: {device}")
     
+    warmup_steps = 1000 # Wait before learning starts
+    
     agent = DQNAgent(
         input_channels=input_channels, 
         num_actions=num_actions, 
         device=device,
         buffer_capacity=100000, # Scaled down for local testing (Paper used 1M)
-        batch_size=32
+        batch_size=32,
+        warmup_steps=warmup_steps
     )
 
     # 3. Epsilon Annealing Schedule
@@ -151,11 +154,14 @@ def main():
         done = False
 
         while not done:
-            # Calculate current epsilon
-            epsilon = epsilon_final + (epsilon_start - epsilon_final) * \
-                      np.exp(-1. * frame_idx / epsilon_decay_frames)
+            # Calculate current epsilon (wait for warmup to finish before decaying)
+            if frame_idx < warmup_steps:
+                epsilon = epsilon_start
+            else:
+                epsilon = epsilon_final + (epsilon_start - epsilon_final) * \
+                          np.exp(-1. * (frame_idx - warmup_steps) / epsilon_decay_frames)
             
-            # Select action
+            # Select action using epsilon-greedy policy
             action = agent.select_action(state, epsilon)
             
             # Execute action

@@ -1,4 +1,4 @@
 torch>=2.0.0
-gymnasium[all]>=0.28.1
+gymnasium[atari,accept-rom-license]>=0.28.1
 opencv-python>=4.5.0
 numpy>=1.21.0,<2.0.0
