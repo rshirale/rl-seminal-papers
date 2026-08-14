@@ -117,8 +117,8 @@ def main(seed: int | None = None):
             if total_steps >= WARMUP_STEPS:
                 agent.train_step(BATCH_SIZE)
 
-            if total_steps % TARGET_UPDATE_FREQ == 0:
-                agent._update_target_network()
+                if total_steps % TARGET_UPDATE_FREQ == 0:
+                    agent._update_target_network()
 
             if done:
                 break
