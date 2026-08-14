@@ -51,6 +51,7 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 3 DQN agent: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/dqn_agent.py
 - Chapter 3 CartPole training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/train_cartpole.py
 - Chapter 3 Atari training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/train_atari.py
+- Chapter 3 Seeding helper (reproducible runs): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/seeding.py
 - Chapter 4 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb
 - Chapter 4 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb
 - Chapter 4 implementation: https://github.com/rshirale/rl-seminal-papers/tree/main/src/part_2_methods/ch04_ddpg

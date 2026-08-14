@@ -1,3 +1,4 @@
+import argparse
 import random
 
 import gymnasium as gym
@@ -8,9 +9,11 @@ import torch.optim as optim
 if __package__:
     from .dqn_network import SimpleDQN
     from .replay_buffer import ReplayBuffer
+    from .seeding import seed_env, set_seed
 else:  # pragma: no cover - direct script execution fallback.
     from dqn_network import SimpleDQN
     from replay_buffer import ReplayBuffer
+    from seeding import seed_env, set_seed
 
 BATCH_SIZE = 32
 GAMMA = 0.99
@@ -78,8 +81,14 @@ class DQNAgentCartPole:
         self.steps_done += 1
 
 
-def main():
+def main(seed: int | None = None):
     env = gym.make("CartPole-v1")
+
+    # Seed before building the agent so weight initialization is covered too.
+    if seed is not None:
+        set_seed(seed)
+        seed_env(env, seed)
+
     agent = DQNAgentCartPole(env)
     total_steps = 0
 
@@ -122,4 +131,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    # Parsed here rather than inside main() so importing this module (as the
+    # tests do) never touches sys.argv.
+    parser = argparse.ArgumentParser(description="Train DQN on CartPole-v1")
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Fix every RNG for a reproducible run. Omitted by default, which "
+             "keeps the original non-deterministic behaviour.",
+    )
+    main(seed=parser.parse_args().seed)

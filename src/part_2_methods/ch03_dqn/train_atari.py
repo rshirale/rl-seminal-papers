@@ -5,10 +5,20 @@ import argparse
 from collections import deque
 import cv2
 
+try:
+    import ale_py
+except ImportError as exc:  # pragma: no cover - optional dependency.
+    raise SystemExit(
+        "The Atari environments require ale-py, which is not installed.\n"
+        "Install the optional Atari stack with:  make install-atari"
+    ) from exc
+
 if __package__:
     from .dqn_agent import DQNAgent
+    from .seeding import seed_env, set_seed
 else:  # pragma: no cover - direct script execution fallback.
     from dqn_agent import DQNAgent
+    from seeding import seed_env, set_seed
 
 # --- Atari Preprocessing Wrappers ---
 # (These mirror the preprocessing pipeline described in Mnih et al. 2015, Methods)
@@ -101,6 +111,11 @@ class ClipRewardEnv(gym.RewardWrapper):
 
 def make_atari_env(env_id):
     """Creates the fully wrapped Atari environment."""
+    # Gymnasium 1.0 dropped ale-py's entry-point auto-registration, so the ALE
+    # environments have to be registered explicitly. Without this, gym.make()
+    # below fails with NameNotFound even when ale-py is installed correctly.
+    gym.register_envs(ale_py)
+
     # We use NoFrameskip-v4 to implement our own frame skipping and max pooling
     env = gym.make(env_id + "NoFrameskip-v4")
     env = MaxAndSkipEnv(env, skip=4)
@@ -117,12 +132,32 @@ def main():
     parser = argparse.ArgumentParser(description="Train DQN on Atari Pong")
     parser.add_argument("--env", type=str, default="Pong", help="Atari environment ID")
     parser.add_argument("--episodes", type=int, default=1000, help="Number of episodes to train")
+    parser.add_argument(
+        "--buffer-capacity",
+        type=int,
+        default=100000,
+        help="Replay buffer size in transitions. Costs ~55 KB each "
+             "(two uint8 84x84x4 stacks), so the default needs ~5.3 GB of RAM. "
+             "Lower it if you have less to spare.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Fix every RNG for a reproducible run. Omitted by default, which "
+             "keeps the original non-deterministic behaviour.",
+    )
     args = parser.parse_args()
 
     # 1. Setup Environment
     env = make_atari_env(args.env)
     num_actions = env.action_space.n
     input_channels = 4 # Due to frame stacking
+
+    # Seed before the agent is built, so weight initialization is covered too.
+    if args.seed is not None:
+        set_seed(args.seed)
+        seed_env(env, args.seed)
 
     # 2. Setup Agent
     device = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
@@ -134,7 +169,7 @@ def main():
         input_channels=input_channels, 
         num_actions=num_actions, 
         device=device,
-        buffer_capacity=100000, # Scaled down for local testing (Paper used 1M)
+        buffer_capacity=args.buffer_capacity, # Scaled down for local testing (Paper used 1M)
         batch_size=32,
         warmup_steps=warmup_steps
     )
@@ -149,10 +184,10 @@ def main():
     # 4. Training Loop (Algorithm 1)
     for episode in range(1, args.episodes + 1):
         state, _ = env.reset()
-        
-        # Normalize pixel values to [0, 1] before passing to agent
-        state = np.array(state, dtype=np.float32) / 255.0 
-        
+
+        # Frames stay as raw uint8 all the way into the replay buffer, which is
+        # what keeps it at ~5.3 GB instead of ~21 GB. The agent normalizes to
+        # [0, 1] internally, after sampling.
         episode_reward = 0
         done = False
 
@@ -170,10 +205,7 @@ def main():
             # Execute action
             next_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
-            
-            # Normalize next state
-            next_state = np.array(next_state, dtype=np.float32) / 255.0
-            
+
             # Store and learn
             agent.step(state, action, reward, next_state, done)
             
