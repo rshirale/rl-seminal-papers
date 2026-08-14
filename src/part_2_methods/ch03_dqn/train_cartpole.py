@@ -30,7 +30,10 @@ class DQNAgentCartPole:
         self.env = env
         self.num_actions = env.action_space.n
         self.gamma = gamma
-        self.memory = ReplayBuffer(capacity=100000)
+        self.memory = ReplayBuffer(
+            capacity=100000,
+            state_shape=env.observation_space.shape,
+        )
 
         input_dim = env.observation_space.shape[0]
         self.online_net = SimpleDQN(input_dim, self.num_actions).to(device)
@@ -45,7 +48,7 @@ class DQNAgentCartPole:
         if random.random() < epsilon:
             return self.env.action_space.sample()
         with torch.no_grad():
-            state_t = torch.FloatTensor(state).unsqueeze(0).to(device)
+            state_t = torch.as_tensor(state, dtype=torch.float32).unsqueeze(0).to(device)
             return self.online_net(state_t).argmax().item()
 
     def _update_target_network(self):
@@ -56,11 +59,11 @@ class DQNAgentCartPole:
             return
         states, actions, rewards, next_states, dones = self.memory.sample(batch_size)
 
-        states = torch.FloatTensor(states).to(device)
-        next_states = torch.FloatTensor(next_states).to(device)
-        actions = torch.LongTensor(actions).to(device)
-        rewards = torch.FloatTensor(rewards).to(device)
-        dones = torch.BoolTensor(dones).to(device)
+        states = torch.as_tensor(states, dtype=torch.float32).to(device)
+        next_states = torch.as_tensor(next_states, dtype=torch.float32).to(device)
+        actions = torch.as_tensor(actions, dtype=torch.long).to(device)
+        rewards = torch.as_tensor(rewards, dtype=torch.float32).to(device)
+        dones = torch.as_tensor(dones, dtype=torch.bool).to(device)
 
         current_q = self.online_net(states).gather(1, actions.unsqueeze(1))
         with torch.no_grad():
@@ -85,10 +88,13 @@ def main():
         episode_reward = 0
 
         while True:
-            epsilon = max(
-                EPSILON_END,
-                EPSILON_START - total_steps / EPSILON_DECAY
-            )
+            if total_steps < WARMUP_STEPS:
+                epsilon = EPSILON_START
+            else:
+                epsilon = max(
+                    EPSILON_END,
+                    EPSILON_START - (total_steps - WARMUP_STEPS) / EPSILON_DECAY
+                )
             action = agent.select_action(state, epsilon)
 
             next_state, reward, terminated, truncated, _ = env.step(action)

@@ -3,10 +3,10 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 
-if __package__:
+try:
     from .dqn_network import DQN
     from .replay_buffer import ReplayBuffer
-else:  # pragma: no cover - direct script execution fallback.
+except ImportError:
     from dqn_network import DQN
     from replay_buffer import ReplayBuffer
 
@@ -24,13 +24,15 @@ class DQNAgent:
         gamma: float = 0.99,
         buffer_capacity: int = 1000000,
         batch_size: int = 32,
-        target_update_freq: int = 10000
+        target_update_freq: int = 10000,
+        warmup_steps: int = 1000
     ):
         self.num_actions = num_actions
         self.device = device
         self.gamma = gamma
         self.batch_size = batch_size
         self.target_update_freq = target_update_freq
+        self.warmup_steps = warmup_steps
         
         # Step counter to trigger target network updates
         self.steps_done = 0
@@ -46,8 +48,14 @@ class DQNAgent:
         # The 2015 paper used RMSprop. (Adam is also common today, but we stick to the original)
         self.optimizer = optim.RMSprop(self.online_net.parameters(), lr=learning_rate, momentum=0.95, eps=0.01)
         
-        # Initialize Replay Memory D
-        self.memory = ReplayBuffer(capacity=buffer_capacity)
+        # Initialize Replay Memory D. Frames are stacks of input_channels x 84 x 84.
+        # Stored as float32 here (the Atari loop normalizes before pushing). For the
+        # full 1M-frame buffer, store state_dtype=np.uint8 (~6.6 GB vs ~26 GB) and
+        # move the /255 normalization into _learn after sampling.
+        self.memory = ReplayBuffer(
+            capacity=buffer_capacity,
+            state_shape=(input_channels, 84, 84),
+        )
         
         # Huber Loss (Smooth L1 Loss)
         self.criterion = nn.SmoothL1Loss()
@@ -63,7 +71,7 @@ class DQNAgent:
         # Exploit: select the action with max Q-value from the online network
         self.online_net.eval()
         with torch.no_grad():
-            state_tensor = torch.FloatTensor(state).unsqueeze(0).to(self.device)
+            state_tensor = torch.as_tensor(state, dtype=torch.float32).unsqueeze(0).to(self.device)
             q_values = self.online_net(state_tensor)
             action = q_values.argmax(dim=1).item()
         self.online_net.train()
@@ -78,13 +86,13 @@ class DQNAgent:
         self.memory.push(state, action, reward, next_state, done)
         self.steps_done += 1
         
-        # We only learn if the buffer has enough samples
-        if len(self.memory) > self.batch_size: # In practice, wait for 50k 'warm up' steps
+        # We only learn if the buffer has enough samples and warmup is complete
+        if self.steps_done >= self.warmup_steps:
             self._learn()
             
-        # Every C steps reset Q^ = Q (Update target network)
-        if self.steps_done % self.target_update_freq == 0:
-            self._update_target_network()
+            # Every C steps reset Q^ = Q (Update target network)
+            if self.steps_done % self.target_update_freq == 0:
+                self._update_target_network()
 
     def _learn(self):
         """
@@ -93,12 +101,12 @@ class DQNAgent:
         # Sample random minibatch of transitions from D
         states, actions, rewards, next_states, dones = self.memory.sample(self.batch_size)
         
-        # Convert to PyTorch tensors
-        states = torch.FloatTensor(states).to(self.device)
-        actions = torch.LongTensor(actions).unsqueeze(1).to(self.device)
-        rewards = torch.FloatTensor(rewards).unsqueeze(1).to(self.device)
-        next_states = torch.FloatTensor(next_states).to(self.device)
-        dones = torch.BoolTensor(dones).unsqueeze(1).to(self.device)
+        # Convert to PyTorch tensors using as_tensor
+        states = torch.as_tensor(states, dtype=torch.float32).to(self.device)
+        actions = torch.as_tensor(actions, dtype=torch.long).unsqueeze(1).to(self.device)
+        rewards = torch.as_tensor(rewards, dtype=torch.float32).unsqueeze(1).to(self.device)
+        next_states = torch.as_tensor(next_states, dtype=torch.float32).to(self.device)
+        dones = torch.as_tensor(dones, dtype=torch.bool).unsqueeze(1).to(self.device)
 
         # Compute current Q values: Q(s_j, a_j; theta)
         # .gather() picks the Q-value corresponding to the action that was actually taken

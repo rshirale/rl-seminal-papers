@@ -115,7 +115,7 @@ The repository follows the book’s three-part journey from mathematical foundat
 | **Ch 3** | **DQN** | *Playing Atari with Deep Reinforcement Learning* (2013) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb) |
 | **Ch 4** | **DDPG** | *Continuous control with deep reinforcement learning* (2015) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb) |
 | **Ch 5** | **PPO** | *Proximal Policy Optimization Algorithms* (2017) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb) |
-| **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy RL with Entropy Regularization* (2018) | 🚧 Coming Soon |
+| **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy RL with Entropy Regularization* (2018) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb) |
 | **Ch 7** | **GRPO** | RL for reasoning models (DeepSeek-related work) | 🚧 Coming Soon |
 
 ### Part III: Real-World Applications (planned)
