@@ -58,10 +58,29 @@ make install-atari
 Atari installation may require platform-specific tools such as SDL2 and a C++
 toolchain. The CartPole and Pendulum chapters do not require Atari.
 
-If PyTorch reports `No matching distribution found`, check `python --version`,
-`python -m pip --version`, and `uname -m` on macOS/Linux. This usually means
-that the active Python version or platform has no compatible PyTorch wheel, or
-that pip is using a package mirror that does not provide PyTorch. Use the
+If anything fails to install or a chapter script will not start, run:
+
+```bash
+make doctor
+```
+
+It reports which interpreter is actually active, your platform and CPU
+architecture, the status of every dependency, and any known-bad combination
+(for example: Intel macOS has no PyTorch wheels past 2.2.x, so it is capped at
+Python 3.12). Most "it doesn't run for me" reports come down to the wrong
+virtual environment being active, which the first two lines of output make
+obvious.
+
+Every target takes a `PYTHON` override, so you can install into or run from a
+specific interpreter without activating it first:
+
+```bash
+make install-full PYTHON=/path/to/.venv/bin/python
+```
+
+If PyTorch still reports `No matching distribution found`, the active Python
+version or platform has no compatible wheel, or pip is using a mirror that does
+not provide PyTorch. Use the
 [official PyTorch installation selector](https://pytorch.org/get-started/locally/)
 for a platform-specific install command, then run `make install-full` again.
 
@@ -69,7 +88,8 @@ for a platform-specific install command, then run `make install-full` again.
 Install pytest and run the automated checks:
 ```bash
 make install-test
-make test
+make test        # fast suite
+make test-all    # also executes the chapter notebooks top to bottom
 ```
 
 ### 2. Run Experiments
@@ -84,8 +104,11 @@ make run-ch2-gridworld
 # Chapter 2: Cliff Walking Benchmark (Q-Learning vs SARSA)
 make run-ch2-cliff
 
-# Chapter 3: DQN on CartPole-v1 (~2 min on CPU)
+# Chapter 3: DQN on CartPole-v1 (~3 min on CPU)
 make run-ch3-cartpole
+
+# Chapter 3: DQN on Atari Pong (needs `make install-atari`; hours on CPU)
+make run-ch3-atari
 
 # Chapter 4: DDPG on Pendulum-v1 (~10 min on CPU)
 make run-ch4-pendulum

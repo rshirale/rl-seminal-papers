@@ -1,6 +1,8 @@
 numpy>=1.21.0
 matplotlib>=3.4.0
 pandas>=1.3.0
-gymnasium[classic-control]>=0.28.1
+# Keep this bound identical to requirements-deep.txt and requirements-atari.txt
+# so installing them in sequence never downgrades gymnasium.
+gymnasium[classic-control]>=1.0,<2.0
 ipykernel
 jupyter

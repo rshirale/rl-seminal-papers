@@ -1,7 +1,22 @@
 # Makefile for "RL: The Seminal Papers"
 # ==========================================
 
-.PHONY: help install install-full clean run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole run-ch4-pendulum run-ch6-pendulum notebook
+.PHONY: help install install-full install-atari install-test test test-all doctor clean \
+        run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole run-ch3-atari \
+        run-ch4-pendulum run-ch6-pendulum notebook
+
+# Interpreter used by every target. Defaults to python3 because a bare `python`
+# does not exist on most Linux distributions or on macOS 12.3+. Override it to
+# target a specific virtualenv without activating it first:
+#
+#   make run-ch3-cartpole PYTHON=.venv/bin/python
+#
+PYTHON ?= python3
+
+# Some targets cd into a chapter directory, which would break a relative
+# interpreter path like .venv/bin/python. Absolutise anything that looks like a
+# path; leave bare command names alone so they still resolve via PATH.
+PYTHON_ABS := $(if $(findstring /,$(PYTHON)),$(abspath $(PYTHON)),$(PYTHON))
 
 # Default command: show help
 help:
@@ -10,9 +25,11 @@ help:
 	@echo "Setup Commands:"
 	@echo "  make install             - Install Foundation stack (Chapters 1-2) - ~60MB"
 	@echo "  make install-full        - Install Deep RL stack (Chapters 3-5)"
-	@echo "  make install-atari      - Install optional Atari dependencies"
+	@echo "  make install-atari       - Install optional Atari dependencies"
 	@echo "  make install-test        - Install test dependencies"
-	@echo "  make test                - Run automated tests"
+	@echo "  make test                - Run fast tests (skips notebook execution)"
+	@echo "  make test-all            - Run all tests, including notebook execution"
+	@echo "  make doctor              - Report interpreter, platform, and package status"
 	@echo ""
 	@echo "Chapter 1: Introduction"
 	@echo "  make run-ch1             - Run minimal Agent-Environment loop (CartPole)"
@@ -23,6 +40,7 @@ help:
 	@echo ""
 	@echo "Chapter 3: DQN"
 	@echo "  make run-ch3-cartpole    - Train DQN on CartPole-v1 (~2 min on CPU)"
+	@echo "  make run-ch3-atari       - Train DQN on Atari Pong (needs make install-atari)"
 	@echo ""
 	@echo "Chapter 4: DDPG"
 	@echo "  make run-ch4-pendulum    - Train DDPG on Pendulum-v1 (~10 min on CPU)"
@@ -39,22 +57,32 @@ help:
 # Install Foundation dependencies (Includes base Gymnasium for Ch 1)
 install:
 	@echo "Installing Foundation dependencies (NumPy, Matplotlib, Gymnasium)..."
-	python -m pip install -r requirements.txt
+	$(PYTHON_ABS) -m pip install -r requirements.txt
 
 # Install everything (Foundation + Deep RL stack)
 install-full: install
 	@echo "Installing Deep RL stack (PyTorch, classic-control environments)..."
-	python -m pip install -r requirements-deep.txt
+	$(PYTHON_ABS) -m pip install -r requirements-deep.txt
 
 install-atari:
 	@echo "Installing optional Atari dependencies..."
-	python -m pip install -r requirements-atari.txt
+	$(PYTHON_ABS) -m pip install -r requirements-atari.txt
 
 install-test:
-	python -m pip install -r requirements-test.txt
+	$(PYTHON_ABS) -m pip install -r requirements-test.txt
 
+# Fast suite: skips notebook execution and other end-to-end runs.
 test:
-	python -m pytest -q
+	$(PYTHON_ABS) -m pytest -q -m "not slow"
+
+# Everything, including executing the chapter notebooks top to bottom.
+test-all:
+	$(PYTHON_ABS) -m pytest -q
+
+# Reports which interpreter and platform are actually in use, plus the status
+# of every dependency. Start here when a chapter script does not run.
+doctor:
+	@$(PYTHON_ABS) tools/doctor.py
 
 # --- Chapter 1 Commands ---
 
@@ -62,7 +90,7 @@ CH1_DIR = src/part_1_foundations/ch01_intro
 
 run-ch1:
 	@echo "Running Chapter 1: Agent-Environment Loop..."
-	@cd $(CH1_DIR) && python agent_loop_test.py
+	@cd $(CH1_DIR) && $(PYTHON_ABS) agent_loop_test.py
 
 # --- Chapter 2 Commands ---
 
@@ -70,11 +98,11 @@ CH2_DIR = src/part_1_foundations/ch02_fundamentals
 
 run-ch2-gridworld:
 	@echo "Running Chapter 2: Grid World TD(0) Experiment..."
-	@cd $(CH2_DIR) && python run_td0_gridworld.py
+	@cd $(CH2_DIR) && $(PYTHON_ABS) run_td0_gridworld.py
 
 run-ch2-cliff:
 	@echo "Running Chapter 2: Cliff Walking Benchmark..."
-	@cd $(CH2_DIR) && python run_cliff_benchmark.py
+	@cd $(CH2_DIR) && $(PYTHON_ABS) run_cliff_benchmark.py
 
 # --- Chapter 3 Commands ---
 
@@ -82,7 +110,12 @@ CH3_DIR = src/part_2_methods/ch03_dqn
 
 run-ch3-cartpole:
 	@echo "Running Chapter 3: DQN on CartPole-v1..."
-	@cd $(CH3_DIR) && python train_cartpole.py
+	@cd $(CH3_DIR) && $(PYTHON_ABS) train_cartpole.py
+
+# Requires the optional Atari stack: make install-atari
+run-ch3-atari:
+	@echo "Running Chapter 3: DQN on Atari Pong..."
+	@cd $(CH3_DIR) && $(PYTHON_ABS) train_atari.py
 
 # --- Chapter 4 Commands ---
 
@@ -90,7 +123,7 @@ CH4_DIR = src/part_2_methods/ch04_ddpg
 
 run-ch4-pendulum:
 	@echo "Running Chapter 4: DDPG on Pendulum-v1..."
-	@cd $(CH4_DIR) && python train_pendulum.py
+	@cd $(CH4_DIR) && $(PYTHON_ABS) train_pendulum.py
 
 # --- Chapter 6 Commands ---
 
@@ -98,7 +131,7 @@ CH6_DIR = src/part_2_methods/ch06_sac
 
 run-ch6-pendulum:
 	@echo "Running Chapter 6: SAC on Pendulum-v1..."
-	@cd $(CH6_DIR) && python train_pendulum.py
+	@cd $(CH6_DIR) && $(PYTHON_ABS) train_pendulum.py
 
 # --- Notebooks ---
 

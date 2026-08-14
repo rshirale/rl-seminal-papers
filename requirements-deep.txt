@@ -1,4 +1,19 @@
 torch>=2.0.0
-gymnasium[atari,accept-rom-license]>=0.28.1
+gymnasium[atari]>=1.0,<2.0
 opencv-python>=4.5.0
-numpy>=1.21.0,<2.0.0
+
+# ale-py dropped x86_64 macOS wheels after 0.11.0; see requirements-atari.txt.
+ale-py<=0.11.0; sys_platform == "darwin" and platform_machine == "x86_64"
+
+# NumPy is split by platform on purpose.
+#
+# Intel macOS (darwin/x86_64) has no PyTorch wheels past 2.2.x, and torch 2.2
+# was built against NumPy 1.x -- pairing it with NumPy 2 raises "A module that
+# was compiled using NumPy 1.x cannot be run in NumPy 2.x". So that platform
+# keeps the <2 cap.
+#
+# Everywhere else the cap has to be dropped: 1.26.x is the final 1.x release
+# and ships no wheels for CPython 3.13+, so an unconditional <2 forces a source
+# build that fails for readers on current Python.
+numpy>=1.21.0,<2.0.0; sys_platform == "darwin" and platform_machine == "x86_64"
+numpy>=1.21.0; sys_platform != "darwin" or platform_machine != "x86_64"

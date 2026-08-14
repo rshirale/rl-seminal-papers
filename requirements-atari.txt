@@ -1,5 +1,15 @@
 # Optional dependencies for the Chapter 3 Atari training script.
 # This is intentionally separate from requirements-deep.txt because Atari
 # packages require additional native libraries on some operating systems.
-gymnasium[atari]>=0.29.1,<1.1
+#
+# The gymnasium bound must match requirements.txt and requirements-deep.txt --
+# when the ranges disagree, installing one file after the other silently
+# downgrades gymnasium. >=1.0 is also what makes gym.register_envs() available,
+# which train_atari.py needs to register the ALE environments.
+gymnasium[atari]>=1.0,<2.0
 opencv-python>=4.5.0
+
+# ale-py (pulled in by the [atari] extra) dropped x86_64 macOS wheels after
+# 0.11.0. Without this cap, pip falls back to a source build that fails on
+# Intel Macs. Every other platform tracks the latest release.
+ale-py<=0.11.0; sys_platform == "darwin" and platform_machine == "x86_64"
