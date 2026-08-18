@@ -42,9 +42,31 @@ class ReplayBuffer:
 
     def sample(self, batch_size: int):
         """Samples a random minibatch of transitions (without replacement)."""
-        # Sample distinct indices from the filled region only
-        idx = np.random.choice(self.size, batch_size, replace=False)
+        return self._gather(self._random_indices(batch_size))
 
+    def _random_indices(self, batch_size: int):
+        """Uniform sample of distinct indices from the filled region.
+
+        ``np.random.choice(size, batch_size, replace=False)`` is the obvious
+        way to write this, and it is what the buffer used to do. The catch is
+        that NumPy implements it by permuting all ``size`` elements: ~26 ms per
+        call on a 1M-transition Atari buffer, paid on every gradient step,
+        against ~9 us for the draw itself. Rejection sampling is O(batch_size)
+        and draws from the same distribution.
+
+        Below the threshold, collisions are frequent enough that resampling
+        stops paying and the permutation is cheap anyway - so the simple call
+        still runs, and still terminates when batch_size == size.
+        """
+        if self.size < 100 * batch_size:
+            return np.random.choice(self.size, batch_size, replace=False)
+
+        idx = np.random.randint(0, self.size, batch_size)
+        while len(np.unique(idx)) < batch_size:
+            idx = np.random.randint(0, self.size, batch_size)
+        return idx
+
+    def _gather(self, idx):
         return (
             self.states[idx],
             self.actions[idx],

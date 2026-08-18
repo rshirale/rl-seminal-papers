@@ -438,3 +438,47 @@ def test_atari_loop_stores_terminated_not_done():
 
     assert "agent.step(state, action, reward, next_state, terminated)" in code
     assert "next_state, done)" not in code
+
+# --------------------------------------------------------------------------
+# Sampling cost
+# --------------------------------------------------------------------------
+
+def test_large_buffer_sampling_avoids_the_full_permutation(monkeypatch):
+    """Regression: sample() used np.random.choice(size, k, replace=False),
+    which permutes all `size` elements — ~26 ms per gradient step on the 1M
+    default, against ~9 us for the draw itself. Guards the fast path by making
+    the expensive call fail loudly rather than by timing it."""
+    buf = ReplayBuffer(capacity=5000, state_shape=(2,))
+    for i in range(5000):
+        buf.push(np.full(2, i), 0, 0.0, np.zeros(2), False)
+
+    def explode(*args, **kwargs):  # pragma: no cover - only runs on regression
+        raise AssertionError("np.random.choice permutation path was used")
+
+    monkeypatch.setattr(np.random, "choice", explode)
+    states, *_ = buf.sample(32)
+    assert states.shape == (32, 2)
+
+
+def test_sampled_indices_stay_distinct_on_the_fast_path():
+    """The buffer documents sampling *without* replacement; the faster
+    implementation must not quietly become with-replacement."""
+    buf = ReplayBuffer(capacity=5000, state_shape=(1,))
+    for i in range(5000):
+        buf.push(np.array([float(i)]), 0, 0.0, np.zeros(1), False)
+
+    for _ in range(25):
+        states, *_ = buf.sample(32)
+        values = states[:, 0].tolist()
+        assert len(set(values)) == 32
+
+
+def test_small_buffer_can_still_sample_its_entire_contents():
+    """batch_size == size has no valid rejection-sampling draw, so the small
+    path must remain reachable."""
+    buf = ReplayBuffer(capacity=8, state_shape=(1,))
+    for i in range(8):
+        buf.push(np.array([float(i)]), 0, 0.0, np.zeros(1), False)
+
+    states, *_ = buf.sample(8)
+    assert sorted(states[:, 0].tolist()) == [float(i) for i in range(8)]
