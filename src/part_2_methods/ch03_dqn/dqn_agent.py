@@ -45,8 +45,18 @@ class DQNAgent:
         self.target_net.load_state_dict(self.online_net.state_dict())
         self.target_net.eval()
 
-        # The 2015 paper used RMSprop. (Adam is also common today, but we stick to the original)
-        self.optimizer = optim.RMSprop(self.online_net.parameters(), lr=learning_rate, momentum=0.95, eps=0.01)
+        # The 2015 paper used RMSprop. (Adam is also common today, but we stick
+        # to the original.) Extended Data Table 1 of Mnih et al. lists gradient
+        # momentum 0.95 *and* squared gradient momentum 0.95 -- in PyTorch those
+        # are `momentum` and `alpha`, two separate knobs, so both are set here.
+        # `eps` is the paper's min squared gradient.
+        self.optimizer = optim.RMSprop(
+            self.online_net.parameters(),
+            lr=learning_rate,
+            alpha=0.95,
+            momentum=0.95,
+            eps=0.01,
+        )
         
         # Initialize Replay Memory D. Frames are stacks of input_channels x 84 x 84.
         #
