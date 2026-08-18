@@ -44,6 +44,18 @@ class ReplayBuffer:
         """Samples a random minibatch of transitions (without replacement)."""
         return self._gather(self._random_indices(batch_size))
 
+    def sample_recent(self, batch_size: int):
+        """The most recent ``batch_size`` transitions, oldest first.
+
+        Only the no-replay ablation uses this. It feeds the network the
+        consecutive, highly correlated transitions that experience replay
+        exists to break up, which is what makes the ablation a fair test: the
+        batch size is unchanged, only *which* transitions are in it.
+        """
+        n = min(batch_size, self.size)
+        idx = (self.position - np.arange(n, 0, -1)) % self.capacity
+        return self._gather(idx)
+
     def _random_indices(self, batch_size: int):
         """Uniform sample of distinct indices from the filled region.
 

@@ -439,8 +439,9 @@ def test_atari_loop_stores_terminated_not_done():
     assert "agent.step(state, action, reward, next_state, terminated)" in code
     assert "next_state, done)" not in code
 
+
 # --------------------------------------------------------------------------
-# Sampling cost
+# Sampling cost and the ablation switches
 # --------------------------------------------------------------------------
 
 def test_large_buffer_sampling_avoids_the_full_permutation(monkeypatch):
@@ -482,3 +483,125 @@ def test_small_buffer_can_still_sample_its_entire_contents():
 
     states, *_ = buf.sample(8)
     assert sorted(states[:, 0].tolist()) == [float(i) for i in range(8)]
+
+
+def test_sample_recent_returns_the_newest_transitions_in_order():
+    buf = ReplayBuffer(capacity=10, state_shape=(1,))
+    for i in range(10):
+        buf.push(np.array([float(i)]), 0, 0.0, np.zeros(1), False)
+
+    states, *_ = buf.sample_recent(3)
+    assert states[:, 0].tolist() == [7.0, 8.0, 9.0]
+
+
+def test_sample_recent_follows_the_write_head_past_a_wrap():
+    buf = ReplayBuffer(capacity=4, state_shape=(1,))
+    for i in range(6):  # wraps: slots hold 4, 5, 2, 3
+        buf.push(np.array([float(i)]), 0, 0.0, np.zeros(1), False)
+
+    states, *_ = buf.sample_recent(3)
+    assert states[:, 0].tolist() == [3.0, 4.0, 5.0]
+
+
+def cartpole_agent(**flags):
+    import gymnasium as gym
+
+    from src.part_2_methods.ch03_dqn.train_cartpole import DQNAgentCartPole
+
+    return DQNAgentCartPole(gym.make("CartPole-v1"), **flags)
+
+
+def test_ablation_switches_default_to_the_full_algorithm():
+    """Both must be opt-out, so ordinary training is untouched."""
+    agent = cartpole_agent()
+    assert agent.use_replay is True
+    assert agent.use_target_network is True
+
+
+def test_disabling_the_target_network_bootstraps_from_the_online_net():
+    """The 'no target network' ablation: the TD target must move with the
+    weights being updated, which is the instability the chapter describes."""
+    agent = cartpole_agent(use_target_network=False)
+    for _ in range(64):
+        agent.memory.push(np.zeros(4), 0, 1.0, np.zeros(4), False)
+
+    # Make the two networks disagree, then check which one was consulted.
+    with torch.no_grad():
+        for param in agent.target_net.parameters():
+            param.mul_(0).add_(50.0)
+
+    called = {}
+    original = agent.online_net.forward
+
+    def spy(x):
+        called["online"] = True
+        return original(x)
+
+    agent.online_net.forward = spy
+    agent.train_step(32)
+    assert called.get("online"), "target network was used despite the ablation"
+
+
+def test_disabling_replay_draws_the_most_recent_transitions():
+    agent = cartpole_agent(use_replay=False)
+    for i in range(64):
+        agent.memory.push(np.full(4, float(i)), 0, 1.0, np.zeros(4), False)
+
+    seen = {}
+    original = agent.memory.sample_recent
+
+    def spy(batch_size):
+        seen["recent"] = True
+        return original(batch_size)
+
+    agent.memory.sample_recent = spy
+    agent.train_step(32)
+    assert seen.get("recent"), "replay sampling was used despite the ablation"
+
+
+def test_cartpole_main_exposes_the_ablation_switches():
+    import inspect
+
+    from src.part_2_methods.ch03_dqn import train_cartpole
+
+    params = inspect.signature(train_cartpole.main).parameters
+    assert params["use_replay"].default is True
+    assert params["use_target_network"].default is True
+    assert params["episodes"].default == train_cartpole.NUM_EPISODES
+
+
+# --------------------------------------------------------------------------
+# Ablation runner
+# --------------------------------------------------------------------------
+
+def test_ablation_covers_the_four_rows_of_the_papers_table():
+    from src.part_2_methods.ch03_dqn import ablation
+
+    labels = [row[0] for row in ablation.VARIANTS]
+    assert labels == [
+        "Full DQN", "No target network", "No replay buffer", "Online Q-network",
+    ]
+    # Each row must be a distinct combination of the two switches.
+    combos = {(row[1], row[2]) for row in ablation.VARIANTS}
+    assert combos == {(True, True), (True, False), (False, True), (False, False)}
+
+
+def test_ablation_runs_every_variant_against_every_seed(monkeypatch):
+    """Cheap end-to-end check: the real sweep is minutes long, so the training
+    call is stubbed and only the orchestration is exercised."""
+    from src.part_2_methods.ch03_dqn import ablation
+
+    calls = []
+
+    def fake_train(seed, episodes, use_replay, use_target_network, verbose):
+        calls.append((seed, use_replay, use_target_network))
+        return [float(episodes)] * 60
+
+    monkeypatch.setattr(ablation, "train", fake_train)
+    lines = []
+    results = ablation.run(seeds=(1, 2), episodes=5, printer=lines.append)
+
+    assert len(calls) == 8, "4 variants x 2 seeds"
+    assert set(results) == {row[0] for row in ablation.VARIANTS}
+    assert all(len(scores) == 2 for scores in results.values())
+    assert any("spread" in line for line in lines), "spread column must be shown"

@@ -28,11 +28,20 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class DQNAgentCartPole:
-    """Lightweight DQN agent using SimpleDQN for CartPole-v1."""
-    def __init__(self, env, learning_rate=1e-4, gamma=GAMMA):
+    """Lightweight DQN agent using SimpleDQN for CartPole-v1.
+
+    ``use_replay`` and ``use_target_network`` exist to reproduce the ablation
+    in Mnih et al. (2015): switch either off and the corresponding failure mode
+    from the chapter reappears. Both default to on, so ordinary training is
+    unchanged.
+    """
+    def __init__(self, env, learning_rate=1e-4, gamma=GAMMA,
+                 use_replay=True, use_target_network=True):
         self.env = env
         self.num_actions = env.action_space.n
         self.gamma = gamma
+        self.use_replay = use_replay
+        self.use_target_network = use_target_network
         self.memory = ReplayBuffer(
             capacity=100000,
             state_shape=env.observation_space.shape,
@@ -60,7 +69,11 @@ class DQNAgentCartPole:
     def train_step(self, batch_size):
         if len(self.memory) < batch_size:
             return
-        states, actions, rewards, next_states, dones = self.memory.sample(batch_size)
+        # Without replay the agent learns from the transitions it just
+        # generated - consecutive, highly correlated, and biased toward
+        # wherever the agent currently is. That is the failure replay fixes.
+        draw = self.memory.sample if self.use_replay else self.memory.sample_recent
+        states, actions, rewards, next_states, dones = draw(batch_size)
 
         states = torch.as_tensor(states, dtype=torch.float32).to(device)
         next_states = torch.as_tensor(next_states, dtype=torch.float32).to(device)
@@ -70,7 +83,10 @@ class DQNAgentCartPole:
 
         current_q = self.online_net(states).gather(1, actions.unsqueeze(1))
         with torch.no_grad():
-            next_q = self.target_net(next_states).max(1)[0]
+            # Without a target network the TD target is computed from the same
+            # weights being updated: every step moves the goal it is chasing.
+            bootstrap = self.target_net if self.use_target_network else self.online_net
+            next_q = bootstrap(next_states).max(1)[0]
             next_q[dones] = 0.0
             targets = rewards + (self.gamma * next_q)
 
@@ -81,7 +97,14 @@ class DQNAgentCartPole:
         self.steps_done += 1
 
 
-def main(seed: int | None = None):
+def main(seed: int | None = None, episodes: int = NUM_EPISODES,
+         use_replay: bool = True, use_target_network: bool = True,
+         verbose: bool = True):
+    """Trains on CartPole-v1 and returns the per-episode rewards.
+
+    The two ablation switches are passed straight through to the agent, so the
+    four rows of the chapter's ablation table are four calls to this function.
+    """
     env = gym.make("CartPole-v1")
 
     # Seed before building the agent so weight initialization is covered too.
@@ -89,10 +112,13 @@ def main(seed: int | None = None):
         set_seed(seed)
         seed_env(env, seed)
 
-    agent = DQNAgentCartPole(env)
+    agent = DQNAgentCartPole(
+        env, use_replay=use_replay, use_target_network=use_target_network
+    )
     total_steps = 0
+    rewards = []
 
-    for episode in range(NUM_EPISODES):
+    for episode in range(episodes):
         state, _ = env.reset()
         episode_reward = 0
 
@@ -117,17 +143,22 @@ def main(seed: int | None = None):
             if total_steps >= WARMUP_STEPS:
                 agent.train_step(BATCH_SIZE)
 
-                if total_steps % TARGET_UPDATE_FREQ == 0:
+                if (agent.use_target_network
+                        and total_steps % TARGET_UPDATE_FREQ == 0):
                     agent._update_target_network()
 
             if done:
                 break
 
-        print(
-            f"Episode {episode:4d} | "
-            f"Reward: {episode_reward:6.1f} | "
-            f"Eps: {epsilon:.3f}"
-        )
+        rewards.append(episode_reward)
+        if verbose:
+            print(
+                f"Episode {episode:4d} | "
+                f"Reward: {episode_reward:6.1f} | "
+                f"Eps: {epsilon:.3f}"
+            )
+
+    return rewards
 
 
 if __name__ == "__main__":
@@ -141,4 +172,25 @@ if __name__ == "__main__":
         help="Fix every RNG for a reproducible run. Omitted by default, which "
              "keeps the original non-deterministic behaviour.",
     )
-    main(seed=parser.parse_args().seed)
+    parser.add_argument(
+        "--episodes", type=int, default=NUM_EPISODES,
+        help="Episodes to train for.",
+    )
+    parser.add_argument(
+        "--no-replay", action="store_true",
+        help="Ablation: learn from the most recent transitions instead of a "
+             "random minibatch. Reproduces the 'no replay buffer' row of the "
+             "chapter's ablation table.",
+    )
+    parser.add_argument(
+        "--no-target-network", action="store_true",
+        help="Ablation: bootstrap from the online network, so the TD target "
+             "moves with every update. Reproduces the 'no target network' row.",
+    )
+    args = parser.parse_args()
+    main(
+        seed=args.seed,
+        episodes=args.episodes,
+        use_replay=not args.no_replay,
+        use_target_network=not args.no_target_network,
+    )
