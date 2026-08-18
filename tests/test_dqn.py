@@ -294,3 +294,147 @@ def test_cartpole_main_accepts_a_seed_and_defaults_to_unseeded():
     signature = inspect.signature(train_cartpole.main)
     assert "seed" in signature.parameters
     assert signature.parameters["seed"].default is None
+
+
+# --------------------------------------------------------------------------
+# Atari wrappers (train_atari)
+#
+# The wrappers never run during the CartPole example the chapter walks through,
+# so nothing else in this suite exercises them. Every test below is an explicit
+# regression for a bug that shipped.
+# --------------------------------------------------------------------------
+
+import gymnasium as gym
+
+SHAPE = (4, 4, 3)
+
+
+def atari_module():
+    """train_atari imports ale_py and cv2 at module scope."""
+    pytest.importorskip("ale_py")
+    pytest.importorskip("cv2")
+    from src.part_2_methods.ch03_dqn import train_atari
+
+    return train_atari
+
+
+class _SkipStub(gym.Env):
+    """Emits a scripted sequence of flat frames and can end the episode early.
+
+    Frame values are deliberately non-monotonic so "max over the last two
+    frames" and "max over every frame in the block" give different answers.
+    """
+
+    def __init__(self, values, terminate_after=None):
+        self.observation_space = gym.spaces.Box(0, 255, SHAPE, dtype=np.uint8)
+        self.action_space = gym.spaces.Discrete(4)
+        self.values = values
+        self.terminate_after = terminate_after
+        self.t = 0
+
+    def reset(self, **kwargs):
+        self.t = 0
+        return np.zeros(SHAPE, np.uint8), {}
+
+    def step(self, action):
+        value = self.values[self.t]
+        self.t += 1
+        terminated = self.terminate_after is not None and self.t >= self.terminate_after
+        return np.full(SHAPE, value, np.uint8), 1.0, terminated, False, {}
+
+
+def test_max_and_skip_pools_only_the_final_two_frames():
+    """The flicker fix is a max over the last *two* frames, not over the block."""
+    m = atari_module()
+    env = m.MaxAndSkipEnv(_SkipStub([9, 1, 2, 3]), skip=4)
+    env.reset()
+
+    obs, reward, terminated, _, _ = env.step(0)
+
+    assert obs.max() == 3, "expected max(2, 3) from the last two frames"
+    assert reward == 4.0
+    assert not terminated
+
+
+def test_max_and_skip_returns_the_terminal_frame_when_the_episode_ends_early():
+    """Regression: the buffer was only written at i == skip-2 and skip-1, so an
+    episode ending on the first skipped frame broke out before either write.
+    The returned frame was then max-pooled entirely from the *previous* action's
+    frames, and the frame the agent actually died on never reached the replay
+    buffer. Terminal transitions are exactly the ones the Bellman target treats
+    specially, so corrupting them is not a harmless edge case."""
+    m = atari_module()
+    env = m.MaxAndSkipEnv(_SkipStub([5, 6, 7, 8], terminate_after=1), skip=4)
+    env.reset()  # seeds the buffer with zeros
+
+    obs, reward, terminated, _, _ = env.step(0)
+
+    assert terminated
+    assert obs.max() == 5, "terminal frame was dropped in favour of stale buffer contents"
+    assert reward == 1.0, "reward should cover only the steps actually taken"
+
+
+class _FireStub(gym.Env):
+    """Minimal FIRE-on-reset environment that can die on a chosen action once."""
+
+    def __init__(self, die_on_action):
+        self.observation_space = gym.spaces.Box(0, 255, SHAPE, dtype=np.uint8)
+        self.action_space = gym.spaces.Discrete(4)
+        self.die_on_action = die_on_action
+        self.reset_kwargs = []
+
+    def get_action_meanings(self):
+        return ["NOOP", "FIRE", "UP", "DOWN"]
+
+    def reset(self, **kwargs):
+        self.reset_kwargs.append(kwargs)
+        return np.full(SHAPE, 7, np.uint8), {"from_reset": len(self.reset_kwargs)}
+
+    def step(self, action):
+        terminated = action == self.die_on_action
+        if terminated:
+            self.die_on_action = None  # die at most once, so recovery can succeed
+        return np.full(SHAPE, 99, np.uint8), 0.0, terminated, False, {"from_step": True}
+
+
+def test_fire_reset_returns_the_post_reset_frame_not_the_terminal_one():
+    """Regression: the recovery reset's return value was discarded, so reset()
+    handed back the terminal frame from the episode that had just ended — the
+    agent began the next episode looking at a game-over screen."""
+    m = atari_module()
+    stub = _FireStub(die_on_action=2)
+    env = m.FireResetEnv(stub)
+
+    obs, info = env.reset()
+
+    assert obs.max() == 7, "returned the terminal frame instead of the fresh reset"
+    assert info.get("from_reset"), "returned a hardcoded {} instead of the env's info"
+
+
+def test_fire_reset_does_not_replay_the_same_seed_on_recovery():
+    """Regression: recovery resets reused the caller's seed, which replays the
+    identical failing episode instead of recovering from it."""
+    m = atari_module()
+    stub = _FireStub(die_on_action=2)
+    env = m.FireResetEnv(stub)
+
+    env.reset(seed=1234)
+
+    assert stub.reset_kwargs[0] == {"seed": 1234}, "the initial reset must honour the seed"
+    assert len(stub.reset_kwargs) > 1, "expected a recovery reset after the episode died"
+    assert all("seed" not in kw for kw in stub.reset_kwargs[1:])
+
+
+def test_atari_loop_stores_terminated_not_done():
+    """Regression: the loop stored `done` (terminated or truncated), so a
+    time-limit truncation had its bootstrap target zeroed by _learn(). Asserted
+    on the source because the flag only exists inside main()'s loop.
+    train_cartpole.py:110 has always made this distinction."""
+    import inspect
+
+    m = atari_module()
+    source = inspect.getsource(m.main)
+    code = "\n".join(line.split("#")[0] for line in source.splitlines())
+
+    assert "agent.step(state, action, reward, next_state, terminated)" in code
+    assert "next_state, done)" not in code

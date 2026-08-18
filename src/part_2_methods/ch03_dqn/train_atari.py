@@ -31,14 +31,17 @@ class FireResetEnv(gym.Wrapper):
         assert len(env.unwrapped.get_action_meanings()) >= 3
 
     def reset(self, **kwargs):
-        self.env.reset(**kwargs)
-        obs, _, terminated, truncated, _ = self.env.step(1)
-        if terminated or truncated:
-            self.env.reset(**kwargs)
-        obs, _, terminated, truncated, _ = self.env.step(2)
-        if terminated or truncated:
-            self.env.reset(**kwargs)
-        return obs, {}
+        obs, info = self.env.reset(**kwargs)
+        # A seed in kwargs would replay the identical failing episode, so the
+        # recovery resets below drop it.
+        recovery = {k: v for k, v in kwargs.items() if k != "seed"}
+        for fire_action in (1, 2):
+            obs, _, terminated, truncated, info = self.env.step(fire_action)
+            if terminated or truncated:
+                # Bind the reset's return value: the old code discarded it and
+                # handed back the terminal frame from the episode that just died.
+                obs, info = self.env.reset(**recovery)
+        return obs, info
 
 class MaxAndSkipEnv(gym.Wrapper):
     """Return only every `skip`-th frame (Frame Skipping). Max-pool over last 2 frames to fix sprite flicker."""
@@ -49,14 +52,18 @@ class MaxAndSkipEnv(gym.Wrapper):
 
     def step(self, action):
         total_reward = 0.0
-        done = None
+        terminated = truncated = False
+        info = {}
         for i in range(self._skip):
             obs, reward, terminated, truncated, info = self.env.step(action)
-            done = terminated or truncated
-            if i == self._skip - 2: self._obs_buffer[0] = obs
-            if i == self._skip - 1: self._obs_buffer[1] = obs
+            # Rolling window over the last two frames actually observed in this
+            # skip block. Writing only at i == skip-2 / skip-1 meant an episode
+            # ending at i == 0 or 1 max-pooled the *previous* step's frames and
+            # never returned the terminal observation at all.
+            self._obs_buffer[0] = self._obs_buffer[1] if i else obs
+            self._obs_buffer[1] = obs
             total_reward += reward
-            if done:
+            if terminated or truncated:
                 break
         max_frame = self._obs_buffer.max(axis=0)
         return max_frame, total_reward, terminated, truncated, info
@@ -206,8 +213,10 @@ def main():
             next_state, reward, terminated, truncated, _ = env.step(action)
             done = terminated or truncated
 
-            # Store and learn
-            agent.step(state, action, reward, next_state, done)
+            # Store and learn. `terminated`, not `done`: a time-limit
+            # truncation is not a real terminal state, so its bootstrap target
+            # must not be zeroed. train_cartpole.py makes the same distinction.
+            agent.step(state, action, reward, next_state, terminated)
             
             state = next_state
             episode_reward += reward
