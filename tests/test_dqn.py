@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 import torch
 
-from src.part_2_methods.ch03_dqn import DQN, DQNAgent, ReplayBuffer, SimpleDQN
+from src.part_2_methods.ch03_dqn import DQN, AtariDQNAgent, ReplayBuffer, SimpleDQN
 
 CPU = torch.device("cpu")
 
@@ -25,7 +25,7 @@ def make_agent(**overrides):
         warmup_steps=16,
     )
     kwargs.update(overrides)
-    return DQNAgent(**kwargs)
+    return AtariDQNAgent(**kwargs)
 
 
 def frame(rng, channels=4):
@@ -112,7 +112,7 @@ def test_simple_dqn_emits_one_value_per_action():
 
 
 # --------------------------------------------------------------------------
-# DQNAgent
+# AtariDQNAgent
 # --------------------------------------------------------------------------
 
 def test_agent_stores_frames_as_uint8():
@@ -506,9 +506,9 @@ def test_sample_recent_follows_the_write_head_past_a_wrap():
 def cartpole_agent(**flags):
     import gymnasium as gym
 
-    from src.part_2_methods.ch03_dqn.train_cartpole import DQNAgentCartPole
+    from src.part_2_methods.ch03_dqn.train_cartpole import DQNAgent
 
-    return DQNAgentCartPole(gym.make("CartPole-v1"), **flags)
+    return DQNAgent(gym.make("CartPole-v1"), **flags)
 
 
 def test_ablation_switches_default_to_the_full_algorithm():

@@ -14,10 +14,10 @@ except ImportError as exc:  # pragma: no cover - optional dependency.
     ) from exc
 
 if __package__:
-    from .dqn_agent import DQNAgent
+    from .dqn_agent import AtariDQNAgent
     from .seeding import seed_env, set_seed
 else:  # pragma: no cover - direct script execution fallback.
-    from dqn_agent import DQNAgent
+    from dqn_agent import AtariDQNAgent
     from seeding import seed_env, set_seed
 
 # --- Atari Preprocessing Wrappers ---
@@ -172,7 +172,7 @@ def main():
     
     warmup_steps = 1000 # Wait before learning starts
     
-    agent = DQNAgent(
+    agent = AtariDQNAgent(
         input_channels=input_channels, 
         num_actions=num_actions, 
         device=device,

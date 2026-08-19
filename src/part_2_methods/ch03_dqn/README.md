@@ -1,6 +1,6 @@
 # Chapter 3: Deep Q-Networks (DQN)
 
-This directory contains the Python implementations for Chapter 3 of **"RL: The Seminal Papers"**. It implements the Deep Q-Network from Mnih et al. (2013, 2015) and the two innovations that made deep RL stable: **experience replay** and a **target network**. The runnable experiment verifies the full pipeline on `CartPole-v1` in about two minutes on a CPU.
+This directory contains the Python implementations for Chapter 3 of **"RL: The Seminal Papers"**. It implements the Deep Q-Network from Mnih et al. (2013, 2015) and the two innovations that made deep RL stable: **experience replay** and a **target network**. The runnable experiment verifies the full pipeline on `CartPole-v1` in about three minutes on a CPU.
 
 ## File Structure
 

@@ -27,7 +27,7 @@ NUM_EPISODES = 600
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-class DQNAgentCartPole:
+class DQNAgent:
     """Lightweight DQN agent using SimpleDQN for CartPole-v1.
 
     ``use_replay`` and ``use_target_network`` exist to reproduce the ablation
@@ -112,7 +112,7 @@ def main(seed: int | None = None, episodes: int = NUM_EPISODES,
         set_seed(seed)
         seed_env(env, seed)
 
-    agent = DQNAgentCartPole(
+    agent = DQNAgent(
         env, use_replay=use_replay, use_target_network=use_target_network
     )
     total_steps = 0

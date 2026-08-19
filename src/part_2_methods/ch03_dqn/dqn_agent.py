@@ -10,7 +10,7 @@ except ImportError:
     from dqn_network import DQN
     from replay_buffer import ReplayBuffer
 
-class DQNAgent:
+class AtariDQNAgent:
     """
     Deep Q-Network Agent implementing Algorithm 1 from Mnih et al. (2015).
     Combines the Convolutional Q-Network, Experience Replay, and a Target Network.
