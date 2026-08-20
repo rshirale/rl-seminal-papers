@@ -1,22 +1,29 @@
 """Component ablation for Chapter 4: what actually makes DDPG work.
 
-Trains three variants on Pendulum-v1 across several seeds and reports the
-learning curves. This is the experiment behind the chapter's ablation figure.
+Trains the variants behind the chapter's figure 4.7 on Pendulum-v1 across
+several seeds and reports the learning curves. By default that is the two the
+figure describes, isolating a single design decision:
 
-    1. No target networks   -- the online critic computes the target it is then
+    1. No target networks -- the online critic computes the target it is then
        trained against, so the label moves as fast as the learner.
-    2. Hard target copy     -- targets exist, but are copied wholesale on a
-       DQN-style schedule instead of drifting.
-    3. Full DDPG            -- soft targets at tau = 0.001, the published
+    2. Full DDPG          -- soft targets at tau = 0.001, the published
        configuration.
 
-Two notes on how this differs from an earlier version of the experiment:
+Exploration noise is identical in both (i.i.d. Gaussian, sigma = 0.2), which is
+what lets the chapter attribute the whole gap to the target networks.
 
-  * **The second variant used to be a noise comparison** (OU against Gaussian).
-    It was replaced because the chapter now teaches Gaussian noise only, and
-    because soft-versus-hard target updates is the comparison the text actually
-    argues for at length -- readers were being told that hard copies destabilize
-    co-evolving networks and then shown a figure about something else.
+A third variant, a DQN-style hard target copy, is available behind
+``--include-hard-copy``. It is deliberately not part of the default run: the
+figure's caption names two curves and their linestyles, so a default that
+emitted three would contradict the printed page. Use it to answer the "why not
+just copy the weights" question, not to regenerate figure 4.7.
+
+Two notes on reading the results:
+
+  * **The variants are not a noise comparison.** An earlier version of this
+    experiment pitted OU noise against Gaussian. The chapter now teaches
+    Gaussian only -- OU survives as historical context -- so the comparison
+    moved to the target networks, which is what the text argues for at length.
 
   * **Report what the curves show, not what the argument wants.** Whether the
     no-target variant stays under the random-policy line is an empirical
@@ -28,11 +35,12 @@ Two notes on how this differs from an earlier version of the experiment:
 Usage:
     python -m src.part_2_methods.ch04_ddpg.ablation
     python -m src.part_2_methods.ch04_ddpg.ablation --seeds 0 1 2 3 4
+    python -m src.part_2_methods.ch04_ddpg.ablation --include-hard-copy
     python -m src.part_2_methods.ch04_ddpg.ablation --figure ../../../figures
 
 Runtime: roughly one minute per 100 episodes per run on a CPU, so the default
-sweep (3 variants x 3 seeds x 200 episodes) takes on the order of half an hour.
-Shrink it with --episodes and --seeds while iterating.
+sweep (2 variants x 3 seeds x 200 episodes) takes about twenty minutes. Shrink
+it with --episodes and --seeds while iterating.
 """
 
 import argparse
@@ -47,11 +55,17 @@ else:  # pragma: no cover - direct script execution fallback.
     from train_pendulum import EPISODES, main as train
 
 # (label, use_target_networks, target_update)
+#
+# These two, in this order, are the curves figure 4.7 describes. Changing the
+# set means changing the caption: it names each line by colour, linestyle and
+# marker. See STYLES below.
 VARIANTS = (
     ("No target networks", False, "soft"),
-    ("Hard target copy", True, "hard"),
     ("Full DDPG (soft targets)", True, "soft"),
 )
+
+# Opt-in third variant, off by default so the figure regenerates as printed.
+HARD_COPY_VARIANT = ("Hard target copy", True, "hard")
 
 DEFAULT_SEEDS = (0, 1, 2)
 SCORE_WINDOW = 20   # episodes averaged at the end of each run
@@ -62,10 +76,13 @@ RANDOM_POLICY_BASELINE = -1200.0
 # and white, so a figure that encodes meaning in hue alone loses it on paper.
 # The colours are a high/mid/low luminance set, which keeps the curves
 # separable after greyscale conversion too.
+# The first two must match figure 4.7's caption, which reads "Red dashed line
+# with circle markers: no target networks" and "Blue dash-dot line with square
+# markers: full DDPG". The hard-copy variant takes the remaining style.
 STYLES = {
     "No target networks":       {"color": "#CC3311", "ls": "--",  "marker": "o"},
-    "Hard target copy":         {"color": "#0077BB", "ls": "-.",  "marker": "s"},
-    "Full DDPG (soft targets)": {"color": "#117733", "ls": "-",   "marker": "^"},
+    "Full DDPG (soft targets)": {"color": "#0077BB", "ls": "-.",  "marker": "s"},
+    "Hard target copy":         {"color": "#117733", "ls": "-",   "marker": "^"},
 }
 
 
@@ -89,9 +106,11 @@ def smooth(values, window):
     return np.convolve(values, np.ones(window) / window, mode="valid")
 
 
-def run(seeds=DEFAULT_SEEDS, episodes=EPISODES, figure_dir=None, printer=print):
+def run(seeds=DEFAULT_SEEDS, episodes=EPISODES, figure_dir=None,
+        printer=print, variants=VARIANTS):
     """Runs every variant over every seed. Returns {label: [curve per seed]}."""
     seeds = tuple(seeds)
+    variants = tuple(variants)
     window = min(SCORE_WINDOW, episodes)
     results = {}
 
@@ -105,7 +124,7 @@ def run(seeds=DEFAULT_SEEDS, episodes=EPISODES, figure_dir=None, printer=print):
     printer(header)
     printer("-" * len(header))
 
-    for label, use_targets, target_update in VARIANTS:
+    for label, use_targets, target_update in variants:
         curves = run_variant(use_targets, target_update, seeds, episodes)
         results[label] = curves
         scores = [statistics.mean(c[-window:]) for c in curves]
@@ -183,5 +202,13 @@ if __name__ == "__main__":
         help="Write ch04-figure-ablation.png/.svg into DIR. Point this at the "
              "book's Chapter4/media directory to regenerate the figure.",
     )
+    parser.add_argument(
+        "--include-hard-copy", action="store_true",
+        help="Add the DQN-style hard target copy as a third variant. Off by "
+             "default: figure 4.7's caption names two curves.",
+    )
     args = parser.parse_args()
-    run(seeds=args.seeds, episodes=args.episodes, figure_dir=args.figure)
+    variants = VARIANTS + (HARD_COPY_VARIANT,) if args.include_hard_copy \
+        else VARIANTS
+    run(seeds=args.seeds, episodes=args.episodes, figure_dir=args.figure,
+        variants=variants)

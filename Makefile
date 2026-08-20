@@ -44,7 +44,7 @@ help:
 	@echo ""
 	@echo "Chapter 4: DDPG"
 	@echo "  make run-ch4-pendulum    - Train DDPG on Pendulum-v1 (~3 min on CPU)"
-	@echo "  make run-ch4-ablation    - Ablate target networks / soft vs hard updates"
+	@echo "  make run-ch4-ablation    - Ablate target networks (chapter figure 4.7)"
 	@echo ""
 	@echo "Chapter 6: SAC"
 	@echo "  make run-ch6-pendulum    - Train SAC on Pendulum-v1 (~5 min on CPU)"
@@ -126,8 +126,9 @@ run-ch4-pendulum:
 	@echo "Running Chapter 4: DDPG on Pendulum-v1..."
 	@cd $(CH4_DIR) && $(PYTHON_ABS) train_pendulum.py --seed 0
 
-# Three variants x three seeds; budget roughly half an hour on a CPU.
-# Pass --figure DIR to regenerate the chapter's ablation figure.
+# Two variants x three seeds; budget about twenty minutes on a CPU.
+# Pass --figure DIR to regenerate the chapter's ablation figure, or
+# --include-hard-copy to add the DQN-style hard target update.
 run-ch4-ablation:
 	@echo "Running Chapter 4: DDPG component ablation..."
 	@$(PYTHON_ABS) -m src.part_2_methods.ch04_ddpg.ablation

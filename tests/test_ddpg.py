@@ -463,3 +463,81 @@ def test_agent_learns_on_pendulum():
     assert len(returns) == 60
     assert np.mean(returns[-10:]) > np.mean(returns[:10])
     assert np.mean(returns[-10:]) > -1_200
+
+
+# --------------------------------------------------------------------------
+# The ablation must stay in step with the chapter's figure
+# --------------------------------------------------------------------------
+
+def test_ablation_default_variants_match_figure_4_7():
+    """Figure 4.7's caption names two curves, so the default run must emit two.
+
+    The caption identifies each line by colour, linestyle and marker ("Red
+    dashed line with circle markers: no target networks", "Blue dash-dot line
+    with square markers: full DDPG"), which makes the style table part of the
+    chapter's text rather than a presentation detail. A third variant in the
+    default sweep would silently reassign those styles and contradict the
+    printed page.
+    """
+    from src.part_2_methods.ch04_ddpg import ablation
+
+    assert [row[0] for row in ablation.VARIANTS] == [
+        "No target networks", "Full DDPG (soft targets)",
+    ]
+
+    no_targets, full_ddpg = ablation.VARIANTS
+    assert no_targets[1] is False           # targets off
+    assert full_ddpg[1:] == (True, "soft")  # published configuration
+
+    styles = ablation.STYLES
+    assert styles["No target networks"]["ls"] == "--"
+    assert styles["No target networks"]["marker"] == "o"
+    assert styles["Full DDPG (soft targets)"]["ls"] == "-."
+    assert styles["Full DDPG (soft targets)"]["marker"] == "s"
+
+
+def test_hard_copy_variant_is_opt_in():
+    """The hard target copy stays out of the default sweep, but stays runnable."""
+    from src.part_2_methods.ch04_ddpg import ablation
+
+    assert ablation.HARD_COPY_VARIANT not in ablation.VARIANTS
+    assert ablation.HARD_COPY_VARIANT == ("Hard target copy", True, "hard")
+    # Still styled, so --include-hard-copy can plot it without a KeyError.
+    assert "Hard target copy" in ablation.STYLES
+
+
+def test_ablation_runs_every_variant_against_every_seed(monkeypatch):
+    """Cheap orchestration check: the real sweep is minutes long, so the
+    training call is stubbed and only the loop over variants x seeds runs."""
+    from src.part_2_methods.ch04_ddpg import ablation
+
+    calls = []
+
+    def fake_train(seed, episodes, use_target_networks, target_update, verbose):
+        calls.append((seed, use_target_networks, target_update))
+        return [float(-1_000 + i) for i in range(episodes)]
+
+    monkeypatch.setattr(ablation, "train", fake_train)
+    results = ablation.run(seeds=(0, 1), episodes=30, printer=lambda *a, **k: None)
+
+    assert set(results) == {"No target networks", "Full DDPG (soft targets)"}
+    assert len(calls) == 4  # 2 variants x 2 seeds
+    assert (0, False, "soft") in calls
+    assert (0, True, "soft") in calls
+
+
+def test_ablation_accepts_an_extended_variant_list(monkeypatch):
+    """--include-hard-copy passes a longer tuple through to run()."""
+    from src.part_2_methods.ch04_ddpg import ablation
+
+    monkeypatch.setattr(
+        ablation, "train",
+        lambda seed, episodes, use_target_networks, target_update, verbose:
+            [0.0] * episodes,
+    )
+    results = ablation.run(
+        seeds=(0,), episodes=10, printer=lambda *a, **k: None,
+        variants=ablation.VARIANTS + (ablation.HARD_COPY_VARIANT,),
+    )
+
+    assert "Hard target copy" in results

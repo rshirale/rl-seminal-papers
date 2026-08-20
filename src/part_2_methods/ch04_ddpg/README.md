@@ -14,7 +14,7 @@ DQN picks actions with `argmax_a Q(s, a)`. That is a table lookup over two actio
 - `ddpg_agent.py`: `DDPGAgent` — Algorithm 1, composing all of the above, with ablation switches for the target networks and the update rule.
 - `seeding.py`: `set_seed` and `seed_env` — every RNG a run draws from, in one place.
 - `train_pendulum.py`: the runnable Pendulum-v1 experiment.
-- `ablation.py`: the component ablation behind the chapter's ablation figure.
+- `ablation.py`: the component ablation behind the chapter's figure 4.7, plus an opt-in hard-target-copy variant.
 - `Chapter4_DDPG.ipynb`: the interactive companion notebook (Colab-ready).
 - `__init__.py`: exposes `Actor`, `Critic`, `DDPGAgent`, `GaussianNoise`, `AdaptiveParameterNoise`, `action_distance`, and `ReplayBuffer`.
 
@@ -38,12 +38,15 @@ python -m src.part_2_methods.ch04_ddpg.train_pendulum --seed 0
 
 A converged agent scores above −200 per episode against a random policy's −1200. Expect roughly three minutes for the default 200 episodes on a CPU.
 
-Component ablation — target networks, and soft versus hard target updates:
+Component ablation — the two variants behind the chapter's figure 4.7, no target networks against full DDPG, with exploration noise held identical so the gap is attributable to the targets alone:
 ```bash
 make run-ch4-ablation
 
 # ...or with your own sweep
 python -m src.part_2_methods.ch04_ddpg.ablation --seeds 0 1 2 --episodes 200
+
+# add the DQN-style hard target copy as a third variant (not in figure 4.7)
+python -m src.part_2_methods.ch04_ddpg.ablation --include-hard-copy
 
 # regenerate the book's figure
 python -m src.part_2_methods.ch04_ddpg.ablation \

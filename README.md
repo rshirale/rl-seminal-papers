@@ -113,7 +113,7 @@ make run-ch3-atari
 # Chapter 4: DDPG on Pendulum-v1 (~3 min on CPU)
 make run-ch4-pendulum
 
-# Chapter 4: DDPG component ablation (target networks, soft vs hard updates)
+# Chapter 4: DDPG component ablation (target networks; chapter figure 4.7)
 make run-ch4-ablation
 
 # Chapter 5: PPO on Pendulum-v1
