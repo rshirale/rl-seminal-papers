@@ -110,8 +110,11 @@ make run-ch3-cartpole
 # Chapter 3: DQN on Atari Pong (needs `make install-atari`; hours on CPU)
 make run-ch3-atari
 
-# Chapter 4: DDPG on Pendulum-v1 (~10 min on CPU)
+# Chapter 4: DDPG on Pendulum-v1 (~3 min on CPU)
 make run-ch4-pendulum
+
+# Chapter 4: DDPG component ablation (target networks, soft vs hard updates)
+make run-ch4-ablation
 
 # Chapter 5: PPO on Pendulum-v1
 python -m src.part_2_methods.ch05_ppo.train_pendulum --episodes 10
@@ -185,11 +188,16 @@ Upon finishing this book and exploring this code, you will be equipped to:
 
 ## 🧪 Verification
 
-The automated tests cover the Chapter 2 environments and algorithms plus PPO
-policy/action and rollout-update smoke tests. PPO tests are skipped when
-PyTorch is not installed, allowing the foundation tests to run with the
-lightweight setup:
+The automated tests cover the Chapter 2 environments and algorithms, the
+Chapter 3 DQN modules and notebook, the Chapter 4 DDPG modules and notebook,
+and PPO policy/action and rollout-update smoke tests. The PyTorch chapters'
+tests are skipped when PyTorch is not installed, allowing the foundation tests
+to run with the lightweight setup:
 
 ```bash
-make test
+make test        # fast suite
+make test-all    # also executes the chapter notebooks top to bottom
 ```
+
+Both notebook suites execute their chapter's notebook cell by cell, which is
+how a broken paste in a notebook gets caught before a reader hits it.
