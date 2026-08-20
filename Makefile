@@ -3,7 +3,7 @@
 
 .PHONY: help install install-full install-atari install-test test test-all doctor clean \
         run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole run-ch3-atari \
-        run-ch4-pendulum run-ch6-pendulum notebook
+        run-ch4-pendulum run-ch4-ablation run-ch6-pendulum notebook
 
 # Interpreter used by every target. Defaults to python3 because a bare `python`
 # does not exist on most Linux distributions or on macOS 12.3+. Override it to
@@ -43,7 +43,8 @@ help:
 	@echo "  make run-ch3-atari       - Train DQN on Atari Pong (needs make install-atari)"
 	@echo ""
 	@echo "Chapter 4: DDPG"
-	@echo "  make run-ch4-pendulum    - Train DDPG on Pendulum-v1 (~10 min on CPU)"
+	@echo "  make run-ch4-pendulum    - Train DDPG on Pendulum-v1 (~3 min on CPU)"
+	@echo "  make run-ch4-ablation    - Ablate target networks / soft vs hard updates"
 	@echo ""
 	@echo "Chapter 6: SAC"
 	@echo "  make run-ch6-pendulum    - Train SAC on Pendulum-v1 (~5 min on CPU)"
@@ -123,7 +124,13 @@ CH4_DIR = src/part_2_methods/ch04_ddpg
 
 run-ch4-pendulum:
 	@echo "Running Chapter 4: DDPG on Pendulum-v1..."
-	@cd $(CH4_DIR) && $(PYTHON_ABS) train_pendulum.py
+	@cd $(CH4_DIR) && $(PYTHON_ABS) train_pendulum.py --seed 0
+
+# Three variants x three seeds; budget roughly half an hour on a CPU.
+# Pass --figure DIR to regenerate the chapter's ablation figure.
+run-ch4-ablation:
+	@echo "Running Chapter 4: DDPG component ablation..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch04_ddpg.ablation
 
 # --- Chapter 6 Commands ---
 
