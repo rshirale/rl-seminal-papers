@@ -550,3 +550,84 @@ def test_ablation_accepts_a_restricted_variant_list(monkeypatch):
     )
 
     assert set(results) == {"No target networks", "Full DDPG (soft targets)"}
+
+
+# --------------------------------------------------------------------------
+# The trainer must expose every knob the chapter tells readers to turn
+# --------------------------------------------------------------------------
+
+def test_trainer_exposes_every_tuning_cheat_sheet_knob():
+    """Table 4.2 is a tuning guide, so each row has to be reachable.
+
+    A reader working through the cheat sheet should not have to edit the file
+    to change a value it tells them to change. Each of these is a keyword on
+    ``main`` and a ``--flag`` on the CLI; the exercises in section 4.9 lean on
+    ``sigma``, ``tau`` and the target-network switch in particular.
+    """
+    import inspect
+
+    from src.part_2_methods.ch04_ddpg import train_pendulum
+
+    params = inspect.signature(train_pendulum.main).parameters
+    for knob in ("tau", "critic_lr", "actor_lr", "critic_weight_decay",
+                 "batch_size", "buffer_size", "gamma", "sigma",
+                 "warmup_steps"):
+        assert knob in params, f"table 4.2 names {knob}, main() does not take it"
+
+
+def test_tuning_knobs_default_to_the_published_configuration():
+    """The defaults are what the chapter's listings show, so a bare run matches.
+
+    ``critic_weight_decay`` is the one deliberate divergence: the paper uses
+    1e-2, the chapter's listings use plain Adam, and the code follows the
+    listings so that what a reader runs is what they just read.
+    """
+    import inspect
+
+    from src.part_2_methods.ch04_ddpg import train_pendulum
+
+    defaults = {
+        name: p.default
+        for name, p in inspect.signature(train_pendulum.main).parameters.items()
+    }
+
+    assert defaults["gamma"] == 0.99
+    assert defaults["tau"] == 0.001
+    assert defaults["actor_lr"] == 1e-4
+    assert defaults["critic_lr"] == 1e-3
+    assert defaults["batch_size"] == 64
+    assert defaults["buffer_size"] == 1_000_000
+    assert defaults["sigma"] == 0.2
+    assert defaults["warmup_steps"] == 1_000
+    assert defaults["critic_weight_decay"] == 0.0
+
+
+def test_tuning_knobs_reach_the_agent():
+    """Passing a knob through main() must actually change the constructed agent."""
+    from src.part_2_methods.ch04_ddpg import train_pendulum
+
+    captured = {}
+    real_agent_cls = train_pendulum.DDPGAgent
+
+    def spy(**kwargs):
+        captured.update(kwargs)
+        return real_agent_cls(**kwargs)
+
+    original = train_pendulum.DDPGAgent
+    train_pendulum.DDPGAgent = spy
+    try:
+        train_pendulum.main(
+            seed=0, episodes=1, warmup_steps=1, gamma=0.95, tau=0.02,
+            actor_lr=3e-4, critic_lr=3e-3, batch_size=32, buffer_size=5_000,
+            critic_weight_decay=1e-2, verbose=False,
+        )
+    finally:
+        train_pendulum.DDPGAgent = original
+
+    assert captured["gamma"] == 0.95
+    assert captured["tau"] == 0.02
+    assert captured["actor_lr"] == 3e-4
+    assert captured["critic_lr"] == 3e-3
+    assert captured["batch_size"] == 32
+    assert captured["buffer_size"] == 5_000
+    assert captured["critic_weight_decay"] == 1e-2
