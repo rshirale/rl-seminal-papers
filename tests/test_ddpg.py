@@ -469,41 +469,47 @@ def test_agent_learns_on_pendulum():
 # The ablation must stay in step with the chapter's figure
 # --------------------------------------------------------------------------
 
-def test_ablation_default_variants_match_figure_4_7():
-    """Figure 4.7's caption names two curves, so the default run must emit two.
+def test_ablation_default_variants_match_figure_4_10():
+    """Figure 4.10's caption names three curves, so the default run emits three.
 
-    The caption identifies each line by colour, linestyle and marker ("Red
-    dashed line with circle markers: no target networks", "Blue dash-dot line
-    with square markers: full DDPG"), which makes the style table part of the
-    chapter's text rather than a presentation detail. A third variant in the
-    default sweep would silently reassign those styles and contradict the
-    printed page.
+    The caption identifies each line by linestyle and marker ("dashed line with
+    circle markers: no target networks", "dash-dot line with square markers:
+    full DDPG with soft target updates", "solid line with triangle markers:
+    hard target copy"), which makes the style table part of the chapter's text
+    rather than a presentation detail. Dropping a variant from the default
+    sweep, or reordering them, silently reassigns those styles and contradicts
+    the printed page.
+
+    Regression: an earlier revision tracked a two-curve draft of this figure.
     """
     from src.part_2_methods.ch04_ddpg import ablation
 
     assert [row[0] for row in ablation.VARIANTS] == [
-        "No target networks", "Full DDPG (soft targets)",
+        "No target networks",
+        "Full DDPG (soft targets)",
+        "Hard target copy",
     ]
 
-    no_targets, full_ddpg = ablation.VARIANTS
+    no_targets, full_ddpg, hard_copy = ablation.VARIANTS
     assert no_targets[1] is False           # targets off
     assert full_ddpg[1:] == (True, "soft")  # published configuration
+    assert hard_copy[1:] == (True, "hard")  # DQN-style wholesale copy
 
     styles = ablation.STYLES
     assert styles["No target networks"]["ls"] == "--"
     assert styles["No target networks"]["marker"] == "o"
     assert styles["Full DDPG (soft targets)"]["ls"] == "-."
     assert styles["Full DDPG (soft targets)"]["marker"] == "s"
+    assert styles["Hard target copy"]["ls"] == "-"
+    assert styles["Hard target copy"]["marker"] == "^"
 
 
-def test_hard_copy_variant_is_opt_in():
-    """The hard target copy stays out of the default sweep, but stays runnable."""
+def test_every_default_variant_is_styled():
+    """Every variant in the default sweep must have a style, or plot() raises."""
     from src.part_2_methods.ch04_ddpg import ablation
 
-    assert ablation.HARD_COPY_VARIANT not in ablation.VARIANTS
-    assert ablation.HARD_COPY_VARIANT == ("Hard target copy", True, "hard")
-    # Still styled, so --include-hard-copy can plot it without a KeyError.
-    assert "Hard target copy" in ablation.STYLES
+    for label, _, _ in ablation.VARIANTS:
+        assert label in ablation.STYLES
 
 
 def test_ablation_runs_every_variant_against_every_seed(monkeypatch):
@@ -520,14 +526,17 @@ def test_ablation_runs_every_variant_against_every_seed(monkeypatch):
     monkeypatch.setattr(ablation, "train", fake_train)
     results = ablation.run(seeds=(0, 1), episodes=30, printer=lambda *a, **k: None)
 
-    assert set(results) == {"No target networks", "Full DDPG (soft targets)"}
-    assert len(calls) == 4  # 2 variants x 2 seeds
+    assert set(results) == {
+        "No target networks", "Full DDPG (soft targets)", "Hard target copy",
+    }
+    assert len(calls) == 6  # 3 variants x 2 seeds
     assert (0, False, "soft") in calls
     assert (0, True, "soft") in calls
+    assert (0, True, "hard") in calls
 
 
-def test_ablation_accepts_an_extended_variant_list(monkeypatch):
-    """--include-hard-copy passes a longer tuple through to run()."""
+def test_ablation_accepts_a_restricted_variant_list(monkeypatch):
+    """--no-hard-copy passes a shorter tuple through to run()."""
     from src.part_2_methods.ch04_ddpg import ablation
 
     monkeypatch.setattr(
@@ -537,7 +546,7 @@ def test_ablation_accepts_an_extended_variant_list(monkeypatch):
     )
     results = ablation.run(
         seeds=(0,), episodes=10, printer=lambda *a, **k: None,
-        variants=ablation.VARIANTS + (ablation.HARD_COPY_VARIANT,),
+        variants=ablation.VARIANTS[:2],
     )
 
-    assert "Hard target copy" in results
+    assert set(results) == {"No target networks", "Full DDPG (soft targets)"}
