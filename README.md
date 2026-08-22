@@ -127,7 +127,7 @@ make clean
 ```
 
 ## 🗺️ The Roadmap
-The repository follows the book’s three-part journey from mathematical foundations to the cutting edge of LLMs and robotics.
+The repository follows the book’s three parts, from mathematical foundations to recent work on LLMs and robotics.
 
 ### Part I: Foundations
 | Chapter | Topic | Focus | Interactive |
@@ -165,9 +165,9 @@ What makes this repository unique is the direct, line-by-line mapping from acade
 
 💻 **The Implementation** (`ch02_fundamentals/algorithms.py`):
 ```python
-# Bootstrapped TD Target minus the current belief
-td_error = (reward + gamma * V[next_state]) - V[state]
-V[state] += alpha * td_error
+# Bellman expectation update
+td_target = reward + gamma * V[next_state]
+V[state] += alpha * (td_target - V[state])
 ```
 
 ---
