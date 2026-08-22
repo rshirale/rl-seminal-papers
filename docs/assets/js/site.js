@@ -140,16 +140,28 @@ if (reducedMotion) {
 // ── Paper-to-code switcher ──────────────────────────────────────────────
 const paperExamples = {
   td0: {
-    title: 'Sutton (1988) — TD(0) Update Rule', codeTitle: 'Python · Chapter 2',
-    formula: 'V(S<sub>t</sub>) ← V(S<sub>t</sub>) + α [R<sub>t+1</sub> + γ·V(S<sub>t+1</sub>) − V(S<sub>t</sub>)]',
-    note: 'Temporal-difference error drives value updates — no model, no Monte Carlo rollout.',
-    code: '<span class="c-comment"># Bootstrapped TD error</span>\n<span class="c-var">td_error = (</span>\n<span class="c-var">    reward + gamma * V[next_s]</span>\n<span class="c-var">) - V[s]</span>\n\n<span class="c-accent">V[s]</span><span class="c-var"> += alpha * td_error</span>'
+    title: 'Sutton (1988) \u2014 TD(0) Update Rule', codeTitle: 'Python \u00b7 Chapter 2',
+    formula: 'V(S<sub>t</sub>) \u2190 V(S<sub>t</sub>) + \u03b1 [R<sub>t+1</sub> + \u03b3\u00b7V(S<sub>t+1</sub>) \u2212 V(S<sub>t</sub>)]',
+    note: 'Temporal-difference error drives value updates \u2014 no model, no Monte Carlo rollout.',
+    code: '<span class="c-comment"># Bellman expectation update</span>\n<span class="c-var">td_target = reward + gamma * V[next_state]</span>\n<span class="c-accent">V[state]</span><span class="c-var"> += alpha * (td_target - V[state])</span>'
   },
   qlearning: {
-    title: 'Watkins (1989) — Q-Learning Update', codeTitle: 'Python · Chapter 2',
-    formula: 'Q(S<sub>t</sub>, A<sub>t</sub>) ← Q(S<sub>t</sub>, A<sub>t</sub>) + α [R + γ max<sub>a</sub> Q(S′, a) − Q(S<sub>t</sub>, A<sub>t</sub>)]',
+    title: 'Watkins (1989) \u2014 Q-Learning Update', codeTitle: 'Python \u00b7 Chapter 2',
+    formula: 'Q(S<sub>t</sub>, A<sub>t</sub>) \u2190 Q(S<sub>t</sub>, A<sub>t</sub>) + \u03b1 [R + \u03b3 max<sub>a</sub> Q(S\u2032, a) \u2212 Q(S<sub>t</sub>, A<sub>t</sub>)]',
     note: 'The greedy next action supplies the target while the agent may still explore.',
-    code: '<span class="c-comment"># Off-policy Q target</span>\n<span class="c-var">target = reward + gamma * </span>\n<span class="c-var">    np.max(Q[next_state])</span>\n<span class="c-accent">Q[state, action]</span><span class="c-var"> += alpha * (target - Q[state, action])</span>'
+    code: '<span class="c-comment"># Off-policy target: greedy over the next state</span>\n<span class="c-var">best_next_q = max(</span>\n<span class="c-var">    Q[(next_state, a)] for a in env.actions</span>\n<span class="c-var">)</span>\n<span class="c-var">target = reward + gamma * best_next_q * (not done)</span>\n<span class="c-accent">Q[(state, action)]</span><span class="c-var"> += alpha * (target - Q[(state, action)])</span>'
+  },
+  dqn: {
+    title: 'Mnih et al. (2015) \u2014 DQN Target & Huber Loss', codeTitle: 'Python \u00b7 Chapter 3',
+    formula: 'y<sub>j</sub> = r<sub>j</sub> + \u03b3\u00b7max<sub>a\u2032</sub> Q\u0302(s<sub>j+1</sub>, a\u2032; \u03b8<sup>\u2212</sup>)',
+    note: 'A separate, periodically-synced target network supplies y, which keeps the regression target fixed between syncs.',
+    code: '<span class="c-comment"># Bellman target from the frozen target network</span>\n<span class="c-var">next_q_values = (</span>\n<span class="c-var">    self.target_net(next_states).max(1)[0].unsqueeze(1)</span>\n<span class="c-var">)</span>\n<span class="c-var">next_q_values[dones] = 0.0</span>\n<span class="c-accent">target_q_values</span><span class="c-var"> = rewards + (self.gamma * next_q_values)</span>\n\n<span class="c-comment"># Huber loss against the online network</span>\n<span class="c-var">loss = self.criterion(current_q_values, target_q_values)</span>'
+  },
+  ddpg: {
+    title: 'Lillicrap et al. (2015) \u2014 Deterministic Policy Gradient', codeTitle: 'Python \u00b7 Chapter 4',
+    formula: '\u2207<sub>\u03b8<sup>\u03bc</sup></sub>J \u2248 E[\u2207<sub>a</sub>Q(s, a)|<sub>a=\u03bc(s)</sub> \u00b7 \u2207<sub>\u03b8<sup>\u03bc</sup></sub>\u03bc(s)]',
+    note: 'DQN\u2019s argmax becomes a network: the actor proposes the action, and the critic\u2019s gradient trains it.',
+    code: '<span class="c-comment"># Critic: regress Q(s, a) onto the Bellman target</span>\n<span class="c-var">na = self.actor_target(ns)</span>\n<span class="c-var">nq = self.critic_target(ns, na)</span>\n<span class="c-var">y = r + self.gamma * (1.0 - d) * nq</span>\n<span class="c-var">c_loss = F.mse_loss(self.critic(s, a), y)</span>\n\n<span class="c-comment"># Actor: ascend the critic gradient through mu(s)</span>\n<span class="c-accent">a_loss</span><span class="c-var"> = -self.critic(s, self.actor(s)).mean()</span>'
   },
   ppo: {
     title: 'Schulman et al. (2017) — PPO Clip Objective', codeTitle: 'Python · Chapter 5',

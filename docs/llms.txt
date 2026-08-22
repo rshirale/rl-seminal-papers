@@ -44,6 +44,7 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 2 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/README.md
 - Chapter 2 algorithms: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/algorithms.py
 - Chapter 2 environments: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/environments.py
+- Chapter 3 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/README.md
 - Chapter 3 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb
 - Chapter 3 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb
 - Chapter 3 DQN network (CNN + SimpleDQN MLP): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/dqn_network.py
@@ -52,9 +53,19 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 3 CartPole training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/train_cartpole.py
 - Chapter 3 Atari training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/train_atari.py
 - Chapter 3 Seeding helper (reproducible runs): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/seeding.py
+- Chapter 3 DQN component ablation (replay / target network, Mnih et al. 2015 ablation on CartPole): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/ablation.py
+- Chapter 4 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/README.md
 - Chapter 4 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb
 - Chapter 4 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb
-- Chapter 4 implementation: https://github.com/rshirale/rl-seminal-papers/tree/main/src/part_2_methods/ch04_ddpg
+- Chapter 4 Actor (deterministic policy mu(s), 400/300 hidden units): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/actor.py
+- Chapter 4 Critic (action-value network Q(s, a)): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/critic.py
+- Chapter 4 DDPG agent (Algorithm 1, with target-network ablation switches): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/ddpg_agent.py
+- Chapter 4 Gaussian exploration noise (with optional sigma annealing): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/gaussian_noise.py
+- Chapter 4 Adaptive parameter-space noise (Plappert et al., 2018): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/parameter_noise.py
+- Chapter 4 Replay buffer: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/replay_buffer.py
+- Chapter 4 Seeding helper (reproducible runs): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/seeding.py
+- Chapter 4 Pendulum training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/train_pendulum.py
+- Chapter 4 DDPG component ablation (target networks; chapter figure 4.7): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/ablation.py
 - Chapter 5 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb
 - Chapter 5 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb
 - Chapter 5 implementation: https://github.com/rshirale/rl-seminal-papers/tree/main/src/part_2_methods/ch05_ppo

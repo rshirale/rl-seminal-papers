@@ -366,6 +366,8 @@
       <div class="paper-tabs" role="tablist" aria-label="Paper examples">
         <button class="paper-tab active" role="tab" aria-selected="true" data-paper="td0">TD(0)</button>
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="qlearning">Q-Learning</button>
+        <button class="paper-tab" role="tab" aria-selected="false" data-paper="dqn">DQN</button>
+        <button class="paper-tab" role="tab" aria-selected="false" data-paper="ddpg">DDPG</button>
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="ppo">PPO</button>
       </div>
 
@@ -389,12 +391,9 @@
             <span id="paper-code-title">Python · Chapter 2</span>
           </div>
           <div class="code-panel-body">
-            <pre class="code-snippet" id="paper-code"><span class="c-comment"># Bootstrapped TD error</span>
-<span class="c-var">td_error = (</span>
-<span class="c-var">    reward + gamma * V[next_s]</span>
-<span class="c-var">) - V[s]</span>
-
-<span class="c-accent">V[s]</span><span class="c-var"> += alpha * td_error</span></pre>
+            <pre class="code-snippet" id="paper-code"><span class="c-comment"># Bellman expectation update</span>
+<span class="c-var">td_target = reward + gamma * V[next_state]</span>
+<span class="c-accent">V[state]</span><span class="c-var"> += alpha * (td_target - V[state])</span></pre>
           </div>
         </div>
       </div>
@@ -449,7 +448,7 @@
       <div class="section-head">
         <p class="section-eyebrow">Chapter Roadmap</p>
         <h2 id="roadmap-heading" class="section-h2">15 chapters. 3 arcs.</h2>
-        <p class="section-sub">From foundational theory to production-ready systems — a complete journey.</p>
+        <p class="section-sub">From foundational theory to production-ready systems.</p>
       </div>
 
       <div class="roadmap-tools" aria-label="Roadmap filters">
@@ -620,17 +619,24 @@
           <div class="step-num" aria-hidden="true">2</div>
           <div class="step-body">
             <h3>Install dependencies</h3>
-            <div class="copy-wrap"><code>make install</code><button class="copy-button" type="button" data-copy="make install">Copy</button></div>
-            <div class="copy-wrap"><code>make install-full</code><button class="copy-button" type="button" data-copy="make install-full">Copy</button></div>
-            <div class="copy-wrap"><code>make doctor</code><button class="copy-button" type="button" data-copy="make doctor">Copy</button></div> — if anything fails, this reports your interpreter, platform, and package status
+            <div class="copy-wrap"><code>make install</code><button class="copy-button" type="button" data-copy="make install">Copy</button></div><span class="cmd-note">foundation stack for Chapters 1–2</span><br>
+            <div class="copy-wrap"><code>make install-full</code><button class="copy-button" type="button" data-copy="make install-full">Copy</button></div><span class="cmd-note">PyTorch stack for Chapters 3–5</span><br>
+            <div class="copy-wrap"><code>make install-atari</code><button class="copy-button" type="button" data-copy="make install-atari">Copy</button></div><span class="cmd-note">optional; only for the Chapter 3 Atari run</span><br>
+            <div class="copy-wrap"><code>make install-test</code><button class="copy-button" type="button" data-copy="make install-test">Copy</button></div><span class="cmd-note">then <code>make test</code> for the fast suite, or <code>make test-all</code> to execute the notebooks</span><br>
+            <div class="copy-wrap"><code>make doctor</code><button class="copy-button" type="button" data-copy="make doctor">Copy</button></div><span class="cmd-note">if anything fails, this reports your interpreter, platform, and package status</span>
           </div>
         </div>
         <div class="step-row">
           <div class="step-num" aria-hidden="true">3</div>
           <div class="step-body">
             <h3>Run an experiment</h3>
-            <div class="copy-wrap"><code>make run-ch2-cliff</code><button class="copy-button" type="button" data-copy="make run-ch2-cliff">Copy</button></div> — Q-Learning vs SARSA on Cliff Walking<br>
-            <div class="copy-wrap"><code>make run-ch3-cartpole</code><button class="copy-button" type="button" data-copy="make run-ch3-cartpole">Copy</button></div> — DQN on CartPole
+            <div class="copy-wrap"><code>make run-ch1</code><button class="copy-button" type="button" data-copy="make run-ch1">Copy</button></div><span class="cmd-note">the minimal agent-environment loop on CartPole</span><br>
+            <div class="copy-wrap"><code>make run-ch2-gridworld</code><button class="copy-button" type="button" data-copy="make run-ch2-gridworld">Copy</button></div><span class="cmd-note">TD(0) value estimation on the 4×3 Grid World</span><br>
+            <div class="copy-wrap"><code>make run-ch2-cliff</code><button class="copy-button" type="button" data-copy="make run-ch2-cliff">Copy</button></div><span class="cmd-note">Q-Learning vs SARSA on Cliff Walking</span><br>
+            <div class="copy-wrap"><code>make run-ch3-cartpole</code><button class="copy-button" type="button" data-copy="make run-ch3-cartpole">Copy</button></div><span class="cmd-note">DQN on CartPole-v1 (~2 min on CPU)</span><br>
+            <div class="copy-wrap"><code>make run-ch3-atari</code><button class="copy-button" type="button" data-copy="make run-ch3-atari">Copy</button></div><span class="cmd-note">DQN on Atari Pong; needs <code>make install-atari</code></span><br>
+            <div class="copy-wrap"><code>make run-ch4-pendulum</code><button class="copy-button" type="button" data-copy="make run-ch4-pendulum">Copy</button></div><span class="cmd-note">DDPG on Pendulum-v1 (~3 min on CPU)</span><br>
+            <div class="copy-wrap"><code>make run-ch4-ablation</code><button class="copy-button" type="button" data-copy="make run-ch4-ablation">Copy</button></div><span class="cmd-note">ablate DDPG’s target networks (the chapter’s figure 4.7)</span>
           </div>
         </div>
         <div class="step-row">
