@@ -167,3 +167,101 @@ def test_sweep_reuses_the_shared_baseline_run(monkeypatch):
     assert len(calls) == len(set(calls)), "a configuration was trained twice"
     # 5 + 4 + 3 + 3 values, minus the 3 repeats of the shared baseline.
     assert len(calls) == 12
+
+
+# --- seeding -------------------------------------------------------------
+
+def draw_from_every_rng():
+    """One draw from each generator a PPO run touches."""
+    return (
+        float(np.random.rand()),
+        float(torch.rand(1)),
+    )
+
+
+def test_set_seed_makes_every_generator_reproducible():
+    from src.part_2_methods.ch05_ppo.seeding import set_seed
+
+    set_seed(42)
+    first = draw_from_every_rng()
+    set_seed(42)
+    assert draw_from_every_rng() == first
+
+
+def test_different_seeds_produce_different_draws():
+    """Guards against a set_seed that freezes everything to a constant."""
+    from src.part_2_methods.ch05_ppo.seeding import set_seed
+
+    set_seed(42)
+    a = draw_from_every_rng()
+    set_seed(7)
+    assert draw_from_every_rng() != a
+
+
+def test_seeding_covers_network_initialization():
+    """Weight init must be inside the seeded region, or two agents built from
+    the same seed still differ."""
+    from src.part_2_methods.ch05_ppo.seeding import set_seed
+
+    def build():
+        return PPOAgent(state_dim=3, action_dim=1, max_action=2.0)
+
+    set_seed(42)
+    first = [p.detach().clone() for p in build().actor.parameters()]
+    set_seed(42)
+    second = list(build().actor.parameters())
+
+    assert all(torch.equal(a, b) for a, b in zip(first, second))
+
+
+def test_set_seed_pins_the_thread_count():
+    """The pin is part of seeding: thread count changes reduction order, and
+    Chapter 5 prints an exact transcript."""
+    from src.part_2_methods.ch05_ppo.seeding import set_seed
+
+    torch.set_num_threads(2)
+    set_seed(0)
+    assert torch.get_num_threads() == 1
+
+
+def test_episode_seed_is_the_convention_train_pendulum_uses():
+    from src.part_2_methods.ch05_ppo.seeding import episode_seed
+
+    assert episode_seed(42, 1) == 43
+    assert episode_seed(0, 0) == 0
+
+
+def test_episode_seed_streams_overlap_between_runs():
+    """Documents a known limitation rather than asserting it is correct.
+
+    ``seed + episode`` means run 0 and run 1 share every start state but one,
+    shifted by an episode. The docstring explains why this is left alone; this
+    test exists so that changing the stride is a deliberate act that updates a
+    failing assertion, not a silent change to every number the chapter prints.
+    """
+    from src.part_2_methods.ch05_ppo.seeding import episode_seed
+
+    run_a = {episode_seed(0, e) for e in range(1, 201)}
+    run_b = {episode_seed(1, e) for e in range(1, 201)}
+    assert len(run_a & run_b) == 199
+
+
+def test_seeding_demo_runs_once_per_seed_and_reports_the_spread(monkeypatch):
+    """The demo is what sources the chapter's spread threshold, so it has to
+    train each seed exactly once and report max - min over the results."""
+    from src.part_2_methods.ch05_ppo import seeding, train_pendulum
+
+    scores = {0: -500.0, 1: -600.0, 2: -800.0}
+    calls = []
+
+    def fake_main(seed, episodes, verbose):
+        calls.append(seed)
+        return _fake_result(episodes, value=scores[seed])
+
+    monkeypatch.setattr(train_pendulum, "main", fake_main)
+    lines = []
+    result = seeding._demo((0, 1, 2), episodes=30, printer=lines.append)
+
+    assert calls == [0, 1, 2], "one run per seed, in order"
+    assert result == [-500.0, -600.0, -800.0]
+    assert "300.0" in "\n".join(lines), "the spread has to reach the reader"

@@ -4,7 +4,7 @@
 .PHONY: help install install-full install-atari install-test test test-all doctor clean \
         run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole run-ch3-atari \
         run-ch4-pendulum run-ch4-ablation run-ch5-pendulum run-ch5-ablation \
-        run-ch5-sweep run-ch6-pendulum notebook
+        run-ch5-seeding run-ch5-sweep run-ch6-pendulum notebook
 
 # Interpreter used by every target. Defaults to python3 because a bare `python`
 # does not exist on most Linux distributions or on macOS 12.3+. Override it to
@@ -50,6 +50,7 @@ help:
 	@echo "Chapter 5: PPO"
 	@echo "  make run-ch5-pendulum    - Train PPO on Pendulum-v1 (~4 min on CPU)"
 	@echo "  make run-ch5-ablation    - Ablate the clipped objective (~4 min)"
+	@echo "  make run-ch5-seeding     - Show PPO's seed-to-seed spread (~3 min)"
 	@echo "  make run-ch5-sweep       - Hyperparameter sensitivity bowls (~30 min)"
 	@echo "     ...add FIGURE_DIR=dir to either to write PNG + SVG"
 	@echo ""
@@ -160,6 +161,13 @@ CH5_FIGURE_ARG = $(if $(FIGURE_DIR),--figure $(FIGURE_DIR))
 run-ch5-ablation:
 	@echo "Running Chapter 5: PPO clipping ablation..."
 	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.ablation $(CH5_FIGURE_ARG) $(EXTRA)
+
+# Three seeds, one run each; budget about three minutes. Prints the
+# seed-to-seed spread the chapter thresholds its "resolved by 3 seeds?" column
+# on, so the number in the text has a source a reader can re-run.
+run-ch5-seeding:
+	@echo "Running Chapter 5: PPO seed variance..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.seeding $(EXTRA)
 
 # Twelve distinct configurations x three seeds; budget about thirty minutes.
 run-ch5-sweep:

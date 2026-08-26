@@ -18,12 +18,13 @@ from collections import namedtuple
 
 import gymnasium as gym
 import numpy as np
-import torch
 
 if __package__:
     from .ppo_agent import PPOAgent
+    from .seeding import episode_seed, set_seed
 else:  # pragma: no cover - only used by direct script execution.
     from ppo_agent import PPOAgent
+    from seeding import episode_seed, set_seed
 
 ENV_ID = "Pendulum-v1"
 EPISODES = 400
@@ -73,17 +74,10 @@ def main(seed=42, episodes=EPISODES, update_every=UPDATE_EVERY,
     The hyperparameters pass straight through to the agent, so each row of the
     ablation is one call to this function.
     """
-    # Pinning the thread count is part of seeding, not a performance tweak.
-    # Torch's intra-op parallelism changes the order floating-point work is
-    # reduced in, so the same seed on an 8-core machine and a 4-core one
-    # produces different returns -- seed 0 over 40 episodes scores -1154.9 on
-    # eight threads and -1181.1 on one. A chapter that prints exact terminal
-    # output has to pin this or no reader reproduces the printed numbers.
-    # These networks are 64 units wide, so one thread costs nothing in wall
-    # time and burns about a quarter of the CPU.
-    torch.set_num_threads(1)
-    torch.manual_seed(seed)
-    np.random.seed(seed)
+    # Covers weight init, the policy's action sampling, and the minibatch
+    # permutation, and pins the thread count. See seeding.py for why the thread
+    # count belongs here rather than in a performance note.
+    set_seed(seed)
 
     env = gym.make(ENV_ID)
     state_dim = env.observation_space.shape[0]
@@ -105,7 +99,7 @@ def main(seed=42, episodes=EPISODES, update_every=UPDATE_EVERY,
 
     try:
         for episode in range(1, episodes + 1):
-            state, _ = env.reset(seed=seed + episode)
+            state, _ = env.reset(seed=episode_seed(seed, episode))
             ep_reward = 0.0
 
             for _ in range(env.spec.max_episode_steps):
