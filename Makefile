@@ -49,8 +49,9 @@ help:
 	@echo ""
 	@echo "Chapter 5: PPO"
 	@echo "  make run-ch5-pendulum    - Train PPO on Pendulum-v1 (~4 min on CPU)"
-	@echo "  make run-ch5-ablation    - Ablate the clipped objective (~3 min)"
-	@echo "  make run-ch5-sweep       - Hyperparameter sensitivity bowls (~20 min)"
+	@echo "  make run-ch5-ablation    - Ablate the clipped objective (~4 min)"
+	@echo "  make run-ch5-sweep       - Hyperparameter sensitivity bowls (~30 min)"
+	@echo "     ...add FIGURE_DIR=dir to either to write PNG + SVG"
 	@echo ""
 	@echo "Chapter 6: SAC"
 	@echo "  make run-ch6-pendulum    - Train SAC on Pendulum-v1 (~5 min on CPU)"
@@ -147,17 +148,23 @@ run-ch5-pendulum:
 	@echo "Running Chapter 5: PPO on Pendulum-v1..."
 	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.train_pendulum
 
-# Two variants x three seeds; budget about three minutes on a CPU.
-# Pass --figure DIR to write the figure, or --include-tight to add the
-# over-tight eps = 0.05 curve.
+# Both ablation targets print their table to the terminal and write nothing.
+# Set FIGURE_DIR to also emit PNG + SVG, e.g.
+#
+#   make run-ch5-sweep FIGURE_DIR=figures
+#
+CH5_FIGURE_ARG = $(if $(FIGURE_DIR),--figure $(FIGURE_DIR))
+
+# Two variants x three seeds; budget about four minutes on a CPU.
+# Pass EXTRA="--include-tight" to add the over-tight eps = 0.05 curve.
 run-ch5-ablation:
 	@echo "Running Chapter 5: PPO clipping ablation..."
-	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.ablation
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.ablation $(CH5_FIGURE_ARG) $(EXTRA)
 
-# Twelve distinct configurations x three seeds; budget about twenty minutes.
+# Twelve distinct configurations x three seeds; budget about thirty minutes.
 run-ch5-sweep:
 	@echo "Running Chapter 5: PPO sensitivity sweeps..."
-	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.ablation --sweep
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.ablation --sweep $(CH5_FIGURE_ARG) $(EXTRA)
 
 # --- Chapter 6 Commands ---
 
