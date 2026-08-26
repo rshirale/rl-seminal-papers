@@ -3,7 +3,8 @@
 
 .PHONY: help install install-full install-atari install-test test test-all doctor clean \
         run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole run-ch3-atari \
-        run-ch4-pendulum run-ch4-ablation run-ch6-pendulum notebook
+        run-ch4-pendulum run-ch4-ablation run-ch5-pendulum run-ch5-ablation \
+        run-ch5-sweep run-ch6-pendulum notebook
 
 # Interpreter used by every target. Defaults to python3 because a bare `python`
 # does not exist on most Linux distributions or on macOS 12.3+. Override it to
@@ -45,6 +46,11 @@ help:
 	@echo "Chapter 4: DDPG"
 	@echo "  make run-ch4-pendulum    - Train DDPG on Pendulum-v1 (~3 min on CPU)"
 	@echo "  make run-ch4-ablation    - Ablate target networks (chapter figure 4.7)"
+	@echo ""
+	@echo "Chapter 5: PPO"
+	@echo "  make run-ch5-pendulum    - Train PPO on Pendulum-v1 (~4 min on CPU)"
+	@echo "  make run-ch5-ablation    - Ablate the clipped objective (~3 min)"
+	@echo "  make run-ch5-sweep       - Hyperparameter sensitivity bowls (~20 min)"
 	@echo ""
 	@echo "Chapter 6: SAC"
 	@echo "  make run-ch6-pendulum    - Train SAC on Pendulum-v1 (~5 min on CPU)"
@@ -132,6 +138,26 @@ run-ch4-pendulum:
 run-ch4-ablation:
 	@echo "Running Chapter 4: DDPG component ablation..."
 	@$(PYTHON_ABS) -m src.part_2_methods.ch04_ddpg.ablation
+
+# --- Chapter 5 Commands ---
+
+CH5_DIR = src/part_2_methods/ch05_ppo
+
+run-ch5-pendulum:
+	@echo "Running Chapter 5: PPO on Pendulum-v1..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.train_pendulum
+
+# Two variants x three seeds; budget about three minutes on a CPU.
+# Pass --figure DIR to write the figure, or --include-tight to add the
+# over-tight eps = 0.05 curve.
+run-ch5-ablation:
+	@echo "Running Chapter 5: PPO clipping ablation..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.ablation
+
+# Twelve distinct configurations x three seeds; budget about twenty minutes.
+run-ch5-sweep:
+	@echo "Running Chapter 5: PPO sensitivity sweeps..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.ablation --sweep
 
 # --- Chapter 6 Commands ---
 
