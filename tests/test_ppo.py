@@ -19,15 +19,22 @@ def make_agent():
     )
 
 
-def test_actions_are_bounded_and_diagnostics_are_finite():
+def test_action_mean_is_bounded_and_diagnostics_are_finite():
     agent = make_agent()
+    state = np.zeros(3, dtype=np.float32)
+
+    # Chapter 5 squashes only the distribution mean, so samples themselves are
+    # unbounded; the environment clips them. Assert on the mean instead.
+    with torch.no_grad():
+        mean = agent.actor(torch.FloatTensor(state).unsqueeze(0)).mean
+    assert torch.all(mean >= -2.0)
+    assert torch.all(mean <= 2.0)
 
     for _ in range(100):
-        action, logprob, value = agent.select_action(np.zeros(3, dtype=np.float32))
+        action, logprob, value = agent.select_action(state)
 
         assert action.shape == (1,)
-        assert np.all(action >= -2.0)
-        assert np.all(action <= 2.0)
+        assert np.all(np.isfinite(action))
         assert np.isfinite(logprob)
         assert np.isfinite(value)
 

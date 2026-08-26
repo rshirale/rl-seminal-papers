@@ -3,32 +3,6 @@ import torch.nn as nn
 from torch.distributions import Normal
 
 
-class SquashedNormal:
-    """Normal policy transformed to the environment's bounded action range."""
-
-    def __init__(self, mean, std, max_action):
-        self.base = Normal(mean, std)
-        self.max_action = max_action
-
-    def sample(self):
-        """Sample an action in ``[-max_action, max_action]``."""
-        return torch.tanh(self.base.sample()) * self.max_action
-
-    def log_prob(self, action):
-        """Return the log probability of a scaled, squashed action."""
-        scaled = torch.clamp(action / self.max_action, -1 + 1e-6, 1 - 1e-6)
-        pre_tanh = torch.atanh(scaled)
-        correction = torch.log(1 - scaled.square() + 1e-6)
-        action_scale_correction = torch.log(
-            torch.as_tensor(self.max_action, device=action.device)
-        )
-        return self.base.log_prob(pre_tanh) - correction - action_scale_correction
-
-    def entropy(self):
-        """Return the base entropy as a stable entropy approximation."""
-        return self.base.entropy()
-
-
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, max_action):
         super().__init__()
@@ -39,6 +13,8 @@ class Actor(nn.Module):
             nn.Tanh()
         )
         self.mu = nn.Linear(64, action_dim)
+        # The state-independent log_std parameter is a modern best practice
+        # not explicitly detailed in the original paper.
         self.log_std = nn.Parameter(
             torch.zeros(1, action_dim)
         )
@@ -46,14 +22,18 @@ class Actor(nn.Module):
 
     def forward(self, state):
         x = self.net(state)
-        mu = self.mu(x)
-        std = self.log_std.clamp(-5, 2).exp().expand_as(mu)
-        return SquashedNormal(mu, std, self.max_action)
+        # Squash the mean into the environment's action bounds. Samples
+        # themselves are unbounded; the environment clips them.
+        mu = torch.tanh(self.mu(x)) * self.max_action
+        std = self.log_std.exp().expand_as(mu)
+        return Normal(mu, std)
 
 
 class Critic(nn.Module):
     def __init__(self, state_dim):
         super().__init__()
+        # A separate backbone from the actor's: the two networks share no
+        # parameters.
         self.net = nn.Sequential(
             nn.Linear(state_dim, 64),
             nn.Tanh(),
