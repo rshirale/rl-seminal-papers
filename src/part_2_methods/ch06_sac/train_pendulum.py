@@ -29,12 +29,12 @@ WARMUP_STEPS  = 10_000   # random actions before the first gradient update
 PRINT_EVERY   = 10       # episodes
 
 
-def main():
-    torch.manual_seed(SEED)
-    np.random.seed(SEED)
+def main(seed=42):
+    torch.manual_seed(seed)
+    np.random.seed(seed)
 
     env = gym.make(ENV_ID)
-    env.action_space.seed(SEED)
+    env.action_space.seed(seed)
     state_dim  = env.observation_space.shape[0]   # 3
     action_dim = env.action_space.shape[0]         # 1
     max_action = float(env.action_space.high[0])   # 2.0
@@ -86,4 +86,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(SEED)
