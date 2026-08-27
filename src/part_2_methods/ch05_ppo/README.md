@@ -13,7 +13,7 @@ Chapter 4's DDPG was off-policy and deterministic. PPO is on-policy and stochast
 - `seeding.py`: `set_seed` and `episode_seed` cover every RNG a run draws from, in one place. Also runnable — it trains one seed at a time and prints the spread.
 - `train_pendulum.py`: the runnable Pendulum-v1 experiment. `main()` is importable and returns a `RunResult` of `(returns, approx_kls, clip_fracs)`, so `ablation.py` drives one configuration per call instead of re-implementing the loop.
 - `ablation.py`: the clipping ablation behind the chapter's figure 5.9, plus the one-at-a-time sensitivity sweeps behind figure 5.8.
-- `plot_efficiency.py`: a DDPG/PPO/SAC sample-efficiency comparison. **Currently orphaned** — see Implementation Notes.
+- `plot_efficiency.py`: the DDPG/PPO/SAC sample-efficiency comparison behind Table 5.3's efficiency column, plotted against environment steps rather than episodes. Spans three chapters, so it is the one script here that imports from `ch04_ddpg` and `ch06_sac`.
 - `Chapter5_PPO.ipynb`: the interactive companion notebook (Colab-ready).
 - `__init__.py`: exposes `Actor`, `Critic`, and `PPOAgent`.
 
@@ -60,10 +60,16 @@ The sensitivity sweeps vary one hyperparameter at a time around the published co
 make run-ch5-sweep
 ```
 
-Both write figures only if you ask. `FIGURE_DIR` emits PNG + SVG:
+Compare PPO's sample efficiency against DDPG and SAC on one axis. This one spans chapters 4, 5, and 6, and takes about thirty minutes — SAC needs the fewest samples and the most wall-clock, because it takes a gradient step per environment step:
 ```bash
-make run-ch5-ablation FIGURE_DIR=figures EXTRA="--include-tight"  # ch05-figure-clipping
-make run-ch5-sweep    FIGURE_DIR=figures                          # ch05-figure-sensitivity
+make run-ch5-efficiency
+```
+
+Every figure-producing target writes only if you ask. `FIGURE_DIR` emits PNG + SVG:
+```bash
+make run-ch5-ablation   FIGURE_DIR=figures EXTRA="--include-tight"  # ch05-figure-clipping
+make run-ch5-sweep      FIGURE_DIR=figures                          # ch05-figure-sensitivity
+make run-ch5-efficiency FIGURE_DIR=figures                          # ch05-figure-efficiency
 ```
 
 Interactive notebook: open `Chapter5_PPO.ipynb` locally, or in [Google Colab](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb).
@@ -88,7 +94,9 @@ Interactive notebook: open `Chapter5_PPO.ipynb` locally, or in [Google Colab](ht
 
 - **Knobs the paper's listing omits.** The loss carries a 0.5 value coefficient and a 0.01 entropy bonus, and gradients are clipped to a global norm of 0.5. All three are standard in reference implementations and none is in the paper's pseudocode.
 
-- **`plot_efficiency.py` is orphaned.** It compares DDPG, PPO, and SAC sample efficiency on one axis, which is a genuinely useful figure — but nothing currently consumes it. The chapter references no such figure (Table 5.3 makes that comparison qualitatively instead), no make target or test covers it, and it is the one file here that does not follow the chapter's conventions: it manipulates `sys.path` directly, seeds by hand instead of calling `seeding.py`, and writes to a **hardcoded absolute path** rather than taking a `--figure` directory like `ablation.py` does. That path points into a second checkout of the manuscript repo, so on a machine with more than one it will silently write the figure somewhere other than the copy being edited. Treat it as unmaintained until it is wired up or removed.
+- **The efficiency comparison spans three chapters, so it drives all three from one place.** `plot_efficiency.py` calls `main()` in `ch04_ddpg`, `ch05_ppo`, and `ch06_sac` and seeds each run itself through `seeding.set_seed`. That last part matters: chapters 4 and 6 do not pin their own thread count, so seeding from the caller is what makes the figure reproducible across all three. SAC budgets in environment steps rather than episodes, so it is the one runner that converts (`episodes × 200`, which is exact because Pendulum-v1 always truncates at 200 steps and never terminates).
+
+  Read the figure horizontally. All three algorithms converge on this task; the sample-efficiency claim is about *where each curve crosses a given return*, not where it ends. Note also that environment steps are not wall-clock — SAC needs the fewest samples and takes the longest to run, because it takes a gradient step per environment step.
 
 ## Troubleshooting
 

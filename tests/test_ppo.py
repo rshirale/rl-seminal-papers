@@ -265,3 +265,60 @@ def test_seeding_demo_runs_once_per_seed_and_reports_the_spread(monkeypatch):
     assert calls == [0, 1, 2], "one run per seed, in order"
     assert result == [-500.0, -600.0, -800.0]
     assert "300.0" in "\n".join(lines), "the spread has to reach the reader"
+
+
+# --- sample-efficiency figure ---------------------------------------------
+
+def test_efficiency_styles_cover_every_algorithm():
+    """A label with no STYLES entry raises KeyError inside plot(), long after
+    the runs that produced it have been paid for."""
+    from src.part_2_methods.ch05_ppo import plot_efficiency
+
+    for label, _ in plot_efficiency.ALGORITHMS:
+        assert label in plot_efficiency.STYLES
+
+
+def test_efficiency_runs_every_algorithm_against_every_seed():
+    """``run`` binds ALGORITHMS as a default argument, so a caller overriding
+    it passes it in rather than patching the module attribute."""
+    from src.part_2_methods.ch05_ppo import plot_efficiency
+
+    calls = []
+
+    def fake(name):
+        def runner(seed, episodes):
+            calls.append((name, seed))
+            return [-1000.0] * episodes
+        return runner
+
+    results = plot_efficiency.run(
+        seeds=(0, 1), episodes=10, printer=lambda *a, **k: None,
+        algorithms=(("DDPG (chapter 4)", fake("ddpg")),
+                    ("PPO (chapter 5)", fake("ppo")),
+                    ("SAC (chapter 6)", fake("sac"))))
+
+    assert len(calls) == 6, "three algorithms x two seeds"
+    assert set(results) == {"DDPG (chapter 4)", "PPO (chapter 5)",
+                            "SAC (chapter 6)"}
+    assert all(len(c) == 10 for curves in results.values() for c in curves)
+
+
+def test_sac_main_returns_its_curve():
+    """Regression guard. ``main`` used to end on a print and return None, so
+    every caller that wanted the curve got a TypeError instead."""
+    from src.part_2_methods.ch06_sac.train_pendulum import main
+
+    returns = main(seed=0, total_steps=400, verbose=False)
+
+    assert isinstance(returns, list)
+    assert len(returns) == 2, "400 steps of 200-step episodes"
+    assert all(isinstance(r, float) for r in returns)
+
+
+def test_sac_seed_reaches_the_environment():
+    """Regression guard. The environment was reset with the module-level SEED
+    rather than the argument, so every seed replayed one episode stream."""
+    from src.part_2_methods.ch06_sac.train_pendulum import main
+
+    assert main(seed=0, total_steps=400, verbose=False) != \
+        main(seed=1, total_steps=400, verbose=False)
