@@ -92,7 +92,7 @@ Interactive notebook: open `Chapter5_PPO.ipynb` locally, or in [Google Colab](ht
 
 ## Troubleshooting
 
-- **My numbers do not match the book.** Check the thread pin first: run `python -c "import torch; print(torch.get_num_threads())"` inside the training process' environment. `train_pendulum.py` pins it to 1, but the notebook is standalone by design and does not. Beyond that, exact reproduction is guaranteed only within a platform and PyTorch version — the trend, not the digits, is what transfers.
+- **My numbers do not match the book.** Check the thread pin first: run `python -c "import torch; print(torch.get_num_threads())"` inside the training process' environment. It should be 1. `train_pendulum.py` pins it through `set_seed`, and the notebook pins it directly in its setup cell — the notebook is standalone by design and imports nothing from `src/`, so it duplicates the line rather than sharing it. Beyond that, exact reproduction is guaranteed only within a platform and PyTorch version — the trend, not the digits, is what transfers.
 
 - **The agent is not learning.** Read `approx_kl` and `clip_frac` before touching anything. Healthy runs sit around `approx_kl` 0.005–0.03 and `clip_frac` 0.08–0.25. `approx_kl` above 0.05 means the policy is jumping too far — lower `--lr` or `--eps-clip`. `clip_frac` near 0 means the clip never binds and you have no trust region; near 1 means it binds on everything and throttles learning.
 
