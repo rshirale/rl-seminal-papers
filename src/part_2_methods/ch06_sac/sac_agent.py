@@ -4,9 +4,14 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-from actor import Actor
-from critic import Critic
-from replay_buffer import ReplayBuffer
+if __package__:
+    from .actor import Actor
+    from .critic import Critic
+    from .replay_buffer import ReplayBuffer
+else:  # pragma: no cover - only used by direct script execution.
+    from actor import Actor
+    from critic import Critic
+    from replay_buffer import ReplayBuffer
 
 
 class SACAgent:

@@ -3,7 +3,8 @@
 
 .PHONY: help install install-full install-atari install-test test test-all doctor clean \
         run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole run-ch3-atari \
-        run-ch4-pendulum run-ch4-ablation run-ch6-pendulum notebook
+        run-ch4-pendulum run-ch4-ablation run-ch5-pendulum run-ch5-ablation \
+        run-ch5-seeding run-ch5-sweep run-ch5-efficiency run-ch6-pendulum notebook
 
 # Interpreter used by every target. Defaults to python3 because a bare `python`
 # does not exist on most Linux distributions or on macOS 12.3+. Override it to
@@ -45,6 +46,14 @@ help:
 	@echo "Chapter 4: DDPG"
 	@echo "  make run-ch4-pendulum    - Train DDPG on Pendulum-v1 (~3 min on CPU)"
 	@echo "  make run-ch4-ablation    - Ablate target networks (chapter figure 4.7)"
+	@echo ""
+	@echo "Chapter 5: PPO"
+	@echo "  make run-ch5-pendulum    - Train PPO on Pendulum-v1 (~4 min on CPU)"
+	@echo "  make run-ch5-ablation    - Ablate the clipped objective (~4 min)"
+	@echo "  make run-ch5-seeding     - Show PPO's seed-to-seed spread (~3 min)"
+	@echo "  make run-ch5-sweep       - Hyperparameter sensitivity bowls (~30 min)"
+	@echo "  make run-ch5-efficiency  - DDPG vs PPO vs SAC sample efficiency (~30 min)"
+	@echo "     ...add FIGURE_DIR=dir to any of these to write PNG + SVG"
 	@echo ""
 	@echo "Chapter 6: SAC"
 	@echo "  make run-ch6-pendulum    - Train SAC on Pendulum-v1 (~5 min on CPU)"
@@ -132,6 +141,45 @@ run-ch4-pendulum:
 run-ch4-ablation:
 	@echo "Running Chapter 4: DDPG component ablation..."
 	@$(PYTHON_ABS) -m src.part_2_methods.ch04_ddpg.ablation
+
+# --- Chapter 5 Commands ---
+
+CH5_DIR = src/part_2_methods/ch05_ppo
+
+run-ch5-pendulum:
+	@echo "Running Chapter 5: PPO on Pendulum-v1..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.train_pendulum
+
+# Both ablation targets print their table to the terminal and write nothing.
+# Set FIGURE_DIR to also emit PNG + SVG, e.g.
+#
+#   make run-ch5-sweep FIGURE_DIR=figures
+#
+CH5_FIGURE_ARG = $(if $(FIGURE_DIR),--figure $(FIGURE_DIR))
+
+# Two variants x three seeds; budget about four minutes on a CPU.
+# Pass EXTRA="--include-tight" to add the over-tight eps = 0.05 curve.
+run-ch5-ablation:
+	@echo "Running Chapter 5: PPO clipping ablation..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.ablation $(CH5_FIGURE_ARG) $(EXTRA)
+
+# Three seeds, one run each; budget about three minutes. Prints the
+# seed-to-seed spread the chapter thresholds its "resolved by 3 seeds?" column
+# on, so the number in the text has a source a reader can re-run.
+run-ch5-seeding:
+	@echo "Running Chapter 5: PPO seed variance..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.seeding $(EXTRA)
+
+# Twelve distinct configurations x three seeds; budget about thirty minutes.
+run-ch5-sweep:
+	@echo "Running Chapter 5: PPO sensitivity sweeps..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.ablation --sweep $(CH5_FIGURE_ARG) $(EXTRA)
+
+# Three algorithms x three seeds, spanning chapters 4, 5, and 6; budget
+# about thirty minutes. SAC is the slow one: a gradient update per step.
+run-ch5-efficiency:
+	@echo "Running Chapter 5: DDPG vs PPO vs SAC sample efficiency..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch05_ppo.plot_efficiency $(CH5_FIGURE_ARG) $(EXTRA)
 
 # --- Chapter 6 Commands ---
 

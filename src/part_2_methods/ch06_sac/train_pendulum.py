@@ -20,7 +20,10 @@ import gymnasium as gym
 import numpy as np
 import torch
 
-from sac_agent import SACAgent
+if __package__:
+    from .sac_agent import SACAgent
+else:  # pragma: no cover - only used by direct script execution.
+    from sac_agent import SACAgent
 
 SEED          = 42
 ENV_ID        = "Pendulum-v1"
@@ -29,24 +32,24 @@ WARMUP_STEPS  = 10_000   # random actions before the first gradient update
 PRINT_EVERY   = 10       # episodes
 
 
-def main():
-    torch.manual_seed(SEED)
-    np.random.seed(SEED)
+def main(seed=42, total_steps=TOTAL_STEPS, verbose=True):
+    torch.manual_seed(seed)
+    np.random.seed(seed)
 
     env = gym.make(ENV_ID)
-    env.action_space.seed(SEED)
+    env.action_space.seed(seed)
     state_dim  = env.observation_space.shape[0]   # 3
     action_dim = env.action_space.shape[0]         # 1
     max_action = float(env.action_space.high[0])   # 2.0
 
     agent = SACAgent(state_dim, action_dim, max_action)
 
-    state, _ = env.reset(seed=SEED)
+    state, _ = env.reset(seed=seed)
     ep_return = 0.0
     returns = []
     episode = 0
 
-    for step in range(1, TOTAL_STEPS + 1):
+    for step in range(1, total_steps + 1):
         if len(agent.replay) < WARMUP_STEPS:
             action = env.action_space.sample()
         else:
@@ -69,7 +72,7 @@ def main():
         if done:
             episode += 1
             returns.append(ep_return)
-            if episode % PRINT_EVERY == 0:
+            if verbose and episode % PRINT_EVERY == 0:
                 avg = np.mean(returns[-PRINT_EVERY:])
                 print(f"Episode {episode:4d} | Step {step:6d} | "
                       f"Return: {ep_return:8.1f} | "
@@ -79,11 +82,14 @@ def main():
             ep_return = 0.0
 
     env.close()
-    print("\nTraining complete.")
-    if returns:
-        print(f"Final {PRINT_EVERY}-episode average: "
-              f"{np.mean(returns[-PRINT_EVERY:]):.1f}")
+    if verbose:
+        print("\nTraining complete.")
+        if returns:
+            print(f"Final {PRINT_EVERY}-episode average: "
+                  f"{np.mean(returns[-PRINT_EVERY:]):.1f}")
+
+    return returns
 
 
 if __name__ == "__main__":
-    main()
+    main(SEED)
