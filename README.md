@@ -113,12 +113,25 @@ make run-ch3-atari
 # Chapter 4: DDPG on Pendulum-v1 (~3 min on CPU)
 make run-ch4-pendulum
 
-# Chapter 4: DDPG component ablation (target networks; chapter figure 4.7)
+# Chapter 4: DDPG component ablation (target networks; chapter figure 4.10)
+#   Nine 200-episode runs -- about 92 min on an 8-core CPU.
 make run-ch4-ablation
 
-# Chapter 5: PPO on Pendulum-v1
-python -m src.part_2_methods.ch05_ppo.train_pendulum --episodes 10
+# Chapter 5: PPO on Pendulum-v1 (~4 min on CPU)
+make run-ch5-pendulum
+
+# Chapter 5: the clipped objective ablation (chapter figure 5.9)
+make run-ch5-ablation
+
+# Chapter 5: what the seed alone is worth, before trusting any comparison
+make run-ch5-seeding
+
+# Chapter 6: SAC on Pendulum-v1 (~5 min on CPU)
+make run-ch6-pendulum
 ```
+
+`make help` lists every target, including the longer hyperparameter sweeps.
+Any target that draws a figure takes `FIGURE_DIR=dir` to write PNG + SVG.
 
 ### 3. Cleanup
 ```bash
