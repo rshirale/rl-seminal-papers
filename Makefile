@@ -46,6 +46,7 @@ help:
 	@echo "Chapter 4: DDPG"
 	@echo "  make run-ch4-pendulum    - Train DDPG on Pendulum-v1 (~3 min on CPU)"
 	@echo "  make run-ch4-ablation    - Ablate target networks (chapter figure 4.10)"
+	@echo "     ...add FIGURE_DIR=dir to write PNG + SVG"
 	@echo ""
 	@echo "Chapter 5: PPO"
 	@echo "  make run-ch5-pendulum    - Train PPO on Pendulum-v1 (~4 min on CPU)"
@@ -135,13 +136,19 @@ run-ch4-pendulum:
 	@echo "Running Chapter 4: DDPG on Pendulum-v1..."
 	@cd $(CH4_DIR) && $(PYTHON_ABS) train_pendulum.py --seed 0
 
+# Prints its table to the terminal and writes nothing. Set FIGURE_DIR to also
+# emit PNG + SVG, e.g.
+#
+#   make run-ch4-ablation FIGURE_DIR=figures
+#
+CH4_FIGURE_ARG = $(if $(FIGURE_DIR),--figure $(FIGURE_DIR))
+
 # Three variants x three seeds -- nine 200-episode runs. Measured at 92 min
 # on an 8-core Intel MacBook Pro; budget an hour and a half.
-# Pass --figure DIR to regenerate the chapter's ablation figure, or
-# --no-hard-copy for a quicker two-curve sweep while iterating.
+# Pass EXTRA="--no-hard-copy" for a quicker two-curve sweep while iterating.
 run-ch4-ablation:
 	@echo "Running Chapter 4: DDPG component ablation..."
-	@$(PYTHON_ABS) -m src.part_2_methods.ch04_ddpg.ablation
+	@$(PYTHON_ABS) -m src.part_2_methods.ch04_ddpg.ablation $(CH4_FIGURE_ARG) $(EXTRA)
 
 # --- Chapter 5 Commands ---
 

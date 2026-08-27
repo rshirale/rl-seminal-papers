@@ -90,12 +90,13 @@ make run-ch4-ablation
 python -m src.part_2_methods.ch04_ddpg.ablation --seeds 0 1 2 --episodes 200
 
 # drop the hard copy for a quicker two-curve sweep while iterating
-python -m src.part_2_methods.ch04_ddpg.ablation --no-hard-copy
+make run-ch4-ablation EXTRA="--no-hard-copy"
 
 # regenerate the book's figure
-python -m src.part_2_methods.ch04_ddpg.ablation \
-    --figure ../potential-eureka/Books/RL_Seminal_Papers/Chapter4/media
+make run-ch4-ablation FIGURE_DIR=../potential-eureka/Books/RL_Seminal_Papers/Chapter4/media
 ```
+
+`FIGURE_DIR` writes `ch04-figure-ablation.png` and `.svg`; without it the run prints its table and writes nothing.
 
 The full sweep is nine 200-episode training runs and it is genuinely slow — measured at **92 minutes** on an 8-core Intel MacBook Pro, and that will move with your core count. For a quicker look that still separates the variants, `--episodes 100 --seeds 0 1` costs about a fifth of that.
 
