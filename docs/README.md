@@ -63,38 +63,25 @@ Because nothing is compiled, this renders exactly what visitors get. Installing 
 
 ## Pending
 
-### Add the Chapter 4 run commands to the quickstart
+Nothing outstanding on the site itself. The three items previously recorded here
+are closed:
 
-The "Run an experiment" step currently offers only `make run-ch2-cliff` and `make run-ch3-cartpole`. Chapter 4 ships two Make targets and neither is listed. Add both, in the `.copy-wrap` pattern above:
+- **Chapter 4 run commands** — added to the quickstart, along with the ablation's
+  real runtime. Ninety-two minutes is not what a reader budgets for a line
+  sitting between two three-minute ones.
+- **Chapter 4 detail in `llms.txt`** — its module list is now as full as chapter
+  3's. Chapter 5 was the one lagging by the time anyone checked, and has been
+  brought level in the same pass.
+- **Chapter 6 status** — settled as planned. `index.html` and `llms.txt` already
+  said so; the root `README.md` was the file out of step, listing a Colab badge
+  that read as shipped. It now marks the chapter in progress while keeping the
+  notebook reachable, because the code does run.
 
-```
-make run-ch4-pendulum — DDPG on Pendulum-v1 (~3 min)
-make run-ch4-ablation — Which components DDPG actually needs (~90 min)
-```
-
-Put the runtime on the ablation row. It is nine 200-episode training runs, measured at 92 minutes on an 8-core Intel CPU. Without that note, a reader who copies the command will reasonably conclude it has hung.
-
-### Bring Chapter 4 up to Chapter 3's level of detail in `llms.txt`
-
-Chapter 3 lists six individual source files. Chapter 4 lists only the notebook, the Colab link, and the directory tree, though it now has a fuller module set and a README that separates the files you run from the files you read. Add:
-
-```
-- Chapter 4 README: …/blob/main/src/part_2_methods/ch04_ddpg/README.md
-- Chapter 4 Actor network: …/actor.py
-- Chapter 4 Critic network: …/critic.py
-- Chapter 4 Replay buffer: …/replay_buffer.py
-- Chapter 4 Gaussian exploration noise: …/gaussian_noise.py
-- Chapter 4 DDPG agent: …/ddpg_agent.py
-- Chapter 4 Pendulum training script: …/train_pendulum.py
-- Chapter 4 Component ablation: …/ablation.py
-- Chapter 4 Seeding helper (reproducible runs): …/seeding.py
-```
-
-Chapter 3 links its README nowhere either — worth adding both in the same pass.
-
-### Confirm the Chapter 6 status
-
-`index.html` lists Chapter 6 (SAC) as planned, and `llms.txt` marks it `(planned)`, while `src/part_2_methods/ch06_sac/` exists with an implementation and a notebook, and the root `README.md` lists Chapter 6 with a Colab badge. The site and the repository disagree. Confirm the intended status before changing either.
+When adding a chapter, the files that need touching together are `index.html`
+(chapter row *and* quickstart command), `llms.txt` (the chapter list *and* the
+resource links), the three `<head>` descriptions, and `sitemap.xml`. A chapter
+that lands in the row list but not the quickstart is the failure mode this
+section keeps catching.
 
 ## Before you start
 

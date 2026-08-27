@@ -65,10 +65,16 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 4 Replay buffer: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/replay_buffer.py
 - Chapter 4 Seeding helper (reproducible runs): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/seeding.py
 - Chapter 4 Pendulum training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/train_pendulum.py
-- Chapter 4 DDPG component ablation (target networks; chapter figure 4.7): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/ablation.py
+- Chapter 4 DDPG component ablation (target networks; chapter figure 4.10): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/ablation.py
+- Chapter 5 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/README.md
 - Chapter 5 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb
 - Chapter 5 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb
-- Chapter 5 implementation: https://github.com/rshirale/rl-seminal-papers/tree/main/src/part_2_methods/ch05_ppo
+- Chapter 5 Actor and Critic (Gaussian policy with squashed mean, separate value backbone): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/actor_critic.py
+- Chapter 5 PPO agent (GAE advantages, clipped surrogate objective, approx_kl and clip_frac diagnostics): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/ppo_agent.py
+- Chapter 5 Seeding helper (reproducible runs, and a runnable seed-variance demo): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/seeding.py
+- Chapter 5 Pendulum training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/train_pendulum.py
+- Chapter 5 Clipping ablation and hyperparameter sensitivity sweeps (chapter figures 5.8 and 5.9): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/ablation.py
+- Chapter 5 Sample-efficiency comparison (DDPG vs PPO vs SAC): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/plot_efficiency.py
 
 ## Author
 
