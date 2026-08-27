@@ -1,22 +1,19 @@
 """Component ablation for Chapter 4: what actually makes DDPG work.
 
-Trains the variants behind the chapter's figure 4.7 on Pendulum-v1 across
-several seeds and reports the learning curves. By default that is the two the
-figure describes, isolating a single design decision:
+Trains the three variants behind the chapter's figure 4.10 on Pendulum-v1
+across several seeds and reports the learning curves. Each isolates a single
+design decision:
 
     1. No target networks -- the online critic computes the target it is then
        trained against, so the label moves as fast as the learner.
     2. Full DDPG          -- soft targets at tau = 0.001, the published
        configuration.
+    3. Hard target copy   -- the targets exist, but are overwritten wholesale
+       every ``hard_update_freq`` steps, DQN-style, instead of drifting.
 
-Exploration noise is identical in both (i.i.d. Gaussian, sigma = 0.2), which is
-what lets the chapter attribute the whole gap to the target networks.
-
-A third variant, a DQN-style hard target copy, is available behind
-``--include-hard-copy``. It is deliberately not part of the default run: the
-figure's caption names two curves and their linestyles, so a default that
-emitted three would contradict the printed page. Use it to answer the "why not
-just copy the weights" question, not to regenerate figure 4.7.
+Exploration noise is identical in all three (i.i.d. Gaussian, sigma = 0.2),
+which is what lets the chapter attribute the whole gap to the target networks
+rather than to the noise process.
 
 Two notes on reading the results:
 
@@ -25,22 +22,27 @@ Two notes on reading the results:
     Gaussian only -- OU survives as historical context -- so the comparison
     moved to the target networks, which is what the text argues for at length.
 
-  * **Report what the curves show, not what the argument wants.** Whether the
-    no-target variant stays under the random-policy line is an empirical
-    question, and on a task this easy it may well cross it on some seeds. The
-    load-bearing evidence is the seed-to-seed spread: an unstable variant is
-    one whose outcome depends on the draw. Read the spread column before the
-    mean.
+  * **Report what the curves show, not what the argument wants.** The
+    no-target variant does escape the random-policy line on this task; what it
+    never does is approach the converged score. The load-bearing evidence is
+    the seed-to-seed spread: an unstable variant is one whose outcome depends
+    on the draw. Read the spread column before the mean.
+
+    The same discipline applies to the hard copy. Section 4.4 warns that
+    wholesale copies destabilize co-evolving actor-critic pairs, and on
+    Pendulum-v1 that penalty does not materialize -- it lands within seed noise
+    of the soft update. The chapter says so rather than hiding the row.
 
 Usage:
     python -m src.part_2_methods.ch04_ddpg.ablation
     python -m src.part_2_methods.ch04_ddpg.ablation --seeds 0 1 2 3 4
-    python -m src.part_2_methods.ch04_ddpg.ablation --include-hard-copy
     python -m src.part_2_methods.ch04_ddpg.ablation --figure ../../../figures
 
-Runtime: roughly one minute per 100 episodes per run on a CPU, so the default
-sweep (2 variants x 3 seeds x 200 episodes) takes about twenty minutes. Shrink
-it with --episodes and --seeds while iterating.
+Runtime: the default sweep is nine 200-episode training runs, and it is slow --
+measured at 92 minutes on an 8-core Intel MacBook Pro. Budget an hour and a
+half, and expect that to move with your core count. If you only want to see the
+shape of the result, --episodes 100 --seeds 0 1 cuts it to about a fifth and
+still separates the no-target variant clearly.
 """
 
 import argparse
@@ -56,16 +58,14 @@ else:  # pragma: no cover - direct script execution fallback.
 
 # (label, use_target_networks, target_update)
 #
-# These two, in this order, are the curves figure 4.7 describes. Changing the
-# set means changing the caption: it names each line by colour, linestyle and
+# These three, in this order, are the curves figure 4.10 describes. Changing
+# the set means changing the caption: it names each line by linestyle and
 # marker. See STYLES below.
 VARIANTS = (
     ("No target networks", False, "soft"),
     ("Full DDPG (soft targets)", True, "soft"),
+    ("Hard target copy", True, "hard"),
 )
-
-# Opt-in third variant, off by default so the figure regenerates as printed.
-HARD_COPY_VARIANT = ("Hard target copy", True, "hard")
 
 DEFAULT_SEEDS = (0, 1, 2)
 SCORE_WINDOW = 20   # episodes averaged at the end of each run
@@ -74,11 +74,11 @@ RANDOM_POLICY_BASELINE = -1200.0
 
 # Distinguished by linestyle and marker, not colour: Manning prints in black
 # and white, so a figure that encodes meaning in hue alone loses it on paper.
-# The colours are a high/mid/low luminance set, which keeps the curves
-# separable after greyscale conversion too.
-# The first two must match figure 4.7's caption, which reads "Red dashed line
-# with circle markers: no target networks" and "Blue dash-dot line with square
-# markers: full DDPG". The hard-copy variant takes the remaining style.
+# Figure 4.10's caption names the variants exactly this way -- "dashed line
+# with circle markers", "dash-dot line with square markers", "solid line with
+# triangle markers" -- which makes this table part of the chapter's text rather
+# than a presentation detail. The colours are a high/mid/low luminance set, so
+# the curves stay separable after greyscale conversion too.
 STYLES = {
     "No target networks":       {"color": "#CC3311", "ls": "--",  "marker": "o"},
     "Full DDPG (soft targets)": {"color": "#0077BB", "ls": "-.",  "marker": "s"},
@@ -203,12 +203,12 @@ if __name__ == "__main__":
              "book's Chapter4/media directory to regenerate the figure.",
     )
     parser.add_argument(
-        "--include-hard-copy", action="store_true",
-        help="Add the DQN-style hard target copy as a third variant. Off by "
-             "default: figure 4.7's caption names two curves.",
+        "--no-hard-copy", action="store_true",
+        help="Drop the DQN-style hard target copy and plot only the two "
+             "target-network variants. The full three are what figure 4.10 "
+             "shows; this is for a quicker sweep while iterating.",
     )
     args = parser.parse_args()
-    variants = VARIANTS + (HARD_COPY_VARIANT,) if args.include_hard_copy \
-        else VARIANTS
+    variants = VARIANTS[:2] if args.no_hard_copy else VARIANTS
     run(seeds=args.seeds, episodes=args.episodes, figure_dir=args.figure,
         variants=variants)

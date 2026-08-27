@@ -39,11 +39,21 @@ ENV_ID = "Pendulum-v1"
 def main(seed: int | None = None, episodes: int = EPISODES,
          warmup_steps: int = WARMUP_STEPS, sigma: float = 0.2,
          tau: float = 0.001, use_target_networks: bool = True,
-         target_update: str = "soft", verbose: bool = True):
+         target_update: str = "soft", gamma: float = 0.99,
+         actor_lr: float = 1e-4, critic_lr: float = 1e-3,
+         batch_size: int = 64, buffer_size: int = 1_000_000,
+         critic_weight_decay: float = 0.0, verbose: bool = True):
     """Trains on Pendulum-v1 and returns the per-episode returns.
 
     The ablation switches pass straight through to the agent, so each row of
     the chapter's ablation figure is one call to this function.
+
+    Every hyperparameter named in the chapter's tuning cheat sheet (table 4.2)
+    is a keyword here and a flag on the CLI below, so the table can be worked
+    through without editing the file. The defaults are the published
+    configuration and the values the chapter's listings show -- with the one
+    documented exception of ``critic_weight_decay``, which the paper sets to
+    1e-2 and the listings leave at plain Adam.
     """
     env = gym.make(ENV_ID)
 
@@ -56,8 +66,14 @@ def main(seed: int | None = None, episodes: int = EPISODES,
         state_dim=env.observation_space.shape[0],
         action_dim=env.action_space.shape[0],
         max_action=float(env.action_space.high[0]),
+        gamma=gamma,
         tau=tau,
+        actor_lr=actor_lr,
+        critic_lr=critic_lr,
+        batch_size=batch_size,
+        buffer_size=buffer_size,
         sigma=sigma,
+        critic_weight_decay=critic_weight_decay,
         use_target_networks=use_target_networks,
         target_update=target_update,
     )
@@ -147,6 +163,32 @@ if __name__ == "__main__":
         help="Soft target update rate. Exercise 3 in the chapter sweeps this.",
     )
     parser.add_argument(
+        "--gamma", type=float, default=0.99,
+        help="Discount factor. Too low is short-sighted; see table 4.2.",
+    )
+    parser.add_argument(
+        "--actor-lr", type=float, default=1e-4,
+        help="Actor learning rate. Lower it if the policy fluctuates wildly.",
+    )
+    parser.add_argument(
+        "--critic-lr", type=float, default=1e-3,
+        help="Critic learning rate. Ten times the actor's on purpose -- the "
+             "value estimate has to lead the policy that reads it.",
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=64,
+        help="Transitions per gradient update.",
+    )
+    parser.add_argument(
+        "--buffer-size", type=int, default=1_000_000,
+        help="Replay capacity. The paper's 1e6.",
+    )
+    parser.add_argument(
+        "--critic-weight-decay", type=float, default=0.0,
+        help="L2 penalty on the critic. Defaults to 0.0 to match the "
+             "chapter's listings, which use plain Adam; the paper uses 1e-2.",
+    )
+    parser.add_argument(
         "--no-target-networks", action="store_true",
         help="Ablation: let the online networks be their own targets, "
              "reproducing the moving-target instability.",
@@ -163,6 +205,12 @@ if __name__ == "__main__":
         warmup_steps=args.warmup_steps,
         sigma=args.sigma,
         tau=args.tau,
+        gamma=args.gamma,
+        actor_lr=args.actor_lr,
+        critic_lr=args.critic_lr,
+        batch_size=args.batch_size,
+        buffer_size=args.buffer_size,
+        critic_weight_decay=args.critic_weight_decay,
         use_target_networks=not args.no_target_networks,
         target_update="hard" if args.hard_target_updates else "soft",
     )
