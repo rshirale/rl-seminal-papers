@@ -4,7 +4,9 @@
 .PHONY: help install install-full install-atari install-test test test-all doctor clean \
         run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole run-ch3-atari \
         run-ch4-pendulum run-ch4-ablation run-ch5-pendulum run-ch5-ablation \
-        run-ch5-seeding run-ch5-sweep run-ch5-efficiency run-ch6-pendulum notebook
+        run-ch5-seeding run-ch5-sweep run-ch5-efficiency \
+        run-ch6-pendulum run-ch6-ablation run-ch6-temperature \
+        run-ch6-reward-scale run-ch6-seeding notebook
 
 # Interpreter used by every target. Defaults to python3 because a bare `python`
 # does not exist on most Linux distributions or on macOS 12.3+. Override it to
@@ -57,7 +59,12 @@ help:
 	@echo "     ...add FIGURE_DIR=dir to any of these to write PNG + SVG"
 	@echo ""
 	@echo "Chapter 6: SAC"
-	@echo "  make run-ch6-pendulum    - Train SAC on Pendulum-v1 (~5 min on CPU)"
+	@echo "  make run-ch6-pendulum    - Train SAC on Pendulum-v1 (~10 min on CPU)"
+	@echo "  make run-ch6-ablation    - Ablate the entropy bonus (exercise 1, ~30 min)"
+	@echo "  make run-ch6-temperature - Fixed vs learned alpha (exercise 2, ~60 min)"
+	@echo "  make run-ch6-reward-scale- Scale rewards by 10 (exercise 3, ~60 min)"
+	@echo "  make run-ch6-seeding     - Show SAC's seed-to-seed spread (~30 min)"
+	@echo "     ...add FIGURE_DIR=dir to write PNG + SVG"
 	@echo ""
 	@echo "Jupyter Notebooks:"
 	@echo "  make notebook            - Launch Jupyter Lab to view interactive chapters"
@@ -193,9 +200,42 @@ run-ch5-efficiency:
 
 CH6_DIR = src/part_2_methods/ch06_sac
 
+# Seed 42 reproduces the transcript in the chapter's "Expected training output"
+# section. SAC takes a gradient step per environment step, which makes it the
+# slowest runner here and the most sample-efficient one -- both at once.
 run-ch6-pendulum:
 	@echo "Running Chapter 6: SAC on Pendulum-v1..."
-	@cd $(CH6_DIR) && $(PYTHON_ABS) train_pendulum.py
+	@$(PYTHON_ABS) -m src.part_2_methods.ch06_sac.train_pendulum --seed 42
+
+# All three ablation targets print their table to the terminal and write
+# nothing. Set FIGURE_DIR to also emit PNG + SVG, e.g.
+#
+#   make run-ch6-ablation FIGURE_DIR=figures
+#
+CH6_FIGURE_ARG = $(if $(FIGURE_DIR),--figure $(FIGURE_DIR))
+
+# Exercise 1. Two variants x three seeds, 30,000 steps each; budget half an
+# hour. Shrink it while iterating with EXTRA="--steps 6000 --seeds 0".
+run-ch6-ablation:
+	@echo "Running Chapter 6: SAC entropy ablation..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch06_sac.ablation $(CH6_FIGURE_ARG) $(EXTRA)
+
+# Exercise 2. Four variants x three seeds; budget an hour.
+run-ch6-temperature:
+	@echo "Running Chapter 6: SAC fixed vs learned temperature..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch06_sac.ablation --temperature $(CH6_FIGURE_ARG) $(EXTRA)
+
+# Exercise 3. Four variants x three seeds; budget an hour.
+run-ch6-reward-scale:
+	@echo "Running Chapter 6: SAC reward-scale sensitivity..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch06_sac.ablation --reward-scale $(CH6_FIGURE_ARG) $(EXTRA)
+
+# Three seeds, one run each. Prints the seed-to-seed spread every table in
+# this chapter should be read against, so the threshold has a source a reader
+# can re-run rather than a figure they have to take on trust.
+run-ch6-seeding:
+	@echo "Running Chapter 6: SAC seed variance..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch06_sac.seeding $(EXTRA)
 
 # --- Notebooks ---
 
