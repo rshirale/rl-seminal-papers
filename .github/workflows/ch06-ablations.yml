@@ -1,0 +1,149 @@
+# Chapter 6 SAC ablations, run on GitHub's machines instead of a laptop.
+#
+# The three experiments behind the chapter's exercises take roughly 30, 60 and
+# 60 minutes each, so they are deliberately NOT wired to push or pull_request.
+# This runs only when someone clicks "Run workflow" on the Actions tab.
+#
+# A note on what these results are and are not. Every variant inside one run
+# executes on the same machine, so the comparison between variants -- which is
+# the entire point of an ablation -- is sound. The absolute numbers will not
+# match a local run: set_seed pins the thread count, but a different CPU still
+# reduces floating-point work in a different order, and the chapter's README
+# documents reproduction as platform-bound. The seed-42 transcript check stays
+# a local exercise.
+
+name: Chapter 6 SAC ablations
+
+on:
+  workflow_dispatch:
+    inputs:
+      experiment:
+        description: "Which experiment to run"
+        type: choice
+        default: all
+        options: [all, entropy, temperature, reward-scale]
+      seeds:
+        description: "Seeds to average over (space-separated)"
+        type: string
+        default: "0 1 2"
+      steps:
+        description: "Environment steps per run (30000 is the published budget)"
+        type: string
+        default: "30000"
+
+# A second click while one is in flight cancels the first rather than paying
+# for both.
+concurrency:
+  group: ch06-ablations-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ablation:
+    runs-on: ubuntu-latest
+    # Well inside the 6-hour job ceiling even if a runner is half the speed of
+    # the laptop these budgets were measured on.
+    timeout-minutes: 330
+
+    strategy:
+      # One failing experiment should not cancel the other two: a partial
+      # result is still worth downloading.
+      fail-fast: false
+      matrix:
+        include:
+          - experiment: entropy
+            target: run-ch6-ablation
+            label: "exercise 1 - entropy bonus removed"
+          - experiment: temperature
+            target: run-ch6-temperature
+            label: "exercise 2 - fixed vs learned alpha"
+          - experiment: reward-scale
+            target: run-ch6-reward-scale
+            label: "exercise 3 - rewards scaled by 10"
+
+    steps:
+      - name: Skip experiments the dispatcher did not ask for
+        id: gate
+        run: |
+          want='${{ inputs.experiment }}'
+          if [ "$want" = "all" ] || [ "$want" = "${{ matrix.experiment }}" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Skipping ${{ matrix.experiment }} (dispatcher chose '$want')."
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.run == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        if: steps.gate.outputs.run == 'true'
+        # requirements.txt plus torch, rather than requirements-deep.txt: the
+        # deep file pulls gymnasium[atari], ale-py and opencv for chapter 3,
+        # none of which Pendulum-v1 touches. Keeping them out saves several
+        # minutes of install on every matrix leg.
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install "torch>=2.0.0"
+          python -m pip install -r requirements-test.txt
+
+      - name: Confirm the environment the numbers came from
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          python - <<'PY'
+          import platform, torch, numpy, gymnasium
+          print(f"python      {platform.python_version()}")
+          print(f"torch       {torch.__version__}")
+          print(f"numpy       {numpy.__version__}")
+          print(f"gymnasium   {gymnasium.__version__}")
+          print(f"machine     {platform.platform()}")
+          print(f"cpu count   {__import__('os').cpu_count()}")
+          PY
+
+      - name: Guard the modules before spending an hour on them
+        if: steps.gate.outputs.run == 'true'
+        # A typo in ablation.py would otherwise surface 55 minutes in, after
+        # every training call has already finished.
+        run: python -m pytest tests/test_sac.py -q -m "not slow"
+
+      - name: Run ${{ matrix.label }}
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          mkdir -p figures results
+          set -o pipefail
+          make ${{ matrix.target }} \
+            FIGURE_DIR=figures \
+            EXTRA="--seeds ${{ inputs.seeds }} --steps ${{ inputs.steps }}" \
+            2>&1 | tee "results/${{ matrix.experiment }}.txt"
+
+      - name: Put the table in the job summary
+        if: always() && steps.gate.outputs.run == 'true'
+        # So the result is readable on the Actions page without downloading
+        # anything.
+        run: |
+          {
+            echo "## ${{ matrix.label }}"
+            echo ""
+            echo "Seeds \`${{ inputs.seeds }}\`, \`${{ inputs.steps }}\` steps per run."
+            echo ""
+            echo '```'
+            cat "results/${{ matrix.experiment }}.txt" || echo "(no output captured)"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload tables and figures
+        if: always() && steps.gate.outputs.run == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ch06-${{ matrix.experiment }}
+          path: |
+            results/
+            figures/
+          if-no-files-found: warn
+          retention-days: 90

@@ -65,6 +65,8 @@ make run-ch6-temperature
 make run-ch6-reward-scale
 ```
 
+All three take an hour or more between them, so they also run on GitHub's machines: **Actions → Chapter 6 SAC ablations → Run workflow**, which executes the three experiments in parallel and attaches the tables and figures as artifacts. Absolute numbers from a CI runner will not match a local run — reduction order differs by CPU — but every variant inside one run shares a machine, so the comparison the ablation is making holds. The seed-42 transcript check stays local.
+
 Every figure-producing target writes only if you ask. `FIGURE_DIR` emits PNG + SVG:
 ```bash
 make run-ch6-ablation      FIGURE_DIR=figures  # ch06-figure-entropy
