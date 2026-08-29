@@ -32,6 +32,7 @@ from src.part_2_methods.ch06_sac.actor import (
 from src.part_2_methods.ch06_sac.critic import Critic
 from src.part_2_methods.ch06_sac.replay_buffer import ReplayBuffer
 from src.part_2_methods.ch06_sac.sac_agent import SACAgent
+from src.part_2_methods.ch06_sac.train_pendulum import RunResult
 
 STATE_DIM, ACTION_DIM, MAX_ACTION = 3, 1, 2.0
 
@@ -435,14 +436,14 @@ def test_main_returns_its_curve_and_the_seed_reaches_the_environment():
     """Regression guard, and the seam chapter 5's efficiency figure calls."""
     from src.part_2_methods.ch06_sac.train_pendulum import main
 
-    returns = main(seed=0, total_steps=400, warmup_steps=400, verbose=False)
-    assert isinstance(returns, list) and len(returns) == 2
-    assert all(isinstance(r, float) for r in returns)
+    result = main(seed=0, total_steps=400, warmup_steps=400, verbose=False)
+    assert isinstance(result.returns, list) and len(result.returns) == 2
+    assert all(isinstance(r, float) for r in result.returns)
 
-    assert main(seed=0, total_steps=400, warmup_steps=400, verbose=False) == \
-        returns, "the same seed must replay the same run"
-    assert main(seed=1, total_steps=400, warmup_steps=400, verbose=False) != \
-        returns
+    again = main(seed=0, total_steps=400, warmup_steps=400, verbose=False)
+    assert again.returns == result.returns, "same seed must replay the run"
+    assert main(seed=1, total_steps=400, warmup_steps=400,
+                verbose=False).returns != result.returns
 
 
 def test_warmup_is_the_published_ten_thousand_at_the_published_budgets():
@@ -507,7 +508,8 @@ def test_ablation_runs_every_variant_against_every_seed(monkeypatch):
 
     def fake_train(seed, total_steps, verbose, **overrides):
         calls.append((seed, tuple(sorted(overrides.items()))))
-        return [-1000.0] * (total_steps // ablation.STEPS_PER_EPISODE)
+        return RunResult([-1000.0] * (total_steps // ablation.STEPS_PER_EPISODE),
+                         sigma=0.5, entropy=-1.0, alpha=0.2)
 
     monkeypatch.setattr(ablation, "train", fake_train)
     results = ablation.run(seeds=(0, 1), total_steps=2000,
@@ -527,7 +529,8 @@ def test_ablation_caches_the_baseline_across_experiments(monkeypatch):
 
     def fake_train(seed, total_steps, verbose, **overrides):
         calls.append((seed, tuple(sorted(overrides.items()))))
-        return [-1000.0] * (total_steps // ablation.STEPS_PER_EPISODE)
+        return RunResult([-1000.0] * (total_steps // ablation.STEPS_PER_EPISODE),
+                         sigma=0.5, entropy=-1.0, alpha=0.2)
 
     monkeypatch.setattr(ablation, "train", fake_train)
     cache, quiet = {}, (lambda *a, **k: None)
@@ -537,6 +540,75 @@ def test_ablation_caches_the_baseline_across_experiments(monkeypatch):
                              cache=cache)
 
     assert len(calls) - before == 3, "the learned-alpha run is reused"
+
+
+def test_measure_policy_reports_sigma_and_the_entropy_estimate():
+    """The measurement the ablation tables now lean on.
+
+    Probed without training: set the log-std head to a known constant and the
+    reported sigma must be exp() of it.
+    """
+    import math
+
+    from src.part_2_methods.ch06_sac.train_pendulum import measure_policy
+
+    agent = fill(make_agent(), n=64)
+    with torch.no_grad():
+        agent.actor.log_std_head.weight.zero_()
+        agent.actor.log_std_head.bias.fill_(math.log(0.25))
+
+    sigma, entropy = measure_policy(agent, n_states=64)
+    assert sigma == pytest.approx(0.25, abs=1e-3)
+    assert math.isfinite(entropy)
+
+
+def test_measure_policy_is_safe_on_an_empty_buffer():
+    """A run too short to probe reports nan rather than raising -- the tables
+    would otherwise crash on a one-episode smoke run."""
+    import math
+
+    from src.part_2_methods.ch06_sac.train_pendulum import measure_policy
+
+    sigma, entropy = measure_policy(make_agent())
+    assert math.isnan(sigma) and math.isnan(entropy)
+
+
+def test_entropy_is_the_negative_mean_log_prob():
+    """H = E[-log pi], the quantity the temperature regulates, so that the
+    number in the table is comparable against the target of -dim(A)."""
+    from src.part_2_methods.ch06_sac.train_pendulum import measure_policy
+
+    agent = fill(make_agent(), n=64)
+    torch.manual_seed(3)
+    _, entropy = measure_policy(agent, n_states=64)
+
+    states, _, _, _, _ = agent.replay.sample(64)
+    torch.manual_seed(3)
+    # Same probe, recomputed: sign and magnitude must agree.
+    assert entropy == pytest.approx(
+        float(-agent.actor(states)[1].mean()), abs=0.5)
+
+
+@pytest.mark.slow
+def test_removing_the_entropy_bonus_collapses_the_policy():
+    """The finding the chapter's exercise 1 is really about.
+
+    On Pendulum-v1 the return cannot separate these two variants -- both
+    converge to roughly the same score -- but the policies behind those
+    identical numbers are nothing alike. With alpha = 0 the actor collapses
+    toward a Dirac delta, which is precisely what the maximum entropy
+    objective exists to prevent.
+    """
+    from src.part_2_methods.ch06_sac.train_pendulum import main
+
+    off = main(seed=0, total_steps=6_000, warmup_steps=1_000,
+               auto_alpha=False, init_alpha=0.0, verbose=False)
+    on = main(seed=0, total_steps=6_000, warmup_steps=1_000, verbose=False)
+
+    assert off.sigma < on.sigma / 2, (
+        f"entropy-off sigma {off.sigma:.4f} should be far below "
+        f"the published run's {on.sigma:.4f}")
+    assert off.entropy < on.entropy, "removing the bonus must lower entropy"
 
 
 def test_score_is_a_median_over_the_tail():

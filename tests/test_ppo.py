@@ -308,11 +308,11 @@ def test_sac_main_returns_its_curve():
     every caller that wanted the curve got a TypeError instead."""
     from src.part_2_methods.ch06_sac.train_pendulum import main
 
-    returns = main(seed=0, total_steps=400, verbose=False)
+    result = main(seed=0, total_steps=400, verbose=False)
 
-    assert isinstance(returns, list)
-    assert len(returns) == 2, "400 steps of 200-step episodes"
-    assert all(isinstance(r, float) for r in returns)
+    assert isinstance(result.returns, list)
+    assert len(result.returns) == 2, "400 steps of 200-step episodes"
+    assert all(isinstance(r, float) for r in result.returns)
 
 
 def test_sac_seed_reaches_the_environment():
@@ -320,5 +320,5 @@ def test_sac_seed_reaches_the_environment():
     rather than the argument, so every seed replayed one episode stream."""
     from src.part_2_methods.ch06_sac.train_pendulum import main
 
-    assert main(seed=0, total_steps=400, verbose=False) != \
-        main(seed=1, total_steps=400, verbose=False)
+    assert main(seed=0, total_steps=400, verbose=False).returns != \
+        main(seed=1, total_steps=400, verbose=False).returns

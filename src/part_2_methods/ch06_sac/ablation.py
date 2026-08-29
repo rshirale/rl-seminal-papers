@@ -163,12 +163,13 @@ def _run_cached(cache, seed, total_steps, **overrides):
     return cache[key]
 
 
-def _score(returns, window=SCORE_WINDOW):
+def _score(result, window=SCORE_WINDOW):
     """Median episode return over the final ``window`` episodes of a run.
 
-    Median rather than mean: see the module docstring. ``returns`` is the plain
-    list ``train_pendulum.main`` hands back.
+    Median rather than mean: see the module docstring. Accepts a ``RunResult``
+    or a bare list of returns, so a caller holding either can score it.
     """
+    returns = getattr(result, "returns", result)
     tail = returns[-min(window, len(returns)):]
     return statistics.median(tail)
 
@@ -196,8 +197,8 @@ def run(seeds=DEFAULT_SEEDS, total_steps=TOTAL_STEPS, figure_dir=None,
     printer(f"Score = median episode return over the final {window} episodes. "
             f"Random policy scores about {RANDOM_POLICY_BASELINE:.0f}.\n")
 
-    header = f"{'variant':<36}" + "".join(f"{f'seed {s}':>10}" for s in seeds)
-    header += f"{'median':>10}{'spread':>9}"
+    header = f"{'variant':<37}" + "".join(f"{f'seed {s}':>9}" for s in seeds)
+    header += f"{'median':>9}{'spread':>8}{'sigma':>8}{'entropy':>9}{'alpha':>8}"
     printer(header)
     printer("-" * len(header))
 
@@ -205,16 +206,23 @@ def run(seeds=DEFAULT_SEEDS, total_steps=TOTAL_STEPS, figure_dir=None,
         runs = [_run_cached(cache, s, total_steps, **overrides) for s in seeds]
         results[label] = runs
         scores = [_score(r, window) for r in runs]
-        cells = "".join(f"{s:>10.1f}" for s in scores)
-        printer(f"{label:<36}{cells}"
-                f"{statistics.median(scores):>10.1f}"
-                f"{max(scores) - min(scores):>9.1f}")
+        cells = "".join(f"{s:>9.1f}" for s in scores)
+        printer(f"{label:<37}{cells}"
+                f"{statistics.median(scores):>9.1f}"
+                f"{max(scores) - min(scores):>8.1f}"
+                f"{statistics.mean(r.sigma for r in runs):>8.3f}"
+                f"{statistics.mean(r.entropy for r in runs):>+9.3f}"
+                f"{statistics.mean(r.alpha for r in runs):>8.3f}")
 
-    printer("\nThe spread column is the point: a variant whose outcome swings "
-            "\nwith the seed is unstable even when one of its runs looks fine."
-            "\nThat is the form the paper's own ablation result takes -- the"
-            "\nstochastic actor's contribution shows up in the variance before"
-            "\nit shows up in the mean.")
+    printer("\nRead sigma and entropy before the return columns. Pendulum-v1 is"
+            "\nforgiving enough that every variant here converges to roughly the"
+            "\nsame return, so median and spread cannot tell them apart -- but"
+            "\nthe policies behind those identical numbers are not alike. With"
+            "\nthe entropy bonus off the actor collapses toward a delta: sigma"
+            "\nfalls to near zero and entropy plunges well below the target,"
+            "\nbecause differential entropy has no floor at zero. entropy here"
+            "\nis E[-log pi], the quantity the temperature regulates, so read it"
+            "\nagainst the SAC-v2 target of -dim(A) = -1.")
 
     if figure_dir:
         path = plot(results, figure_dir, basename=basename, title=title)

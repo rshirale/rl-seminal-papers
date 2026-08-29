@@ -30,13 +30,17 @@ does not cover.
 
 import argparse
 import statistics
+from collections import namedtuple
 
 import gymnasium as gym
+import torch
 
 if __package__:
+    from .actor import LOG_STD_MAX, LOG_STD_MIN
     from .sac_agent import SACAgent
     from .seeding import seed_env, set_seed
 else:  # pragma: no cover - only used by direct script execution.
+    from actor import LOG_STD_MAX, LOG_STD_MIN
     from sac_agent import SACAgent
     from seeding import seed_env, set_seed
 
@@ -54,6 +58,46 @@ SCORE_WINDOW = 50
 #: What a uniform random policy scores, for context in every table here.
 RANDOM_POLICY_BASELINE = -1200.0
 
+#: States drawn from the replay buffer to characterize the trained policy.
+POLICY_PROBE_STATES = 512
+
+#: What one run reports back.
+#:
+#: ``returns`` alone is not enough to read this chapter's ablations. On
+#: Pendulum-v1 a near-deterministic policy and a broadly stochastic one earn
+#: the same return, so the return column cannot distinguish the variants the
+#: exercises ask you to compare -- but ``sigma`` and ``entropy`` separate them
+#: by two orders of magnitude. Kept in the shape of chapter 5's ``RunResult``,
+#: which carries its own two diagnostics for the same reason.
+RunResult = namedtuple("RunResult", "returns sigma entropy alpha")
+
+
+def measure_policy(agent, n_states=POLICY_PROBE_STATES):
+    """Characterizes a trained policy: mean sigma, and mean entropy estimate.
+
+    Probed on states sampled from the agent's own replay buffer rather than
+    from ``observation_space.sample()``. The observation space contains states
+    the pendulum never actually visits, and a policy is only meaningfully
+    described on the distribution it was trained on.
+
+    ``entropy`` is the single-sample estimate H = E[-log pi(a|s)], which is
+    what the temperature is regulating: with the SAC-v2 heuristic the target
+    is H-bar = -dim(A), so a healthy learned-alpha run reports a number near
+    -1 on Pendulum. Returns ``(nan, nan)`` if the buffer is too small to probe,
+    which happens only on runs shorter than one minibatch.
+    """
+    if len(agent.replay) < 2:
+        return float("nan"), float("nan")
+
+    n = min(n_states, len(agent.replay))
+    states, _, _, _, _ = agent.replay.sample(n)
+    states = states.to(agent.device)
+    with torch.no_grad():
+        x = agent.actor.net(states)
+        log_std = agent.actor.log_std_head(x).clamp(LOG_STD_MIN, LOG_STD_MAX)
+        _, log_prob = agent.actor(states)
+    return float(log_std.exp().mean()), float(-log_prob.mean())
+
 
 def main(seed: int | None = None, total_steps: int = TOTAL_STEPS,
          warmup_steps: int = WARMUP_STEPS, gamma: float = 0.99,
@@ -63,7 +107,7 @@ def main(seed: int | None = None, total_steps: int = TOTAL_STEPS,
          auto_alpha: bool = True, init_alpha: float = 1.0,
          reward_scale: float = 1.0, print_every: int = PRINT_EVERY,
          verbose: bool = True):
-    """Trains on Pendulum-v1 and returns the per-episode returns.
+    """Trains on Pendulum-v1 and returns a :class:`RunResult`.
 
     Every knob in the chapter's table 6.2 is a keyword here and a flag on the
     CLI below, and the ablation switches (``auto_alpha``, ``init_alpha``,
@@ -140,6 +184,10 @@ def main(seed: int | None = None, total_steps: int = TOTAL_STEPS,
             state, _ = env.reset()
             ep_return = 0.0
 
+    # Probe the policy before closing the environment: this is the
+    # measurement that separates the chapter's ablation variants, which their
+    # returns do not.
+    sigma, entropy = measure_policy(agent)
     env.close()
 
     if verbose and returns:
@@ -154,8 +202,11 @@ def main(seed: int | None = None, total_steps: int = TOTAL_STEPS,
               f"{statistics.median(tail):.1f} "
               f"(mean {statistics.mean(tail):.1f}, "
               f"best {max(tail):.1f}, worst {min(tail):.1f})")
+        print(f"Final policy: sigma {sigma:.3f}, "
+              f"entropy {entropy:+.3f} (target {agent.target_entropy:+.1f}), "
+              f"alpha {agent.alpha:.3f}")
 
-    return returns
+    return RunResult(returns, sigma, entropy, agent.alpha)
 
 
 if __name__ == "__main__":

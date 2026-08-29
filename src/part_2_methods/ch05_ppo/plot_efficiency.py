@@ -80,8 +80,10 @@ def _run_sac(seed, episodes):
         from src.part_2_methods.ch06_sac.train_pendulum import main as train
     # SAC budgets in steps rather than episodes, so it is the one caller that
     # has to do the conversion itself.
+    # ``.returns`` since chapter 6 gained policy diagnostics: main() hands
+    # back a RunResult now, exactly as chapter 5's own trainer does.
     return train(seed=seed, total_steps=episodes * STEPS_PER_EPISODE,
-                 verbose=False)
+                 verbose=False).returns
 
 
 ALGORITHMS = (

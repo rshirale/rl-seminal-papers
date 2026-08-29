@@ -107,8 +107,8 @@ def _demo(seeds, total_steps, printer=print):
 
     scores = []
     for seed in seeds:
-        returns = train(seed=seed, total_steps=total_steps, verbose=False)
-        score = _score(returns)
+        result = train(seed=seed, total_steps=total_steps, verbose=False)
+        score = _score(result)
         scores.append(score)
         printer(f"  seed {seed:<3d} {score:>10.1f}")
 
