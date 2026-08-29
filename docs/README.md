@@ -72,10 +72,13 @@ are closed:
 - **Chapter 4 detail in `llms.txt`** — its module list is now as full as chapter
   3's. Chapter 5 was the one lagging by the time anyone checked, and has been
   brought level in the same pass.
-- **Chapter 6 status** — settled as planned. `index.html` and `llms.txt` already
-  said so; the root `README.md` was the file out of step, listing a Colab badge
-  that read as shipped. It now marks the chapter in progress while keeping the
-  notebook reachable, because the code does run.
+- **Chapter 6 status** — now live. The chapter shipped with a README, the three
+  exercise runners, a seeding module and a test suite, so the site was brought
+  up with it in one pass: the chapter row, the two quickstart commands, the
+  `llms.txt` chapter line and its nine resource links, the three `<head>`
+  descriptions (1–5 → 1–6), the "Key Takeaways" line that still called SAC
+  planned, and `sitemap.xml`. It had previously been settled the other way,
+  with the root `README.md` marked in progress; that marker is gone.
 
 When adding a chapter, the files that need touching together are `index.html`
 (chapter row *and* quickstart command), `llms.txt` (the chapter list *and* the

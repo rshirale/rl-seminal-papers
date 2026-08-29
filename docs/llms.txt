@@ -22,7 +22,7 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 3: DQN — Mnih et al. (2013, 2015) (available now)
 - Chapter 4: DDPG — Lillicrap et al. (2015) (available now)
 - Chapter 5: PPO — Schulman et al. (2017) (available now)
-- Chapter 6: SAC — Haarnoja et al. (2018) (planned)
+- Chapter 6: SAC — Haarnoja et al. (2018) (available now)
 - Chapter 7: GRPO — DeepSeek-R1 (2025) (planned)
 
 **Part III — Real-World Applications** (planned)
@@ -75,6 +75,16 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 5 Pendulum training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/train_pendulum.py
 - Chapter 5 Clipping ablation and hyperparameter sensitivity sweeps (chapter figures 5.8 and 5.9): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/ablation.py
 - Chapter 5 Sample-efficiency comparison (DDPG vs PPO vs SAC): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/plot_efficiency.py
+- Chapter 6 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/README.md
+- Chapter 6 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb
+- Chapter 6 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb
+- Chapter 6 Actor (squashed Gaussian policy, reparameterized sampling, tanh log-probability correction): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/actor.py
+- Chapter 6 Twin critics (two independently initialized Q-networks; min(Q1, Q2) for Bellman targets): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/critic.py
+- Chapter 6 Replay buffer (uniform off-policy experience replay): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/replay_buffer.py
+- Chapter 6 SAC agent (soft Bellman target, actor update, automatic temperature tuning, soft target update): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/sac_agent.py
+- Chapter 6 Seeding helper (reproducible runs, and a runnable seed-variance demo): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/seeding.py
+- Chapter 6 Pendulum training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/train_pendulum.py
+- Chapter 6 Entropy ablation, fixed-temperature comparison, and reward-scale experiment (the chapter's three exercises): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/ablation.py
 
 ## Author
 

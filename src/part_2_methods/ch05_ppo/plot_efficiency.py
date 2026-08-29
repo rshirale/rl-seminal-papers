@@ -112,9 +112,11 @@ def run(seeds=DEFAULT_SEEDS, episodes=EPISODES, figure_dir=None,
     for label, runner in algorithms:
         curves = []
         for seed in seeds:
-            # Seeding every run from here, rather than trusting each trainer's
-            # own call, is what pins the thread count across all three -- ch04
-            # and ch06 do not pin it themselves.
+            # Seeding every run from here, rather than trusting each
+            # trainer's own call, is what pins the thread count across all
+            # three -- ch04 does not pin it itself. (Chapter 6 now does, in
+            # its own seeding module; chapter 4 is the remaining one this
+            # covers for.)
             set_seed(seed)
             curves.append(runner(seed, episodes)[:episodes])
         results[label] = curves

@@ -126,8 +126,11 @@ make run-ch5-ablation
 # Chapter 5: what the seed alone is worth, before trusting any comparison
 make run-ch5-seeding
 
-# Chapter 6: SAC on Pendulum-v1 (~5 min on CPU)
+# Chapter 6: SAC on Pendulum-v1 (~10 min on CPU)
 make run-ch6-pendulum
+
+# Chapter 6: what the entropy bonus is worth (the chapter's exercise 1)
+make run-ch6-ablation
 ```
 
 `make help` lists every target, including the longer hyperparameter sweeps.
@@ -154,7 +157,7 @@ The repository follows the book’s three parts, from mathematical foundations t
 | **Ch 3** | **DQN** | *Playing Atari with Deep Reinforcement Learning* (2013) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb) |
 | **Ch 4** | **DDPG** | *Continuous control with deep reinforcement learning* (2015) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb) |
 | **Ch 5** | **PPO** | *Proximal Policy Optimization Algorithms* (2017) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb) |
-| **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy RL with Entropy Regularization* (2018) | 🚧 In progress · [notebook](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb) |
+| **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy Maximum Entropy Deep RL with a Stochastic Actor* (2018) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb) |
 | **Ch 7** | **GRPO** | RL for reasoning models (DeepSeek-related work) | 🚧 Coming Soon |
 
 ### Part III: Real-World Applications (planned)
@@ -195,7 +198,7 @@ To run these experiments, you should be comfortable with:
 ## 🎯 Key Takeaways
 Upon finishing this book and exploring this code, you will be equipped to:
 * **Translate Research to Code**: Convert mathematical objectives from papers into functional Python.
-* **Master Core Engines**: Write foundational Deep RL algorithms (DQN, DDPG, and PPO) from scratch, with SAC planned for a later chapter.
+* **Master Core Engines**: Write foundational Deep RL algorithms (DQN, DDPG, PPO, and SAC) from scratch.
 * **Build Reasoning Pipelines**: Understand planned GRPO implementations for incentivizing self-correction in models.
 * **Navigate Sim-to-Real**: Prepare agents for deployment on physical humanoid hardware.
 
@@ -203,14 +206,14 @@ Upon finishing this book and exploring this code, you will be equipped to:
 
 The automated tests cover the Chapter 2 environments and algorithms, the
 Chapter 3 DQN modules and notebook, the Chapter 4 DDPG modules and notebook,
-and PPO policy/action and rollout-update smoke tests. The PyTorch chapters'
-tests are skipped when PyTorch is not installed, allowing the foundation tests
-to run with the lightweight setup:
+the Chapter 5 PPO modules and notebook, and the Chapter 6 SAC modules and
+notebook. The PyTorch chapters' tests are skipped when PyTorch is not
+installed, allowing the foundation tests to run with the lightweight setup:
 
 ```bash
 make test        # fast suite
 make test-all    # also executes the chapter notebooks top to bottom
 ```
 
-Both notebook suites execute their chapter's notebook cell by cell, which is
+Every notebook suite executes its chapter's notebook cell by cell, which is
 how a broken paste in a notebook gets caught before a reader hits it.
