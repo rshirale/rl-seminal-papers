@@ -85,6 +85,7 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 6 Seeding helper (reproducible runs, and a runnable seed-variance demo): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/seeding.py
 - Chapter 6 Pendulum training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/train_pendulum.py
 - Chapter 6 Entropy ablation, fixed-temperature comparison, and reward-scale experiment (the chapter's three exercises): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/ablation.py
+- Chapter 6 Run the three ablations on GitHub Actions instead of a laptop (manual dispatch; tables and figures uploaded as artifacts): https://github.com/rshirale/rl-seminal-papers/actions/workflows/ch06-ablations.yml
 
 ## Author
 

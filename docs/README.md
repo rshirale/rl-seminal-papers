@@ -102,7 +102,8 @@ When adding a chapter, the files that need touching together are:
   the "Deep RL practitioner" path card, the JSON-LD topic list, and the three
   `<head>` descriptions.
 - `llms.txt` — the summary line at the top, the chapter list, *and* the resource
-  links.
+  links. Anything linked from `index.html` belongs here too, including links
+  that are not files: Chapter 6's ablation workflow on the Actions tab is one.
 - `sitemap.xml` — `lastmod` on the root URL.
 
 A chapter that lands in the row list but not the quickstart is the failure mode

@@ -645,6 +645,7 @@
             <div class="copy-wrap"><code>make run-ch6-pendulum</code><button class="copy-button" type="button" data-copy="make run-ch6-pendulum">Copy</button></div><span class="cmd-note">SAC on Pendulum-v1 (~10 min on CPU); seed 42 reproduces the chapter’s transcript</span><br>
             <div class="copy-wrap"><code>make run-ch6-ablation</code><button class="copy-button" type="button" data-copy="make run-ch6-ablation">Copy</button></div><span class="cmd-note">ablate SAC’s entropy bonus (the chapter’s exercise 1); six training runs, ~30 min on a CPU</span><br>
             <div class="copy-wrap"><code>make run-ch6-seeding</code><button class="copy-button" type="button" data-copy="make run-ch6-seeding">Copy</button></div><span class="cmd-note">SAC’s seed-to-seed spread — the threshold every table in the chapter should be read against</span>
+            <p class="step-note">Chapter 6’s three exercises — the entropy ablation, fixed vs learned temperature, and the reward-scale run — take an hour or more between them. They also run on GitHub’s machines: <a href="https://github.com/rshirale/rl-seminal-papers/actions/workflows/ch06-ablations.yml" target="_blank" rel="noopener noreferrer">Actions → Chapter 6 SAC ablations → Run workflow</a> runs all three in parallel and attaches the tables and figures as artifacts. Absolute numbers from a CI runner will not match a local run, but every variant inside one run shares a machine, so the comparison holds.</p>
           </div>
         </div>
         <div class="step-row">

@@ -550,6 +550,7 @@
     }
     .step-body a { color: var(--primary); text-decoration: underline; }
     .cmd-note { color: var(--on-sv); font-size: 0.875rem; margin-left: 0.4rem; }
+    .step-note { color: var(--on-sv); font-size: 0.875rem; margin-top: 0.875rem; max-width: 62ch; }
 
     /* ── CTA ── */
     .cta-card {
