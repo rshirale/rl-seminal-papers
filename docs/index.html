@@ -67,6 +67,7 @@
         {"@type": "Thing", "name": "Q-Learning"},
         {"@type": "Thing", "name": "Deep Q-Network"},
         {"@type": "Thing", "name": "Proximal Policy Optimization"},
+        {"@type": "Thing", "name": "Soft Actor-Critic"},
         {"@type": "Thing", "name": "AlphaGo"}
       ],
       "author": {
@@ -369,6 +370,7 @@
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="dqn">DQN</button>
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="ddpg">DDPG</button>
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="ppo">PPO</button>
+        <button class="paper-tab" role="tab" aria-selected="false" data-paper="sac">SAC</button>
       </div>
 
       <div class="math-code-grid">
@@ -456,7 +458,7 @@
         <button class="filter-button active" type="button" data-filter="all">All</button>
         <button class="filter-button" type="button" data-filter="live">Available now</button>
         <button class="filter-button" type="button" data-filter="planned">Coming soon</button>
-        <span class="progress-line" id="progressLine">0 of 5 live chapters completed</span>
+        <span class="progress-line" id="progressLine">0 of 6 live chapters completed</span>
       </div>
 
       <div class="roadmap-grid">
@@ -593,7 +595,7 @@
       </div>
       <div class="path-grid">
         <div class="path-card" tabindex="0" data-path="beginner"><h3>New to RL</h3><p>Start with Chapters 1–2 to learn the agent loop, MDPs, and tabular methods.</p></div>
-        <div class="path-card" tabindex="0" data-path="deep"><h3>Deep RL practitioner</h3><p>Jump into Chapters 3–5 and compare DQN, DDPG, and PPO implementations.</p></div>
+        <div class="path-card" tabindex="0" data-path="deep"><h3>Deep RL practitioner</h3><p>Jump into Chapters 3–6 and compare DQN, DDPG, PPO, and SAC implementations.</p></div>
         <div class="path-card" tabindex="0" data-path="research"><h3>Research explorer</h3><p>Start with Papers → Code, then follow the planned roadmap toward GRPO and reasoning.</p></div>
       </div>
     </div>
@@ -620,7 +622,7 @@
           <div class="step-body">
             <h3>Install dependencies</h3>
             <div class="copy-wrap"><code>make install</code><button class="copy-button" type="button" data-copy="make install">Copy</button></div><span class="cmd-note">foundation stack for Chapters 1–2</span><br>
-            <div class="copy-wrap"><code>make install-full</code><button class="copy-button" type="button" data-copy="make install-full">Copy</button></div><span class="cmd-note">PyTorch stack for Chapters 3–5</span><br>
+            <div class="copy-wrap"><code>make install-full</code><button class="copy-button" type="button" data-copy="make install-full">Copy</button></div><span class="cmd-note">PyTorch stack for Chapters 3–6</span><br>
             <div class="copy-wrap"><code>make install-atari</code><button class="copy-button" type="button" data-copy="make install-atari">Copy</button></div><span class="cmd-note">optional; only for the Chapter 3 Atari run</span><br>
             <div class="copy-wrap"><code>make install-test</code><button class="copy-button" type="button" data-copy="make install-test">Copy</button></div><span class="cmd-note">then <code>make test</code> for the fast suite, or <code>make test-all</code> to execute the notebooks</span><br>
             <div class="copy-wrap"><code>make doctor</code><button class="copy-button" type="button" data-copy="make doctor">Copy</button></div><span class="cmd-note">if anything fails, this reports your interpreter, platform, and package status</span>
@@ -633,7 +635,7 @@
             <div class="copy-wrap"><code>make run-ch1</code><button class="copy-button" type="button" data-copy="make run-ch1">Copy</button></div><span class="cmd-note">the minimal agent-environment loop on CartPole</span><br>
             <div class="copy-wrap"><code>make run-ch2-gridworld</code><button class="copy-button" type="button" data-copy="make run-ch2-gridworld">Copy</button></div><span class="cmd-note">TD(0) value estimation on the 4×3 Grid World</span><br>
             <div class="copy-wrap"><code>make run-ch2-cliff</code><button class="copy-button" type="button" data-copy="make run-ch2-cliff">Copy</button></div><span class="cmd-note">Q-Learning vs SARSA on Cliff Walking</span><br>
-            <div class="copy-wrap"><code>make run-ch3-cartpole</code><button class="copy-button" type="button" data-copy="make run-ch3-cartpole">Copy</button></div><span class="cmd-note">DQN on CartPole-v1 (~2 min on CPU)</span><br>
+            <div class="copy-wrap"><code>make run-ch3-cartpole</code><button class="copy-button" type="button" data-copy="make run-ch3-cartpole">Copy</button></div><span class="cmd-note">DQN on CartPole-v1 (~3 min on CPU)</span><br>
             <div class="copy-wrap"><code>make run-ch3-atari</code><button class="copy-button" type="button" data-copy="make run-ch3-atari">Copy</button></div><span class="cmd-note">DQN on Atari Pong; needs <code>make install-atari</code></span><br>
             <div class="copy-wrap"><code>make run-ch4-pendulum</code><button class="copy-button" type="button" data-copy="make run-ch4-pendulum">Copy</button></div><span class="cmd-note">DDPG on Pendulum-v1 (~3 min on CPU)</span><br>
             <div class="copy-wrap"><code>make run-ch4-ablation</code><button class="copy-button" type="button" data-copy="make run-ch4-ablation">Copy</button></div><span class="cmd-note">ablate DDPG’s target networks (the chapter’s figure 4.10); nine training runs, ~92 min on an 8-core CPU</span><br>
@@ -641,7 +643,8 @@
             <div class="copy-wrap"><code>make run-ch5-ablation</code><button class="copy-button" type="button" data-copy="make run-ch5-ablation">Copy</button></div><span class="cmd-note">ablate PPO’s clipped objective (the chapter’s figure 5.9)</span><br>
             <div class="copy-wrap"><code>make run-ch5-seeding</code><button class="copy-button" type="button" data-copy="make run-ch5-seeding">Copy</button></div><span class="cmd-note">what the seed alone is worth, before trusting any comparison</span><br>
             <div class="copy-wrap"><code>make run-ch6-pendulum</code><button class="copy-button" type="button" data-copy="make run-ch6-pendulum">Copy</button></div><span class="cmd-note">SAC on Pendulum-v1 (~10 min on CPU); seed 42 reproduces the chapter’s transcript</span><br>
-            <div class="copy-wrap"><code>make run-ch6-ablation</code><button class="copy-button" type="button" data-copy="make run-ch6-ablation">Copy</button></div><span class="cmd-note">ablate SAC’s entropy bonus (the chapter’s exercise 1); six training runs, ~30 min on a CPU</span>
+            <div class="copy-wrap"><code>make run-ch6-ablation</code><button class="copy-button" type="button" data-copy="make run-ch6-ablation">Copy</button></div><span class="cmd-note">ablate SAC’s entropy bonus (the chapter’s exercise 1); six training runs, ~30 min on a CPU</span><br>
+            <div class="copy-wrap"><code>make run-ch6-seeding</code><button class="copy-button" type="button" data-copy="make run-ch6-seeding">Copy</button></div><span class="cmd-note">SAC’s seed-to-seed spread — the threshold every table in the chapter should be read against</span>
           </div>
         </div>
         <div class="step-row">
@@ -655,6 +658,8 @@
             <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 4: DDPG</a>
             &nbsp;|&nbsp;
             <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 5: PPO</a>
+            &nbsp;|&nbsp;
+            <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 6: SAC</a>
           </div>
         </div>
       </div>

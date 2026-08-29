@@ -63,8 +63,8 @@ Because nothing is compiled, this renders exactly what visitors get. Installing 
 
 ## Pending
 
-Nothing outstanding on the site itself. The three items previously recorded here
-are closed:
+Nothing outstanding on the site itself. Everything previously recorded here is
+closed:
 
 - **Chapter 4 run commands** — added to the quickstart, along with the ablation's
   real runtime. Ninety-two minutes is not what a reader budgets for a line
@@ -74,17 +74,40 @@ are closed:
   brought level in the same pass.
 - **Chapter 6 status** — now live. The chapter shipped with a README, the three
   exercise runners, a seeding module and a test suite, so the site was brought
-  up with it in one pass: the chapter row, the two quickstart commands, the
-  `llms.txt` chapter line and its nine resource links, the three `<head>`
-  descriptions (1–5 → 1–6), the "Key Takeaways" line that still called SAC
-  planned, and `sitemap.xml`. It had previously been settled the other way,
-  with the root `README.md` marked in progress; that marker is gone.
+  up with it: the chapter row, the quickstart commands, the `llms.txt` chapter
+  line and its nine resource links, the three `<head>` descriptions (1–5 → 1–6),
+  the "Key Takeaways" line that still called SAC planned, and `sitemap.xml`. It
+  had previously been settled the other way, with the root `README.md` marked in
+  progress; that marker is gone.
+- **Chapter 6 leftovers** — a second pass caught what the first one missed,
+  all of it places that name the live chapters without saying "Chapter 6":
+  the `llms.txt` summary line (still "1–5"), the Papers → Code tab strip (which
+  had no SAC entry), the Colab link row in quickstart step 4, the "Deep RL
+  practitioner" learning-path card, the `make install-full` note, the
+  `progressLine` first-paint text ("0 of 5"), the JSON-LD topic list, and
+  `make run-ch6-seeding`, which had a Chapter 5 counterpart on the page but no
+  Chapter 6 one.
+- **Chapter 3 runtime** — quoted as two minutes on the site and in `make help`,
+  and three in `src/part_2_methods/ch03_dqn/README.md`. Three is correct; the
+  other two now say so. A runtime that appears in the chapter README, `make
+  help`, and the quickstart note is three places to change, not one.
 
-When adding a chapter, the files that need touching together are `index.html`
-(chapter row *and* quickstart command), `llms.txt` (the chapter list *and* the
-resource links), the three `<head>` descriptions, and `sitemap.xml`. A chapter
-that lands in the row list but not the quickstart is the failure mode this
-section keeps catching.
+When adding a chapter, the files that need touching together are:
+
+- `Makefile` — the new run targets, and the `install-full` line in `help`, which
+  names the chapter range.
+- `index.html` — the chapter row, the quickstart commands, the Colab link row in
+  step 4, the Papers → Code tab (plus its entry in `paperExamples` in
+  `site.js`), the `progressLine` fallback text, the `make install-full` note,
+  the "Deep RL practitioner" path card, the JSON-LD topic list, and the three
+  `<head>` descriptions.
+- `llms.txt` — the summary line at the top, the chapter list, *and* the resource
+  links.
+- `sitemap.xml` — `lastmod` on the root URL.
+
+A chapter that lands in the row list but not the quickstart is the failure mode
+this section keeps catching; the second-pass list above is what that failure
+mode looks like once the obvious two are covered.
 
 ## Before you start
 

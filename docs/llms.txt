@@ -1,6 +1,6 @@
 # Reinforcement Learning – The Seminal Papers
 
-> A Manning Publications book by Rahul Vasant Shirale translating seminal reinforcement learning papers into runnable Python code. Chapters 1–5 are available now; later chapters are planned through 2027.
+> A Manning Publications book by Rahul Vasant Shirale translating seminal reinforcement learning papers into runnable Python code. Chapters 1–6 are available now; later chapters are planned through 2027.
 
 ## About the Book
 
