@@ -168,6 +168,12 @@ const paperExamples = {
     formula: 'L<sup>CLIP</sup> = E[min(r<sub>t</sub>(θ)A<sub>t</sub>, clip(r<sub>t</sub>(θ), 1−ε, 1+ε)A<sub>t</sub>)]',
     note: 'Clipping limits destructive policy updates while preserving the useful learning signal.',
     code: '<span class="c-comment"># Clipped policy objective</span>\n<span class="c-var">ratio = torch.exp(new_logp - old_logp)</span>\n<span class="c-accent">clipped = torch.clamp(ratio, 1-eps, 1+eps)</span>\n<span class="c-var">loss = -torch.min(ratio * adv, clipped * adv).mean()</span>'
+  },
+  sac: {
+    title: 'Haarnoja et al. (2018) \u2014 SAC Soft Bellman Target', codeTitle: 'Python \u00b7 Chapter 6',
+    formula: 'y = r + \u03b3(1\u2212d)[min<sub>i=1,2</sub> Q\u0302<sub>i</sub>(s\u2032, a\u2032) \u2212 \u03b1\u00b7log \u03c0(a\u2032|s\u2032)],\u2003a\u2032 \u223c \u03c0(\u00b7|s\u2032)',
+    note: 'The policy\u2019s own entropy rides inside the backup, so a state is worth more when good actions remain available from it \u2014 and \u03b1 is learned, not tuned.',
+    code: '<span class="c-comment"># Soft target: pessimistic min over twin critics, minus the entropy term</span>\n<span class="c-var">na, log_pi_next = self.actor(ns)</span>\n<span class="c-var">q1_t, q2_t = self.critic_target(ns, na)</span>\n<span class="c-accent">soft_v</span><span class="c-var"> = torch.min(q1_t, q2_t) - alpha * log_pi_next</span>\n<span class="c-var">y = r + self.gamma * (1 - d) * soft_v</span>\n\n<span class="c-comment"># Actor: reward pulls in, log_pi punishes certainty</span>\n<span class="c-accent">actor_loss</span><span class="c-var"> = (alpha * log_pi - torch.min(q1_pi, q2_pi)).mean()</span>'
   }
 };
 document.querySelectorAll('.paper-tab').forEach(tab => tab.addEventListener('click', () => {

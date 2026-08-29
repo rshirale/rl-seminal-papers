@@ -1,7 +1,7 @@
 # Reinforcement Learning – The Seminal Papers
 **Author: Rahul Vasant Shirale**
 
-This is the official companion repository for the book **Reinforcement Learning – The Seminal Papers** (Manning Publications). Chapters 1–5 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
+This is the official companion repository for the book **Reinforcement Learning – The Seminal Papers** (Manning Publications). Chapters 1–6 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
 
 ## 🌐 Companion Website
 
@@ -22,7 +22,7 @@ This repository includes a **Makefile** to simplify environment setup and runnin
 
 - Python **3.10–3.13** is recommended.
 - A virtual environment is strongly recommended.
-- Chapters 3–5 require PyTorch. PyTorch availability depends on your operating system, CPU architecture, and Python version.
+- Chapters 3–6 require PyTorch. PyTorch availability depends on your operating system, CPU architecture, and Python version.
 
 Create and activate a virtual environment before installing dependencies:
 
@@ -42,7 +42,7 @@ Lightweight setup. Installs NumPy, Matplotlib, Pandas, Gymnasium, and Jupyter.
 make install
 ```
 
-**Option B: Deep RL (Chapters 3–5 currently available)**
+**Option B: Deep RL (Chapters 3–6 currently available)**
 Installs PyTorch, classic-control environments, OpenCV, and the foundation dependencies.
 ```bash
 make install-full
@@ -131,6 +131,9 @@ make run-ch6-pendulum
 
 # Chapter 6: what the entropy bonus is worth (the chapter's exercise 1)
 make run-ch6-ablation
+
+# Chapter 6: SAC's seed-to-seed spread, the threshold its tables are read against
+make run-ch6-seeding
 ```
 
 `make help` lists every target, including the longer hyperparameter sweeps.
