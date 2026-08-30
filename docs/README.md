@@ -78,8 +78,11 @@ drift the same way `index.html` does. All six now carry the same shape:
 ```
 
 Five rules, each of them written down because it was broken. The first four
-are enforced by `tests/test_readmes.py`, which fails the build if a chapter
-drifts; the fifth cannot be, and is the one to be careful about:
+are enforced by `tests/test_readmes.py`, which fails if a chapter drifts. Note
+that nothing runs it for you: the only workflow in `.github/workflows/` is the
+Chapter 6 ablation dispatch, so these checks fire when someone types `make
+test`, not on push. The fifth rule cannot be enforced at all, and is the one to
+be careful about:
 
 - **List every file.** Chapter 3's README described six files in a directory of
   eight; `ablation.py` and `seeding.py` were undocumented, and the ablation was
@@ -149,6 +152,23 @@ closed:
   chapters 4–6, so the paper's own ablation was reachable only by finding the
   file; smoke-running the new target then showed its too-short-run guard failing
   to fire at 120 episodes, which is fixed and covered by a test.
+
+- **Chapter 2's notebook was untested.** Chapters 3–6 each had an execution
+  suite; chapter 2, the notebook a reader opens first, had none. It shipped a
+  `KeyError` in its opening experiment — the outcome tally built its key with
+  `f"Hazard {s}"`, which renders `Hazard (1, 1)` against a dict seeded with
+  `"Hazard (1,1)"` — and roughly nineteen of twenty episodes end in a hazard,
+  so the cell failed for every reader who ran it. `run_td0_gridworld.py` had
+  the same tally written with explicit branches and was fine, which is what
+  notebook drift looks like. `tests/test_ch02_notebook.py` now covers parity
+  with the modules and full execution, and the notebook was normalized to
+  nbformat 4.5 with cell ids like the other four.
+- **`make run-ch3-ablation` was missing from both quickstarts.** The target
+  landed with the chapter 3 README rewrite and `tests/test_readmes.py` checks
+  the chapter documents it — but nothing checks the root `README.md` or
+  `index.html`, and it was the only chapter ablation absent from both. Added to
+  each, and `llms.txt` gained chapter 2's two runner scripts, which it listed
+  for every other chapter.
 
 - **Chapter 3 runtime** — quoted as two minutes on the site and in `make help`,
   and three in `src/part_2_methods/ch03_dqn/README.md`. Three is correct; the

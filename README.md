@@ -110,6 +110,10 @@ make run-ch3-cartpole
 # Chapter 3: DQN on Atari Pong (needs `make install-atari`; hours on CPU)
 make run-ch3-atari
 
+# Chapter 3: the paper's replay / target-network ablation, on CartPole
+#   Four variants across several seeds -- about 20 min on a CPU.
+make run-ch3-ablation
+
 # Chapter 4: DDPG on Pendulum-v1 (~3 min on CPU)
 make run-ch4-pendulum
 

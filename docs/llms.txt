@@ -44,6 +44,8 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 2 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/README.md
 - Chapter 2 algorithms: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/algorithms.py
 - Chapter 2 environments: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/environments.py
+- Chapter 2 Grid World TD(0) runner: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/run_td0_gridworld.py
+- Chapter 2 Cliff Walking benchmark runner (Q-Learning vs SARSA): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/run_cliff_benchmark.py
 - Chapter 3 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/README.md
 - Chapter 3 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb
 - Chapter 3 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch03_dqn/Chapter3_DQN.ipynb
