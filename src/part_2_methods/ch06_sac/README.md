@@ -97,9 +97,50 @@ Interactive notebook: open `Chapter6_SAC.ipynb` locally, or in [Google Colab](ht
 
 - **Return cannot tell the ablation variants apart; the policy can.** This is the most surprising thing in the chapter's exercises, and it is worth knowing before you run them. On Pendulum-v1 every variant here — entropy bonus off, α fixed at 0.01/0.2/1.0, rewards scaled by ten — converges to roughly the same episode return, within a few points of −122. The task is forgiving enough that a near-deterministic policy and a broadly stochastic one both hold the pole up.
 
-  The mechanism is still there; it is just not in the return. Measured on short probe runs of 6,000 to 12,000 steps, σ moves from **0.008** with the bonus off to **0.74** at α = 1.0, and entropy from about **−7** to **0**. So `ablation.py` reports `sigma`, `entropy` and `alpha` beside the return, and `train_pendulum.main()` hands back a `RunResult` carrying them. Read those columns first. `entropy` is `E[−log π]`, the quantity the temperature regulates, so compare it directly against the SAC-v2 target of `−dim(A) = −1` — a fixed α = 0.2 run landed at −0.998 on a 6,000-step probe, which is why the auto-tuner converges near 0.2.
+  The mechanism is still there; it is just not in the return. So `ablation.py`
+  reports `sigma`, `entropy` and `alpha` beside it, and `train_pendulum.main()`
+  hands back a `RunResult` carrying them. Read those columns first. `entropy` is
+  `E[-log pi]`, the quantity the temperature regulates, so it can be read
+  straight against the SAC-v2 target of `-dim(A) = -1`.
 
-  Note also what the α = 0 run demonstrates: σ = 0.008 is the policy collapsing toward a Dirac delta, the exact failure the maximum entropy objective exists to prevent. Differential entropy has no floor at zero, so it plunges rather than bottoming out — the chapter's point about densities, visible in a table.
+  Reproduced on 2026-08-30 with `make run-ch6-ablation` and
+  `make run-ch6-temperature`, seeds 0 1 2, 30,000 steps
+  ([workflow run](https://github.com/rshirale/rl-seminal-papers/actions/runs/33284584408)):
+
+  | Variant | median return | sigma | entropy | alpha |
+  | --- | ---: | ---: | ---: | ---: |
+  | Entropy bonus off (a = 0) | -121.8 | 0.007 | -11.977 | 0.000 |
+  | Fixed a = 0.01 | -121.4 | 0.265 | -3.453 | 0.010 |
+  | Fixed a = 0.2 | -123.0 | 0.592 | -0.512 | 0.200 |
+  | Fixed a = 1.0 | -124.2 | 0.679 | +0.021 | 1.000 |
+  | SAC-v2 as published | -122.7 | 0.534 | -0.929 | 0.073 |
+
+  Every median sits within three points of -122 while sigma spans two orders of
+  magnitude and entropy spans twelve nats. Note which row tracks the -1 target:
+  it is the *learned* one, at -0.929, and it gets there with alpha at 0.073
+  rather than any of the hand-set values.
+
+  Note also what the a = 0 row demonstrates: sigma = 0.007 is the policy
+  collapsing toward a Dirac delta, the exact failure the maximum entropy
+  objective exists to prevent. Differential entropy has no floor at zero, so it
+  plunges to -12 rather than bottoming out - the chapter's point about
+  densities, visible in a table.
+
+- **Reward scale is an implicit inverse temperature, and only the learned alpha absorbs it.** Multiplying rewards by ten leaves every return unchanged, so exercise 3 cannot be answered from the return column either. Same run as above, via `make run-ch6-reward-scale`:
+
+  | Variant | median return | sigma | entropy | alpha |
+  | --- | ---: | ---: | ---: | ---: |
+  | Fixed a = 0.2, rewards x1 | -123.1 | 0.580 | -0.550 | 0.200 |
+  | Fixed a = 0.2, rewards x10 | -121.9 | 0.341 | -2.487 | 0.200 |
+  | Learned a, rewards x1 | -122.8 | 0.562 | -0.973 | 0.074 |
+  | Learned a, rewards x10 | -122.5 | 0.511 | -0.952 | **1.470** |
+
+  The fixed-temperature policy loses about two nats of entropy and sharpens
+  (sigma 0.580 -> 0.341), because a ten-fold larger reward makes a fixed alpha
+  ten times less influential. The learned run holds its entropy almost exactly
+  - -0.973 to -0.952 - by raising alpha from 0.074 to 1.470, close to the
+  twenty-fold increase needed to compensate. That is the whole argument for
+  SAC-v2 in one table, and none of it is visible in the returns.
 
 - **Judge convergence by the median, not the mean.** Pendulum-v1 resets the pole to a uniformly random angle, so roughly one episode in ten starts close enough to upright that a converged policy has almost nothing to correct and scores near zero. The chapter's transcript has one of those at episode 200 (`−1.6`). Both the trainer's final summary and `ablation.py`'s score column use the median for this reason. A mean over the same window looks better than the policy is.
 
