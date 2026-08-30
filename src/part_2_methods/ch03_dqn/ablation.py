@@ -69,14 +69,21 @@ def run(seeds=DEFAULT_SEEDS, episodes=300, printer=print):
             f"seeds {', '.join(map(str, seeds))}")
     printer(f"Score = mean reward over the final {window} episodes.")
 
-    # A CartPole episode runs ~20 steps under a random policy, so a short sweep
-    # can finish before warmup ends - at which point no variant has trained and
-    # all four rows are the same random play. Cheap to do by accident, and
-    # confusing rather than wrong, so say so up front.
-    if episodes * 20 < WARMUP_STEPS * 2:
-        printer(f"\n  WARNING: {episodes} episodes may not outlast the "
-                f"{WARMUP_STEPS}-step warmup.\n  If every row matches, no "
-                f"variant trained. Use --episodes 300 or more.")
+    # A CartPole episode runs ~20 steps under a random policy, so the
+    # 1,000-step warmup alone eats roughly the first 50 episodes. A sweep that
+    # ends shortly after that has trained for too few episodes to separate the
+    # variants, and all four rows come back as the same near-random play.
+    #
+    # The threshold used to be WARMUP_STEPS * 2, which did not fire at 120
+    # episodes even though every row was in fact identical there. Outlasting
+    # warmup is not enough; there has to be training left afterwards, so the
+    # bar is five times the warmup -- about 250 episodes, consistent with the
+    # "use 300 or more" advice below.
+    if episodes * 20 < WARMUP_STEPS * 5:
+        printer(f"\n  WARNING: {episodes} episodes leaves little training "
+                f"after the {WARMUP_STEPS}-step warmup.\n  If every row "
+                f"matches, no variant trained long enough to differ. "
+                f"Use --episodes 300 or more.")
     printer("")
 
     header = f"{'variant':<20}" + "".join(f"{f'seed {s}':>10}" for s in seeds)

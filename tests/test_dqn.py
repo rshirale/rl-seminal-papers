@@ -574,6 +574,32 @@ def test_cartpole_main_exposes_the_ablation_switches():
 # Ablation runner
 # --------------------------------------------------------------------------
 
+def test_ablation_warns_when_the_run_is_too_short_to_separate_variants():
+    """Regression: the guard was ``WARMUP_STEPS * 2`` and did not fire at 120
+    episodes, even though all four rows came back identical there.
+
+    Outlasting the warmup is not sufficient -- a CartPole episode is only ~20
+    steps under a random policy, so the 1,000-step warmup alone consumes the
+    first ~50 episodes, and there has to be training left afterwards for the
+    variants to diverge at all.
+    """
+    from src.part_2_methods.ch03_dqn import ablation
+
+    def warned(episodes, monkeypatch):
+        lines = []
+        monkeypatch.setattr(
+            ablation, "run_variant",
+            lambda *a, **k: [0.0] * len(a[2]) if len(a) > 2 else [0.0])
+        ablation.run(seeds=(1,), episodes=episodes, printer=lines.append)
+        return any("WARNING" in line for line in lines)
+
+    import _pytest.monkeypatch
+    with _pytest.monkeypatch.MonkeyPatch.context() as mp:
+        assert warned(120, mp), "120 episodes must warn"
+        assert warned(200, mp), "200 episodes must warn"
+        assert not warned(300, mp), "300 is the documented budget; must not warn"
+
+
 def test_ablation_covers_the_four_rows_of_the_papers_table():
     from src.part_2_methods.ch03_dqn import ablation
 

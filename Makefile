@@ -3,6 +3,7 @@
 
 .PHONY: help install install-full install-atari install-test test test-all doctor clean \
         run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole run-ch3-atari \
+        run-ch3-ablation \
         run-ch4-pendulum run-ch4-ablation run-ch5-pendulum run-ch5-ablation \
         run-ch5-seeding run-ch5-sweep run-ch5-efficiency \
         run-ch6-pendulum run-ch6-ablation run-ch6-temperature \
@@ -44,6 +45,7 @@ help:
 	@echo "Chapter 3: DQN"
 	@echo "  make run-ch3-cartpole    - Train DQN on CartPole-v1 (~3 min on CPU)"
 	@echo "  make run-ch3-atari       - Train DQN on Atari Pong (needs make install-atari)"
+	@echo "  make run-ch3-ablation    - Ablate replay and the target network (~20 min)"
 	@echo ""
 	@echo "Chapter 4: DDPG"
 	@echo "  make run-ch4-pendulum    - Train DDPG on Pendulum-v1 (~3 min on CPU)"
@@ -134,6 +136,17 @@ run-ch3-cartpole:
 run-ch3-atari:
 	@echo "Running Chapter 3: DQN on Atari Pong..."
 	@cd $(CH3_DIR) && $(PYTHON_ABS) train_atari.py
+
+# The paper's four-way ablation -- full DQN, no target network, no replay,
+# neither -- on CartPole, where a full sweep takes minutes rather than
+# GPU-days. Four variants x three seeds; budget about twenty minutes.
+# Pass EXTRA="--episodes 400 --seeds 1 2 3" to vary it.
+#
+# Read the spread column, not just the mean: the no-replay row swings from
+# 33.5 to 155.6 across seeds, so one run of it proves nothing.
+run-ch3-ablation:
+	@echo "Running Chapter 3: DQN replay / target-network ablation..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch03_dqn.ablation $(EXTRA)
 
 # --- Chapter 4 Commands ---
 
