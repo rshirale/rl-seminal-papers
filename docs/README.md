@@ -61,6 +61,47 @@ Because nothing is compiled, this renders exactly what visitors get. Installing 
 - **The "available now" phrasing appears three times** in `<head>`: the meta description, `og:description`, and `twitter:description`. Change all three together.
 - **Bump `sitemap.xml`** whenever `index.html` changes; `lastmod` is easy to forget.
 
+## Chapter READMEs
+
+Not site files, but they are the other half of what a reader lands on, and they
+drift the same way `index.html` does. All six now carry the same shape:
+
+```
+# Chapter N: Title
+  one paragraph on what the directory holds
+  one or two on why the algorithm exists and what it changed
+## File Structure          every file in the directory, notebook included
+## Installation
+## Running the Experiments every make target, with runtimes
+## Implementation Notes    the non-obvious decisions, sourced from the code
+## Troubleshooting         the failures a reader will actually hit
+```
+
+Four rules, each of them written down because it was broken:
+
+- **List every file.** Chapter 3's README described six files in a directory of
+  eight; `ablation.py` and `seeding.py` were undocumented, and the ablation was
+  reachable only by finding the file. Chapter 2 omitted its own notebook, which
+  made `Chapter2_Fundamentals.ipynb` the one notebook in the book with no Colab
+  link from its chapter.
+- **Name the classes the code actually defines.** Chapter 3's README attributed
+  `DQNAgent` to `dqn_agent.py`. That class is `AtariDQNAgent`; `DQNAgent` is a
+  different, lighter class in `train_cartpole.py`. A reader following the README
+  found nothing by that name.
+- **Measure the numbers, do not assert them.** Anything quantitative — a
+  runtime, a seed spread, a fall percentage — gets run before it is written. A
+  middle value for chapter 3's no-replay seed scores had crept in where only the
+  range 33.5–155.6 is recorded anywhere; it was removed rather than guessed.
+- **Size it to the chapter.** Chapter 1 is one 35-line script and its README is
+  46 lines. Chapter 6 has seven modules and gets 138. Padding a short chapter to
+  match a long one means inventing content, which is the failure this section is
+  trying to prevent, not the goal.
+
+Known outlier: chapter 4 opens with "What to run, and what to read" instead of
+"File Structure" — a deliberate restructure, kept — but it is also the only one
+of the six with no Troubleshooting section. Worth closing next time that
+chapter is touched.
+
 ## Pending
 
 Nothing outstanding on the site itself. Everything previously recorded here is
@@ -87,6 +128,17 @@ closed:
   `progressLine` first-paint text ("0 of 5"), the JSON-LD topic list, and
   `make run-ch6-seeding`, which had a Chapter 5 counterpart on the page but no
   Chapter 6 one.
+- **Chapter README drift** — chapters 1, 2 and 3 were 28, 37 and 43 lines
+  against chapter 6's 138, and were file manifests rather than chapter
+  companions. All three now carry Implementation Notes and Troubleshooting, and
+  the shape they have to land in is written down under **Chapter READMEs**
+  above. Three factual errors surfaced in the rewrite: chapter 3 listed six of
+  its eight files and misnamed the Atari agent class, and chapter 2 omitted its
+  own notebook. Chapter 3's `ablation.py` also had no `make` target, unlike
+  chapters 4–6, so the paper's own ablation was reachable only by finding the
+  file; smoke-running the new target then showed its too-short-run guard failing
+  to fire at 120 episodes, which is fixed and covered by a test.
+
 - **Chapter 3 runtime** — quoted as two minutes on the site and in `make help`,
   and three in `src/part_2_methods/ch03_dqn/README.md`. Three is correct; the
   other two now say so. A runtime that appears in the chapter README, `make
@@ -105,6 +157,9 @@ When adding a chapter, the files that need touching together are:
   links. Anything linked from `index.html` belongs here too, including links
   that are not files: Chapter 6's ablation workflow on the Actions tab is one.
 - `sitemap.xml` — `lastmod` on the root URL.
+- The chapter's own `README.md` under `src/…/chNN_*/` — see **Chapter READMEs**
+  above for the shape it has to land in. A chapter whose code ships before its
+  README does is how chapters 1–3 ended up at a third the length of 4–6.
 
 A chapter that lands in the row list but not the quickstart is the failure mode
 this section keeps catching; the second-pass list above is what that failure
