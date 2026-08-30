@@ -611,6 +611,47 @@ def test_removing_the_entropy_bonus_collapses_the_policy():
     assert off.entropy < on.entropy, "removing the bonus must lower entropy"
 
 
+def test_plot_accepts_run_results_and_writes_both_formats(tmp_path):
+    """Regression, and it cost an hour of CI to find.
+
+    ``main`` returns a ``RunResult`` since the policy diagnostics landed, but
+    ``plot`` was still handing whole results to ``smooth`` -- which turned a
+    4-field namedtuple into an inhomogeneous array and raised. No test passed
+    ``figure_dir``, so the entire figure path was uncovered and the failure
+    surfaced only after every training run in the job had finished.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+
+    from src.part_2_methods.ch06_sac import ablation
+    from src.part_2_methods.ch06_sac.train_pendulum import RunResult
+
+    results = {
+        ablation.NO_ENTROPY: [RunResult([-1200.0 + i] * 40, 0.007, -11.9, 0.0)
+                              for i in range(3)],
+        ablation.PUBLISHED: [RunResult([-1100.0 + i] * 40, 0.562, -0.97, 0.07)
+                             for i in range(3)],
+    }
+    ablation.plot(results, str(tmp_path))
+
+    for ext in ("png", "svg"):
+        written = tmp_path / f"ch06-figure-entropy.{ext}"
+        assert written.exists() and written.stat().st_size > 0
+
+
+def test_plot_still_accepts_bare_return_lists(tmp_path):
+    """``_returns`` takes either shape, so an older caller keeps working."""
+    import matplotlib
+    matplotlib.use("Agg")
+
+    from src.part_2_methods.ch06_sac import ablation
+
+    results = {ablation.NO_ENTROPY: [[-1200.0] * 40],
+               ablation.PUBLISHED: [[-1100.0] * 40]}
+    ablation.plot(results, str(tmp_path))
+    assert (tmp_path / "ch06-figure-entropy.png").exists()
+
+
 def test_score_is_a_median_over_the_tail():
     """Not a mean: one Pendulum episode in ten starts near upright and scores
     close to zero, and the chapter says to judge by the median."""

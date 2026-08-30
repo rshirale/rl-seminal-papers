@@ -163,13 +163,25 @@ def _run_cached(cache, seed, total_steps, **overrides):
     return cache[key]
 
 
+def _returns(result):
+    """The per-episode returns of a run.
+
+    ``train_pendulum.main`` returns a ``RunResult``, but a bare list is still
+    accepted so a caller holding either can be scored or plotted. Everything
+    that consumes a run goes through here: when ``main`` gained its policy
+    diagnostics, ``_score`` was updated and ``plot`` was not, and because no
+    test passed ``figure_dir`` the mistake only surfaced an hour into a CI run,
+    after every training call had already finished.
+    """
+    return getattr(result, "returns", result)
+
+
 def _score(result, window=SCORE_WINDOW):
     """Median episode return over the final ``window`` episodes of a run.
 
-    Median rather than mean: see the module docstring. Accepts a ``RunResult``
-    or a bare list of returns, so a caller holding either can score it.
+    Median rather than mean: see the module docstring.
     """
-    returns = getattr(result, "returns", result)
+    returns = _returns(result)
     tail = returns[-min(window, len(returns)):]
     return statistics.median(tail)
 
@@ -269,7 +281,8 @@ def plot(results, figure_dir, basename="ch06-figure-entropy", title=None):
     fig, ax = plt.subplots(figsize=(6.5, 3.5))
 
     for label, runs in results.items():
-        smoothed = np.array([smooth(r, SMOOTH_WINDOW) for r in runs])
+        smoothed = np.array([smooth(_returns(r), SMOOTH_WINDOW)
+                             for r in runs])
         mean, std = smoothed.mean(axis=0), smoothed.std(axis=0)
         x = np.arange(len(mean))
         style = STYLES[label]
