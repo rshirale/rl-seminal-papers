@@ -207,11 +207,14 @@ Upon finishing this book and exploring this code, you will be equipped to:
 
 ## 🧪 Verification
 
-The automated tests cover the Chapter 2 environments and algorithms, the
-Chapter 3 DQN modules and notebook, the Chapter 4 DDPG modules and notebook,
-the Chapter 5 PPO modules and notebook, and the Chapter 6 SAC modules and
-notebook. The PyTorch chapters' tests are skipped when PyTorch is not
-installed, allowing the foundation tests to run with the lightweight setup:
+The automated tests cover the Chapter 2 environments, algorithms and notebook,
+the Chapter 3 DQN modules and notebook, the Chapter 4 DDPG modules and
+notebook, the Chapter 5 PPO modules and notebook, and the Chapter 6 SAC modules
+and notebook. A separate suite checks the chapter READMEs themselves — every
+module listed, every `make` target documented, every class attributed to the
+file that defines it. The PyTorch chapters' tests are skipped when PyTorch is
+not installed, allowing the foundation tests to run with the lightweight
+setup:
 
 ```bash
 make test        # fast suite
@@ -219,4 +222,6 @@ make test-all    # also executes the chapter notebooks top to bottom
 ```
 
 Every notebook suite executes its chapter's notebook cell by cell, which is
-how a broken paste in a notebook gets caught before a reader hits it.
+how a broken paste in a notebook gets caught before a reader hits it. Chapter 2
+had no such suite until one was added, and shipped a `KeyError` in its first
+experiment for exactly as long.
