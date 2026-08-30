@@ -97,10 +97,10 @@ Four rules, each of them written down because it was broken:
   match a long one means inventing content, which is the failure this section is
   trying to prevent, not the goal.
 
-Known outlier: chapter 4 opens with "What to run, and what to read" instead of
-"File Structure" — a deliberate restructure, kept — but it is also the only one
-of the six with no Troubleshooting section. Worth closing next time that
-chapter is touched.
+Known variation: chapter 4 opens with "What to run, and what to read" instead
+of "File Structure", splitting the directory into files you run, files you
+read, and supporting files. That is a deliberate restructure and is kept — the
+rule is that every file appears somewhere, not that the heading matches.
 
 ## Pending
 
