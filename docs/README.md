@@ -77,7 +77,9 @@ drift the same way `index.html` does. All six now carry the same shape:
 ## Troubleshooting         the failures a reader will actually hit
 ```
 
-Four rules, each of them written down because it was broken:
+Five rules, each of them written down because it was broken. The first four
+are enforced by `tests/test_readmes.py`, which fails the build if a chapter
+drifts; the fifth cannot be, and is the one to be careful about:
 
 - **List every file.** Chapter 3's README described six files in a directory of
   eight; `ablation.py` and `seeding.py` were undocumented, and the ablation was
@@ -88,6 +90,15 @@ Four rules, each of them written down because it was broken:
   `DQNAgent` to `dqn_agent.py`. That class is `AtariDQNAgent`; `DQNAgent` is a
   different, lighter class in `train_cartpole.py`. A reader following the README
   found nothing by that name.
+- **Quantitative claims carry their provenance.** A number without a source
+  cannot be checked, and twice now one has been wrong in a way nothing caught:
+  a fabricated middle value in chapter 3's seed scores, and chapter 6's sigma
+  figures labelled "measured at 30,000 steps" when they came from 6,000- and
+  12,000-step probes. Chapter 4 has the pattern worth copying — a dated
+  `Reproduced on YYYY-MM-DD with the defaults above:` line above the table, so
+  the command, the seeds and the date travel with the numbers. Where a CI run
+  produced them, cite its workflow URL. This is the one rule
+  `tests/test_readmes.py` cannot enforce, which is why it is written down.
 - **Measure the numbers, do not assert them.** Anything quantitative — a
   runtime, a seed spread, a fall percentage — gets run before it is written. A
   middle value for chapter 3's no-replay seed scores had crept in where only the

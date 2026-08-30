@@ -53,6 +53,9 @@ Four variants across three seeds; budget about twenty minutes. Read the spread c
 
 Atari (requires a GPU; long-running):
 ```bash
+make run-ch3-atari
+
+# ...or directly, with the flags
 python -m src.part_2_methods.ch03_dqn.train_atari --env Pong --episodes 1000
 
 # ...on a machine with less RAM
