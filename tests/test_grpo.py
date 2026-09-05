@@ -427,6 +427,56 @@ def test_clipping_binds_once_the_ratio_leaves_the_trust_region():
     assert clipped > unclipped
 
 
+def stub_policy(texts, group_size, compliance=(0.25, 0.75)):
+    """A policy with no model behind it, and no network anywhere near it.
+
+    ``train_json`` talks only to this interface -- ``sample_group``,
+    ``sequence_logprob``, ``trainable_parameters``, ``compliance`` and
+    ``parameter_counts`` -- so canned completions exercise the whole trainer:
+    the skip guard, the optimizer step, the history record, the evaluation
+    either side of the run, and the report.
+
+    ``texts`` is cycled to fill a group of ``group_size``, so passing one
+    string makes every group degenerate and passing two makes none of them.
+    ``compliance`` is the scripted return of successive calls to
+    :meth:`compliance` -- the run measures once before and once after, and a
+    stub that returned the same number twice could not tell the two apart.
+
+    Built by a factory rather than declared at module scope because this file
+    is importable without torch on purpose: the reward function and the
+    group-size analysis are tested on the lightweight setup.
+    """
+    import torch
+
+    class StubPolicy:
+        def __init__(self):
+            self.device = "cpu"
+            self.logp = torch.zeros(group_size, requires_grad=True)
+            self.scores = list(compliance)
+            self.evaluated = []
+
+        def sample_group(self, prompt, n, **kwargs):
+            drawn = [texts[i % len(texts)] for i in range(n)]
+            return drawn, torch.zeros(n, 3, dtype=torch.long), \
+                torch.zeros(n, 2, dtype=torch.long)
+
+        def sequence_logprob(self, prompt_ids, gen_ids, use_adapter=True):
+            return self.logp if use_adapter else self.logp.detach()
+
+        def trainable_parameters(self):
+            return [self.logp]
+
+        def parameter_counts(self):
+            return 2_162_688, 496_195_456
+
+        def compliance(self, rows, n_each=4, **kwargs):
+            """Records which rows it was asked about, then answers by script."""
+            self.evaluated.append(list(rows))
+            return self.scores.pop(0) if self.scores else 0.0
+
+    return StubPolicy()
+
+
 @requires_torch
 def test_train_step_skips_a_group_with_no_variance(monkeypatch):
     """The guard DAPO's dynamic sampling generalizes, tested without a model.
@@ -439,27 +489,9 @@ def test_train_step_skips_a_group_with_no_variance(monkeypatch):
 
     from src.part_2_methods.ch07_grpo import train_json
 
-    class StubPolicy:
-        """Returns `texts` for every group, and a trainable log-prob."""
-
-        def __init__(self, texts):
-            self.texts = texts
-            self.device = "cpu"
-            self.logp = torch.zeros(len(texts), requires_grad=True)
-
-        def sample_group(self, prompt, n, **kwargs):
-            return self.texts, torch.zeros(n, 3, dtype=torch.long), \
-                torch.zeros(n, 2, dtype=torch.long)
-
-        def sequence_logprob(self, prompt_ids, gen_ids, use_adapter=True):
-            return self.logp if use_adapter else self.logp.detach()
-
-        def trainable_parameters(self):
-            return [self.logp]
-
     row = dataset.make_dataset(1)[0]
     identical = [json.dumps(row["target"])] * 4
-    policy = StubPolicy(identical)
+    policy = stub_policy(identical, 4)
     optimizer = torch.optim.SGD(policy.trainable_parameters(), lr=0.1)
 
     record = train_json.train_step(policy, row, 4, optimizer)
@@ -468,7 +500,7 @@ def test_train_step_skips_a_group_with_no_variance(monkeypatch):
     assert record["rewards"] == [6.0] * 4
 
     varied = identical[:3] + ["not json at all"]
-    policy = StubPolicy(varied)
+    policy = stub_policy(varied, 4)
     optimizer = torch.optim.SGD(policy.trainable_parameters(), lr=0.1)
     record = train_json.train_step(policy, row, 4, optimizer)
     assert record["skipped"] is False
@@ -642,3 +674,175 @@ def test_group_size_reads_what_the_trainer_actually_writes(tmp_path):
     lines = []
     group_size.run(history=path, printer=lines.append)
     assert "graded (measured)" in "\n".join(lines)
+
+
+# --------------------------------------------------------------------------
+# The trainer's two halves that are not the GRPO step: `main`, which wires the
+# run together, and `report`, which is the only thing a reader of the terminal
+# ever sees. Both drive the stub policy above -- no weights, no network.
+# --------------------------------------------------------------------------
+
+@requires_torch
+def test_report_prints_both_numbers_and_the_gap_between_them():
+    """Compliance and mean reward, side by side, because either alone lies.
+
+    A reader shown only compliance would conclude GRPO taught the model to
+    write JSON; a reader shown only mean reward would conclude nothing
+    happened. The chapter's claim is the gap, so both have to be printed and
+    the halves have to be the halves.
+    """
+    from src.part_2_methods.ch07_grpo import train_json
+
+    history = [{"reward": r, "skipped": False} for r in (4.0, 4.2, 4.6, 4.8)]
+    result = train_json.RunResult(history=history, baseline=0.42, after=0.75,
+                                  elapsed=2160.0, skipped=0)
+
+    lines = []
+    train_json.report(result, len(history), printer=lines.append)
+    printed = "\n".join(lines)
+
+    assert "baseline compliance : 42%" in printed
+    assert "after 4 steps       : 75%" in printed
+    assert "change              : +33%" in printed
+    assert "mean group reward, first half: 4.10" in printed
+    assert "mean group reward, last half : 4.70" in printed
+    assert "steps skipped (zero variance): 0/4" in printed
+
+
+@requires_torch
+def test_report_survives_a_run_too_short_to_have_halves():
+    """The guard that exists because a one-step smoke run hit it.
+
+    Splitting one scored step into halves divides by zero, and losing a
+    finished run to a crash in the reporting code is the failure `main` writes
+    the history file early to survive. A run with nothing scored at all -- every
+    group degenerate -- has to come out the same way: no mean, no exception.
+    """
+    from src.part_2_methods.ch07_grpo import train_json
+
+    one = train_json.RunResult(
+        history=[{"reward": 4.0, "skipped": False},
+                 {"reward": 6.0, "skipped": True}],
+        baseline=0.5, after=0.5, elapsed=30.0, skipped=1)
+
+    lines = []
+    train_json.report(one, 2, printer=lines.append)
+    printed = "\n".join(lines)
+    assert "mean group reward: 4.00 (one scored step)" in printed
+    assert "first half" not in printed
+    assert "steps skipped (zero variance): 1/2" in printed
+
+    nothing = train_json.RunResult(
+        history=[{"reward": 6.0, "skipped": True}] * 3,
+        baseline=0.5, after=0.5, elapsed=30.0, skipped=3)
+
+    lines = []
+    train_json.report(nothing, 3, printer=lines.append)
+    printed = "\n".join(lines)
+    assert "mean group reward" not in printed
+    assert "steps skipped (zero variance): 3/3" in printed
+
+
+def _patched_policy(monkeypatch, train_json, policy):
+    """Points `main` at a stub instead of `LoRAPolicy.load`.
+
+    `main` builds its own policy, which is the right shape for a script and
+    the reason it needs patching here rather than injection: a `policy=`
+    parameter on a function readers copy would be scaffolding that exists only
+    for the tests.
+    """
+    from types import SimpleNamespace
+
+    monkeypatch.setattr(train_json, "LoRAPolicy",
+                        SimpleNamespace(load=lambda **kwargs: policy))
+    return policy
+
+
+@requires_torch
+def test_main_runs_the_whole_experiment_without_a_model(monkeypatch):
+    """End to end: seed, evaluate, train, evaluate, report, return.
+
+    `threads=0` on purpose -- `set_seed` pins torch's thread count, and a test
+    that left it pinned would slow every test after it in the session.
+    """
+    from src.part_2_methods.ch07_grpo import train_json
+
+    row = dataset.make_dataset(1)[0]
+    varied = [json.dumps(row["target"]), "not json at all"]
+    policy = stub_policy(varied, 2, compliance=(0.25, 0.75))
+
+    lines = []
+    _patched_policy(monkeypatch, train_json, policy)
+    monkeypatch.setattr("builtins.print", lines.append)
+
+    result = train_json.main(steps=4, group_size=2, dataset_size=8,
+                             eval_rows=2, device="cpu", threads=0)
+
+    assert len(result.history) == 4
+    assert [r["step"] for r in result.history] == [0, 1, 2, 3]
+    assert result.baseline == 0.25 and result.after == 0.75
+    # Two texts cycled into a group of two is always a mixed group, so the
+    # zero-variance guard should never fire and every step should have taken
+    # a real gradient.
+    assert result.skipped == 0
+    assert all(r["gnorm"] is not None for r in result.history)
+    assert all(len(r["rewards"]) == 2 for r in result.history)
+    # And the run printed its report rather than returning it silently.
+    assert any("baseline compliance" in line for line in lines)
+
+
+@requires_torch
+def test_main_evaluates_the_holdout_tail_when_asked(monkeypatch):
+    """`--eval-holdout` is about *which rows*, and nothing else checks that.
+
+    The chapter's run evaluates on rows the loop also trains on, which the
+    README is careful to say is not a generalization check. The flag that
+    makes it one is a one-line slice, and a slice is exactly the kind of thing
+    that gets inverted.
+    """
+    from src.part_2_methods.ch07_grpo import train_json
+
+    data = dataset.make_dataset(8)
+    row = data[0]
+    varied = [json.dumps(row["target"]), "not json at all"]
+
+    for holdout, expected in ((False, data[:2]), (True, data[-2:])):
+        policy = stub_policy(varied, 2)
+        _patched_policy(monkeypatch, train_json, policy)
+        train_json.main(steps=1, group_size=2, dataset_size=8, eval_rows=2,
+                        eval_holdout=holdout, device="cpu", threads=0,
+                        verbose=False)
+        # Once before the run and once after, both on the same slice.
+        assert policy.evaluated == [expected, expected]
+
+
+@requires_torch
+def test_main_writes_the_history_before_it_reports(monkeypatch, tmp_path):
+    """The ordering the comment in `main` claims, pinned.
+
+    A forty-step run is expensive enough that losing it to a formatting bug in
+    the reporting code would be a genuine setback, so the file is written
+    first. Making `report` raise is the only way to tell the two orders apart.
+    """
+    from src.part_2_methods.ch07_grpo import train_json
+
+    row = dataset.make_dataset(1)[0]
+    varied = [json.dumps(row["target"]), "not json at all"]
+    policy = stub_policy(varied, 2)
+    _patched_policy(monkeypatch, train_json, policy)
+
+    def explode(*args, **kwargs):
+        raise ZeroDivisionError("a formatting bug in the reporting code")
+
+    monkeypatch.setattr(train_json, "report", explode)
+    path = tmp_path / "run.json"
+
+    with pytest.raises(ZeroDivisionError):
+        train_json.main(steps=2, group_size=2, dataset_size=8, eval_rows=1,
+                        device="cpu", threads=0, history_out=str(path))
+
+    # The run is gone; its numbers are not.
+    scores, observed, config = group_size.pooled_scores(str(path))
+    assert len(scores) == 4
+    assert observed == 0.0
+    assert config["steps"] == 2 and config["group_size"] == 2
