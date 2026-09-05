@@ -846,3 +846,72 @@ def test_main_writes_the_history_before_it_reports(monkeypatch, tmp_path):
     assert len(scores) == 4
     assert observed == 0.0
     assert config["steps"] == 2 and config["group_size"] == 2
+
+
+@requires_torch
+def test_load_left_pads_the_tokenizer_and_adapts_the_attention_projections(
+        monkeypatch):
+    """The one-word setting whose failure mode is fluent nonsense.
+
+    ``sample_group`` generates a whole group as one padded batch, and
+    generation continues from the last position of each row. Right-padded rows
+    are therefore continued from their padding rather than from the prompt,
+    which raises nothing, prints nothing, and produces confident text that has
+    not read the ticket. Compliance would sit near zero and the run would look
+    like GRPO failing to learn, so a reader would go looking in the objective.
+
+    Nothing else in the suite covers `load` -- it is the one function that
+    genuinely needs transformers, peft and a gigabyte of weights. Faking the
+    three constructors it calls is what makes the settings around them
+    checkable without any of that.
+    """
+    import sys
+    from types import SimpleNamespace
+
+    from src.part_2_methods.ch07_grpo import policy as policy_module
+
+    def fake_stack(tokenizer):
+        """Stands in for transformers and peft, and records the LoRA config."""
+        adapted = SimpleNamespace(to=lambda device: "adapted model")
+        seen = {}
+
+        monkeypatch.setitem(sys.modules, "transformers", SimpleNamespace(
+            AutoTokenizer=SimpleNamespace(
+                from_pretrained=lambda model_id: tokenizer),
+            AutoModelForCausalLM=SimpleNamespace(
+                from_pretrained=lambda model_id, torch_dtype=None: "base"),
+        ))
+        monkeypatch.setitem(sys.modules, "peft", SimpleNamespace(
+            LoraConfig=lambda **kwargs: seen.update(kwargs) or "config",
+            get_peft_model=lambda base, config: adapted,
+        ))
+        return seen
+
+    # A tokenizer with no pad token, the state Qwen2.5-0.5B loads in.
+    tokenizer = SimpleNamespace(padding_side="right", pad_token=None,
+                                eos_token="<|endoftext|>")
+    seen = fake_stack(tokenizer)
+
+    loaded = policy_module.LoRAPolicy.load(device="cpu")
+
+    assert tokenizer.padding_side == "left"
+    # Without a pad token the batch cannot be padded at all; eos is the
+    # conventional stand-in, and the mask in `sequence_logprob` is written
+    # knowing the two are the same id.
+    assert tokenizer.pad_token == "<|endoftext|>"
+    assert loaded.device == "cpu"
+
+    # The chapter's "0.44% trainable" is rank 16 on the four attention
+    # projections. Both halves of that arithmetic live in this config.
+    assert seen["r"] == 16
+    assert seen["lora_alpha"] == 32
+    assert seen["target_modules"] == ["q_proj", "k_proj", "v_proj", "o_proj"]
+    assert seen["task_type"] == "CAUSAL_LM"
+
+    # A tokenizer that arrives with a pad token keeps it.
+    already = SimpleNamespace(padding_side="right", pad_token="<pad>",
+                              eos_token="<|endoftext|>")
+    fake_stack(already)
+    policy_module.LoRAPolicy.load(device="cpu")
+    assert already.padding_side == "left"
+    assert already.pad_token == "<pad>"

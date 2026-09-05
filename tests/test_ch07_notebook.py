@@ -329,3 +329,19 @@ def test_notebook_logprob_matches_the_module(ch07_oracle_lm):
         # Not just the same numbers: the same grad mode. A notebook that
         # returned a detached tensor here would train nothing.
         assert theirs.requires_grad == ours.requires_grad == use_adapter
+
+
+def test_notebook_left_pads_for_batched_generation():
+    """The notebook samples a group as one batch too, so it needs this too.
+
+    A reader who copies the setup cell into their own project and drops the
+    padding line gets fluent nonsense and no error -- see the module test of
+    the same name. Checked on the executable code rather than the cell text,
+    so a comment mentioning left padding cannot satisfy it.
+    """
+    cell = executable(find_cell("padding_side"))
+    assert ("padding_side = 'left'" in cell
+            or 'padding_side = "left"' in cell), \
+        "batched generation continues right-padded rows from their padding"
+    # And the pad token itself: without one there is nothing to pad with.
+    assert "pad_token = tokenizer.eos_token" in cell
