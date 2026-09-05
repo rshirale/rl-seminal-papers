@@ -64,7 +64,7 @@ Because nothing is compiled, this renders exactly what visitors get. Installing 
 ## Chapter READMEs
 
 Not site files, but they are the other half of what a reader lands on, and they
-drift the same way `index.html` does. All six now carry the same shape:
+drift the same way `index.html` does. All seven now carry the same shape:
 
 ```
 # Chapter N: Title
