@@ -46,12 +46,11 @@ jobs:
       # that 3.10 broke and 3.12 did not is most of the diagnosis.
       fail-fast: false
       matrix:
-        # The floor of the range README.md advertises, and the version the
-        # book is developed on. 3.13 is advertised too and is deliberately not
-        # here yet: adding it is one line, and it is worth adding the day
-        # someone confirms the wheels resolve, rather than opening with a red
-        # check nobody has diagnosed.
-        python-version: ["3.10", "3.12"]
+        # The whole range README.md advertises: its floor, the version the
+        # book is developed on, and its ceiling. 3.13 was held back until the
+        # first green run showed 3.12 passing on torch 2.14 and numpy 2.5, at
+        # which point there was nothing left to be cautious about.
+        python-version: ["3.10", "3.12", "3.13"]
 
     env:
       # The runner is headless and the notebooks call plt.show(). Matplotlib
@@ -59,9 +58,9 @@ jobs:
       MPLBACKEND: Agg
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip

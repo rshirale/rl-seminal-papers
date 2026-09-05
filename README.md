@@ -247,7 +247,8 @@ make test-all    # also executes the chapter notebooks top to bottom
 ```
 
 Both commands also run on GitHub for every push and pull request
-(`.github/workflows/tests.yml`), across Python 3.10 and 3.12. The workflow runs
+(`.github/workflows/tests.yml`), across Python 3.10, 3.12 and 3.13 — the whole
+range advertised above. The workflow runs
 the full suite, notebooks included, because the notebook-execution tests are
 marked slow and are exactly the ones a reader hits first.
 
