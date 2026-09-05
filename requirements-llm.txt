@@ -1,0 +1,24 @@
+# Chapter 7 (GRPO). Kept separate from requirements-deep.txt because it is the
+# only chapter that needs a language-model stack, and because that stack is
+# large: transformers and its tokenizers pull roughly half a gigabyte before
+# any model weights are downloaded.
+#
+# Chapters 3-6 do not need any of this, and Chapter 7's reward function and
+# objective do not either -- `rewards.py` and `dataset.py` import nothing
+# outside the standard library, and `grpo.py` needs only torch. What needs the
+# stack is `policy.py`, which loads the model, and the trainer that drives it.
+#
+# The bounds are ranges rather than the pins the chapter's notebook was written
+# against (transformers 4.44.2, peft 0.12.0), because a reader installing this
+# a year later should get a working recent release rather than a pin that no
+# longer has a wheel for their Python. Keep them identical to the quoted
+# specifiers in the notebook's Colab install cell -- when the two disagree, a
+# Colab reader and a local reader are running different code, and
+# tests/test_ch07_notebook.py fails.
+torch>=2.0.0
+transformers>=4.44,<5.0
+peft>=0.12,<1.0
+
+# Pulled in by peft anyway; named here so the version resolution is visible
+# rather than incidental.
+accelerate>=0.33

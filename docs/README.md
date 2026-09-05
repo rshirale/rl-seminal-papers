@@ -121,6 +121,28 @@ rule is that every file appears somewhere, not that the heading matches.
 Nothing outstanding on the site itself. Everything previously recorded here is
 closed:
 
+- **Chapter 7 status** — now live, and the whole "When adding a chapter" list
+  below was worked through rather than the obvious two entries: the chapter row
+  (Shao et al., 2024, with the Colab link), the three quickstart commands, the
+  `make install-llm` line in step 2, the Colab link row in step 4, a GRPO tab in
+  Papers → Code with its `paperExamples` entry in `site.js`, the `progressLine`
+  first-paint text (`0 of 6` → `0 of 7`), the "Core Algorithms" and "Reasoning
+  Pipelines" learn cards — the second of which still said GRPO was a *later*
+  chapter — both learning-path cards and their `pathAdvice` strings in
+  `site.js`, the JSON-LD topic list, the three `<head>` descriptions, the CTA
+  line, `llms.txt` (summary, chapter line, and eleven resource links), and
+  `sitemap.xml`. The `deep` path advice was separately stale, routing readers
+  only as far as Chapter 5; it now ends at Chapter 6.
+
+  Chapter 7 is the first chapter whose stack is optional, so the site says so
+  where it matters. `install-full` still reads "Chapters 3–6" rather than 3–7,
+  which is deliberate: `requirements-llm.txt` carries torch itself, so a
+  Chapter 7 reader needs `install-llm` and nothing else, and widening the
+  `install-full` note would have promised a stack that does not actually run
+  the chapter. `install-llm` is in turn called out as needed by the trainer
+  alone — the reward function and the group-size analysis run on a bare
+  interpreter.
+
 - **Chapter 4 run commands** — added to the quickstart, along with the ablation's
   real runtime. Ninety-two minutes is not what a reader budgets for a line
   sitting between two three-minute ones.

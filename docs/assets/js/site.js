@@ -174,6 +174,12 @@ const paperExamples = {
     formula: 'y = r + \u03b3(1\u2212d)[min<sub>i=1,2</sub> Q\u0302<sub>i</sub>(s\u2032, a\u2032) \u2212 \u03b1\u00b7log \u03c0(a\u2032|s\u2032)],\u2003a\u2032 \u223c \u03c0(\u00b7|s\u2032)',
     note: 'The policy\u2019s own entropy rides inside the backup, so a state is worth more when good actions remain available from it \u2014 and \u03b1 is learned, not tuned.',
     code: '<span class="c-comment"># Soft target: pessimistic min over twin critics, minus the entropy term</span>\n<span class="c-var">na, log_pi_next = self.actor(ns)</span>\n<span class="c-var">q1_t, q2_t = self.critic_target(ns, na)</span>\n<span class="c-accent">soft_v</span><span class="c-var"> = torch.min(q1_t, q2_t) - alpha * log_pi_next</span>\n<span class="c-var">y = r + self.gamma * (1 - d) * soft_v</span>\n\n<span class="c-comment"># Actor: reward pulls in, log_pi punishes certainty</span>\n<span class="c-accent">actor_loss</span><span class="c-var"> = (alpha * log_pi - torch.min(q1_pi, q2_pi)).mean()</span>'
+  },
+  grpo: {
+    title: 'Shao et al. (2024) \u2014 GRPO Group-Relative Advantage', codeTitle: 'Python \u00b7 Chapter 7',
+    formula: 'A<sub>i</sub> = (s<sub>i</sub> \u2212 \u03bc<sub>G</sub>) / \u03c3<sub>G</sub>,\u2003{o<sub>1</sub>\u2026o<sub>G</sub>} \u223c \u03c0<sub>\u03b8</sub>(\u00b7|q)',
+    note: 'The group\u2019s own mean and standard deviation replace the critic entirely \u2014 one trainable model in VRAM instead of two, and the cost moves from memory to sampling.',
+    code: '<span class="c-comment"># Standardize the rewards within each group of G. This pair of</span>\n<span class="c-comment"># statistics is the whole replacement for a value network.</span>\n<span class="c-var">r_g = rewards.view(-1, group_size)</span>\n<span class="c-var">mean = r_g.mean(dim=1, keepdim=True)</span>\n<span class="c-var">std = r_g.std(dim=1, keepdim=True)</span>\n<span class="c-accent">adv</span><span class="c-var"> = ((r_g - mean) / (std + 1e-4)).view(-1)</span>'
   }
 };
 document.querySelectorAll('.paper-tab').forEach(tab => tab.addEventListener('click', () => {
@@ -402,8 +408,8 @@ document.querySelectorAll('.copy-button').forEach(button => button.addEventListe
 // ── Learning path guidance ──────────────────────────────────────────────
 const pathAdvice = {
   beginner: 'Recommended route: Chapter 1 → Chapter 2 → the Q-Learning playground above.',
-  deep: 'Recommended route: Chapter 3 DQN → Chapter 4 DDPG → Chapter 5 PPO.',
-  research: 'Recommended route: compare the Paper → Code examples, then follow the roadmap as new chapters arrive.'
+  deep: 'Recommended route: Chapter 3 DQN → Chapter 4 DDPG → Chapter 5 PPO → Chapter 6 SAC.',
+  research: 'Recommended route: compare the Paper → Code examples, then Chapter 7 GRPO, then follow the roadmap as new chapters arrive.'
 };
 document.querySelectorAll('.path-card').forEach(card => {
   const selectPath = () => {

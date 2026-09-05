@@ -7,7 +7,9 @@
         run-ch4-pendulum run-ch4-ablation run-ch5-pendulum run-ch5-ablation \
         run-ch5-seeding run-ch5-sweep run-ch5-efficiency \
         run-ch6-pendulum run-ch6-ablation run-ch6-temperature \
-        run-ch6-reward-scale run-ch6-seeding notebook
+        run-ch6-reward-scale run-ch6-seeding \
+        run-ch7-reward run-ch7-group-size run-ch7-train \
+        install-llm notebook
 
 # Interpreter used by every target. Defaults to python3 because a bare `python`
 # does not exist on most Linux distributions or on macOS 12.3+. Override it to
@@ -29,6 +31,7 @@ help:
 	@echo "Setup Commands:"
 	@echo "  make install             - Install Foundation stack (Chapters 1-2) - ~60MB"
 	@echo "  make install-full        - Install Deep RL stack (Chapters 3-6)"
+	@echo "  make install-llm         - Install the LLM stack (Chapter 7)"
 	@echo "  make install-atari       - Install optional Atari dependencies"
 	@echo "  make install-test        - Install test dependencies"
 	@echo "  make test                - Run fast tests (skips notebook execution)"
@@ -68,6 +71,12 @@ help:
 	@echo "  make run-ch6-seeding     - Show SAC's seed-to-seed spread (~30 min)"
 	@echo "     ...add FIGURE_DIR=dir to write PNG + SVG"
 	@echo ""
+	@echo "Chapter 7: GRPO"
+	@echo "  make run-ch7-reward      - Score sample outputs with the rule-based reward (instant)"
+	@echo "  make run-ch7-group-size  - How often a group carries no gradient (instant)"
+	@echo "  make run-ch7-train       - Train Qwen2.5-0.5B on JSON schema adherence (needs make install-llm)"
+	@echo "     ...add FIGURE_DIR=dir to the first two to write PNG + SVG"
+	@echo ""
 	@echo "Jupyter Notebooks:"
 	@echo "  make notebook            - Launch Jupyter Lab to view interactive chapters"
 	@echo ""
@@ -87,6 +96,13 @@ install-full: install
 install-atari:
 	@echo "Installing optional Atari dependencies..."
 	$(PYTHON_ABS) -m pip install -r requirements-atari.txt
+
+# Chapter 7 only. Deliberately not part of install-full: it is half a gigabyte
+# of packages that chapters 3-6 have no use for, and Chapter 7's reward
+# function and objective run without it.
+install-llm:
+	@echo "Installing the LLM stack (transformers, peft) for Chapter 7..."
+	$(PYTHON_ABS) -m pip install -r requirements-llm.txt
 
 install-test:
 	$(PYTHON_ABS) -m pip install -r requirements-test.txt
@@ -249,6 +265,40 @@ run-ch6-reward-scale:
 run-ch6-seeding:
 	@echo "Running Chapter 6: SAC seed variance..."
 	@$(PYTHON_ABS) -m src.part_2_methods.ch06_sac.seeding $(EXTRA)
+
+# --- Chapter 7 Commands ---
+
+CH7_DIR = src/part_2_methods/ch07_grpo
+
+# Both analysis targets print their table to the terminal and write nothing.
+# Set FIGURE_DIR to also emit PNG + SVG, e.g.
+#
+#   make run-ch7-reward FIGURE_DIR=figures
+#
+CH7_FIGURE_ARG = $(if $(FIGURE_DIR),--figure $(FIGURE_DIR))
+
+# Instant, and needs nothing installed beyond the standard library. Scores a
+# range of plausible model outputs with the chapter's rule-based reward, which
+# is the entire training signal -- run this before the trainer, not after.
+run-ch7-reward:
+	@echo "Running Chapter 7: what the rule-based reward pays for..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch07_grpo.reward_anatomy $(CH7_FIGURE_ARG) $(EXTRA)
+
+# Also instant. Exercise 3: what group size costs and what too small a group
+# costs. Pass EXTRA="--history run.json" to add the measured comparison from a
+# training run written with --history-out.
+run-ch7-group-size:
+	@echo "Running Chapter 7: group size versus zero-gradient steps..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch07_grpo.group_size $(CH7_FIGURE_ARG) $(EXTRA)
+
+# The real thing: 40 GRPO steps against Qwen2.5-0.5B, no critic and no
+# demonstrations. Needs `make install-llm` and downloads about a gigabyte of
+# weights on first run. Measured at 36 min on an 8-core Intel CPU with the
+# thread count pinned to 1, which is the default; EXTRA="--threads 0" trades
+# the reproducible transcript for several times the speed.
+run-ch7-train:
+	@echo "Running Chapter 7: GRPO on strict JSON schema adherence..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch07_grpo.train_json $(EXTRA)
 
 # --- Notebooks ---
 

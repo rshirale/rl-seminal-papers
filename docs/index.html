@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reinforcement Learning – The Seminal Papers | Rahul Shirale</title>
-  <meta name="description" content="The companion site for a Manning Publications book translating seminal reinforcement learning papers into clear, runnable Python code. Chapters 1–6 are available now." />
+  <meta name="description" content="The companion site for a Manning Publications book translating seminal reinforcement learning papers into clear, runnable Python code. Chapters 1–7 are available now." />
 
   <!-- Canonical & crawl policy -->
   <link rel="canonical" href="https://rshirale.github.io/rl-seminal-papers/" />
@@ -23,13 +23,13 @@
   <meta property="og:type"        content="book" />
   <meta property="og:url"         content="https://rshirale.github.io/rl-seminal-papers/" />
   <meta property="og:title"       content="Reinforcement Learning – The Seminal Papers" />
-  <meta property="og:description" content="The companion site for a Manning Publications book translating seminal reinforcement learning papers into clear, runnable Python code. Chapters 1–6 are available now." />
+  <meta property="og:description" content="The companion site for a Manning Publications book translating seminal reinforcement learning papers into clear, runnable Python code. Chapters 1–7 are available now." />
   <meta property="og:locale"      content="en_US" />
   <meta property="book:author"    content="Rahul Vasant Shirale" />
   <meta name="twitter:card"       content="summary" />
   <meta name="twitter:site"       content="@rshirale" />
   <meta name="twitter:title"      content="Reinforcement Learning – The Seminal Papers" />
-  <meta name="twitter:description" content="Seminal reinforcement learning papers translated into runnable Python. Chapters 1–6 are available now; more are planned through 2027." />
+  <meta name="twitter:description" content="Seminal reinforcement learning papers translated into runnable Python. Chapters 1–7 are available now; more are planned through 2027." />
 
   <!-- Google Analytics: loaded only after explicit analytics consent -->
   <script>
@@ -68,6 +68,7 @@
         {"@type": "Thing", "name": "Deep Q-Network"},
         {"@type": "Thing", "name": "Proximal Policy Optimization"},
         {"@type": "Thing", "name": "Soft Actor-Critic"},
+        {"@type": "Thing", "name": "Group Relative Policy Optimization"},
         {"@type": "Thing", "name": "AlphaGo"}
       ],
       "author": {
@@ -312,7 +313,7 @@
           </div>
           <div>
             <h3>Core Algorithms</h3>
-            <p>Build DQN, DDPG, PPO, and SAC from scratch today.</p>
+            <p>Build DQN, DDPG, PPO, SAC, and GRPO from scratch today.</p>
           </div>
         </div>
         <div class="learn-card">
@@ -330,7 +331,7 @@
           </div>
           <div>
             <h3>Reasoning Pipelines</h3>
-            <p>Later chapters will cover GRPO — the algorithm associated with DeepSeek-R1 — and reasoning-model training.</p>
+            <p>Train a language model with GRPO — the algorithm behind DeepSeek-R1 — against a rule-based reward, with no critic and no demonstrations.</p>
           </div>
         </div>
         <div class="learn-card">
@@ -371,6 +372,7 @@
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="ddpg">DDPG</button>
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="ppo">PPO</button>
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="sac">SAC</button>
+        <button class="paper-tab" role="tab" aria-selected="false" data-paper="grpo">GRPO</button>
       </div>
 
       <div class="math-code-grid">
@@ -406,6 +408,7 @@
         <span class="tag">Policy Gradient ∇θ</span>
         <span class="tag">PPO Clip Objective</span>
         <span class="tag">SAC Entropy Bonus</span>
+        <span class="tag">GRPO Group Baseline</span>
         <span class="tag-more">+47 more →</span>
       </div>
     </div>
@@ -458,7 +461,7 @@
         <button class="filter-button active" type="button" data-filter="all">All</button>
         <button class="filter-button" type="button" data-filter="live">Available now</button>
         <button class="filter-button" type="button" data-filter="planned">Coming soon</button>
-        <span class="progress-line" id="progressLine">0 of 6 live chapters completed</span>
+        <span class="progress-line" id="progressLine">0 of 7 live chapters completed</span>
       </div>
 
       <div class="roadmap-grid">
@@ -524,10 +527,10 @@
               <div class="ch-body"><div class="ch-title"><a href="https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb" target="_blank" rel="noopener noreferrer">SAC</a></div><div class="ch-sub">Haarnoja et al. (2018)</div></div>
               <div class="ch-status"><span class="badge-live" style="background:rgba(255,183,77,0.13);color:var(--primary)">Live</span><button class="complete-button" type="button" aria-label="Mark Chapter 6 complete">Done</button></div>
             </div>
-            <div class="chapter-row">
-              <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">7</div>
-              <div class="ch-body"><div class="ch-title">GRPO</div><div class="ch-sub">DeepSeek-R1 (2025)</div></div>
-              <div class="ch-status"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+            <div class="chapter-row" data-status="live" data-chapter="7">
+              <div class="ch-num done" style="background:var(--primary);color:var(--on-primary)">✓</div>
+              <div class="ch-body"><div class="ch-title"><a href="https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/Chapter7_GRPO.ipynb" target="_blank" rel="noopener noreferrer">GRPO</a></div><div class="ch-sub">Shao et al. (2024)</div></div>
+              <div class="ch-status"><span class="badge-live" style="background:rgba(255,183,77,0.13);color:var(--primary)">Live</span><button class="complete-button" type="button" aria-label="Mark Chapter 7 complete">Done</button></div>
             </div>
           </div>
         </div>
@@ -595,8 +598,8 @@
       </div>
       <div class="path-grid">
         <div class="path-card" tabindex="0" data-path="beginner"><h3>New to RL</h3><p>Start with Chapters 1–2 to learn the agent loop, MDPs, and tabular methods.</p></div>
-        <div class="path-card" tabindex="0" data-path="deep"><h3>Deep RL practitioner</h3><p>Jump into Chapters 3–6 and compare DQN, DDPG, PPO, and SAC implementations.</p></div>
-        <div class="path-card" tabindex="0" data-path="research"><h3>Research explorer</h3><p>Start with Papers → Code, then follow the planned roadmap toward GRPO and reasoning.</p></div>
+        <div class="path-card" tabindex="0" data-path="deep"><h3>Deep RL practitioner</h3><p>Jump into Chapters 3–7 and compare DQN, DDPG, PPO, SAC, and GRPO implementations.</p></div>
+        <div class="path-card" tabindex="0" data-path="research"><h3>Research explorer</h3><p>Start with Papers → Code, then read Chapter 7 — GRPO on a real language model — and follow the roadmap onward.</p></div>
       </div>
     </div>
   </section>
@@ -623,6 +626,7 @@
             <h3>Install dependencies</h3>
             <div class="copy-wrap"><code>make install</code><button class="copy-button" type="button" data-copy="make install">Copy</button></div><span class="cmd-note">foundation stack for Chapters 1–2</span><br>
             <div class="copy-wrap"><code>make install-full</code><button class="copy-button" type="button" data-copy="make install-full">Copy</button></div><span class="cmd-note">PyTorch stack for Chapters 3–6</span><br>
+            <div class="copy-wrap"><code>make install-llm</code><button class="copy-button" type="button" data-copy="make install-llm">Copy</button></div><span class="cmd-note">transformers and peft, for the Chapter 7 trainer only; its reward function and group-size analysis need neither</span><br>
             <div class="copy-wrap"><code>make install-atari</code><button class="copy-button" type="button" data-copy="make install-atari">Copy</button></div><span class="cmd-note">optional; only for the Chapter 3 Atari run</span><br>
             <div class="copy-wrap"><code>make install-test</code><button class="copy-button" type="button" data-copy="make install-test">Copy</button></div><span class="cmd-note">then <code>make test</code> for the fast suite, or <code>make test-all</code> to execute the notebooks</span><br>
             <div class="copy-wrap"><code>make doctor</code><button class="copy-button" type="button" data-copy="make doctor">Copy</button></div><span class="cmd-note">if anything fails, this reports your interpreter, platform, and package status</span>
@@ -645,7 +649,10 @@
             <div class="copy-wrap"><code>make run-ch5-seeding</code><button class="copy-button" type="button" data-copy="make run-ch5-seeding">Copy</button></div><span class="cmd-note">what the seed alone is worth, before trusting any comparison</span><br>
             <div class="copy-wrap"><code>make run-ch6-pendulum</code><button class="copy-button" type="button" data-copy="make run-ch6-pendulum">Copy</button></div><span class="cmd-note">SAC on Pendulum-v1 (~10 min on CPU); seed 42 reproduces the chapter’s transcript</span><br>
             <div class="copy-wrap"><code>make run-ch6-ablation</code><button class="copy-button" type="button" data-copy="make run-ch6-ablation">Copy</button></div><span class="cmd-note">ablate SAC’s entropy bonus (the chapter’s exercise 1); six training runs, ~30 min on a CPU</span><br>
-            <div class="copy-wrap"><code>make run-ch6-seeding</code><button class="copy-button" type="button" data-copy="make run-ch6-seeding">Copy</button></div><span class="cmd-note">SAC’s seed-to-seed spread — the threshold every table in the chapter should be read against</span>
+            <div class="copy-wrap"><code>make run-ch6-seeding</code><button class="copy-button" type="button" data-copy="make run-ch6-seeding">Copy</button></div><span class="cmd-note">SAC’s seed-to-seed spread — the threshold every table in the chapter should be read against</span><br>
+            <div class="copy-wrap"><code>make run-ch7-reward</code><button class="copy-button" type="button" data-copy="make run-ch7-reward">Copy</button></div><span class="cmd-note">what GRPO’s rule-based reward pays or charges for each kind of model output; instant, and needs nothing installed</span><br>
+            <div class="copy-wrap"><code>make run-ch7-group-size</code><button class="copy-button" type="button" data-copy="make run-ch7-group-size">Copy</button></div><span class="cmd-note">how often a group carries no gradient at all (the chapter’s exercise 3); also instant</span><br>
+            <div class="copy-wrap"><code>make run-ch7-train</code><button class="copy-button" type="button" data-copy="make run-ch7-train">Copy</button></div><span class="cmd-note">GRPO on strict JSON schema adherence — a base language model, a rule, and no critic; ~36 min on a CPU, and needs <code>make install-llm</code></span>
             <p class="step-note">Chapter 6’s three exercises — the entropy ablation, fixed vs learned temperature, and the reward-scale run — take an hour or more between them. They also run on GitHub’s machines: <a href="https://github.com/rshirale/rl-seminal-papers/actions/workflows/ch06-ablations.yml" target="_blank" rel="noopener noreferrer">Actions → Chapter 6 SAC ablations → Run workflow</a> runs all three in parallel and attaches the tables and figures as artifacts. Absolute numbers from a CI runner will not match a local run, but every variant inside one run shares a machine, so the comparison holds.</p>
           </div>
         </div>
@@ -662,6 +669,8 @@
             <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 5: PPO</a>
             &nbsp;|&nbsp;
             <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 6: SAC</a>
+            &nbsp;|&nbsp;
+            <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/Chapter7_GRPO.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 7: GRPO</a>
           </div>
         </div>
       </div>
@@ -679,7 +688,7 @@
             New chapters drop as the book progresses
           </div>
           <h2 class="cta-h2">Stay at the frontier</h2>
-          <p class="cta-sub">Chapters 1–6 are available now. Watch the repository to follow new implementations as the book progresses.</p>
+          <p class="cta-sub">Chapters 1–7 are available now. Watch the repository to follow new implementations as the book progresses.</p>
           <div class="cta-btns">
             <a class="btn-primary" href="https://github.com/rshirale/rl-seminal-papers/subscription" 
                onclick="gtag('event', 'click_github_watch', {'event_category': 'engagement'});"

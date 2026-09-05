@@ -1,6 +1,6 @@
 # Reinforcement Learning – The Seminal Papers
 
-> A Manning Publications book by Rahul Vasant Shirale translating seminal reinforcement learning papers into runnable Python code. Chapters 1–6 are available now; later chapters are planned through 2027.
+> A Manning Publications book by Rahul Vasant Shirale translating seminal reinforcement learning papers into runnable Python code. Chapters 1–7 are available now; later chapters are planned through 2027.
 
 ## About the Book
 
@@ -23,7 +23,7 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 4: DDPG — Lillicrap et al. (2015) (available now)
 - Chapter 5: PPO — Schulman et al. (2017) (available now)
 - Chapter 6: SAC — Haarnoja et al. (2018) (available now)
-- Chapter 7: GRPO — DeepSeek-R1 (2025) (planned)
+- Chapter 7: GRPO — Shao et al. (2024), DeepSeekMath; the algorithm behind DeepSeek-R1 (available now)
 
 **Part III — Real-World Applications** (planned)
 - Chapter 8: AlphaGo — Silver et al. (2016)
@@ -88,6 +88,17 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 6 Pendulum training script: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/train_pendulum.py
 - Chapter 6 Entropy ablation, fixed-temperature comparison, and reward-scale experiment (the chapter's three exercises): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/ablation.py
 - Chapter 6 Run the three ablations on GitHub Actions instead of a laptop (manual dispatch; tables and figures uploaded as artifacts): https://github.com/rshirale/rl-seminal-papers/actions/workflows/ch06-ablations.yml
+- Chapter 7 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/README.md
+- Chapter 7 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/Chapter7_GRPO.ipynb
+- Chapter 7 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/Chapter7_GRPO.ipynb
+- Chapter 7 Rule-based reward for strict JSON schema adherence (the entire training signal; standard library only): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/rewards.py
+- Chapter 7 Support-ticket dataset, generated locally from a seed: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/dataset.py
+- Chapter 7 GRPO objective (group-standardized advantages, clipped surrogate, Schulman KL estimator): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/grpo.py
+- Chapter 7 LoRA policy (base model plus adapters; the reference policy is the same weights with adapters disabled): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/policy.py
+- Chapter 7 Seeding helper (reproducible runs; token sampling is the exploration here): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/seeding.py
+- Chapter 7 GRPO training script (Qwen2.5-0.5B on JSON schema adherence, no critic and no demonstrations): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/train_json.py
+- Chapter 7 Reward anatomy (what the rule pays or charges for each kind of model output): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/reward_anatomy.py
+- Chapter 7 Group-size analysis (how often a group carries no gradient; the chapter's exercise 3): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/group_size.py
 
 ## Author
 

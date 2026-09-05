@@ -1,7 +1,7 @@
 # Reinforcement Learning – The Seminal Papers
 **Author: Rahul Vasant Shirale**
 
-This is the official companion repository for the book **Reinforcement Learning – The Seminal Papers** (Manning Publications). Chapters 1–6 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
+This is the official companion repository for the book **Reinforcement Learning – The Seminal Papers** (Manning Publications). Chapters 1–7 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
 
 ## 🌐 Companion Website
 
@@ -22,7 +22,8 @@ This repository includes a **Makefile** to simplify environment setup and runnin
 
 - Python **3.10–3.13** is recommended.
 - A virtual environment is strongly recommended.
-- Chapters 3–6 require PyTorch. PyTorch availability depends on your operating system, CPU architecture, and Python version.
+- Chapters 3–7 require PyTorch. PyTorch availability depends on your operating system, CPU architecture, and Python version.
+- Chapter 7 additionally needs `transformers` and `peft`, plus about a gigabyte of model weights on first run. Two of its three targets need neither.
 
 Create and activate a virtual environment before installing dependencies:
 
@@ -42,11 +43,20 @@ Lightweight setup. Installs NumPy, Matplotlib, Pandas, Gymnasium, and Jupyter.
 make install
 ```
 
-**Option B: Deep RL (Chapters 3–6 currently available)**
+**Option B: Deep RL (Chapters 3–6)**
 Installs PyTorch, classic-control environments, OpenCV, and the foundation dependencies.
 ```bash
 make install-full
 ```
+
+**Option C: Reasoning models (Chapter 7)**
+Installs the language-model stack — PyTorch, `transformers` and `peft`.
+```bash
+make install-llm
+```
+
+Chapter 7's reward function and its group-size analysis run without any of this,
+on a bare interpreter. Only the trainer and the notebook need it.
 
 The Atari training script is optional and has additional native dependencies.
 Install it separately only if you plan to run Atari experiments:
@@ -84,7 +94,7 @@ not provide PyTorch. Use the
 [official PyTorch installation selector](https://pytorch.org/get-started/locally/)
 for a platform-specific install command, then run `make install-full` again.
 
-**Option C: Tests**
+**Option D: Tests**
 Install pytest and run the automated checks:
 ```bash
 make install-test
@@ -138,6 +148,16 @@ make run-ch6-ablation
 
 # Chapter 6: SAC's seed-to-seed spread, the threshold its tables are read against
 make run-ch6-seeding
+
+# Chapter 7: what the rule-based reward pays for (instant, no install needed)
+make run-ch7-reward
+
+# Chapter 7: how often a group carries no gradient (the chapter's exercise 3)
+make run-ch7-group-size
+
+# Chapter 7: GRPO on strict JSON schema adherence, no critic and no
+#   demonstrations. Needs `make install-llm`; about 36 min on a CPU.
+make run-ch7-train
 ```
 
 `make help` lists every target, including the longer hyperparameter sweeps.
@@ -165,7 +185,7 @@ The repository follows the book’s three parts, from mathematical foundations t
 | **Ch 4** | **DDPG** | *Continuous control with deep reinforcement learning* (2015) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch04_ddpg/Chapter4_DDPG.ipynb) |
 | **Ch 5** | **PPO** | *Proximal Policy Optimization Algorithms* (2017) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb) |
 | **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy Maximum Entropy Deep RL with a Stochastic Actor* (2018) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb) |
-| **Ch 7** | **GRPO** | RL for reasoning models (DeepSeek-related work) | 🚧 Coming Soon |
+| **Ch 7** | **GRPO** | *DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models* (2024) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/Chapter7_GRPO.ipynb) |
 
 ### Part III: Real-World Applications (planned)
 | Chapter | Application | Key Implementation | Status |
@@ -205,16 +225,17 @@ To run these experiments, you should be comfortable with:
 ## 🎯 Key Takeaways
 Upon finishing this book and exploring this code, you will be equipped to:
 * **Translate Research to Code**: Convert mathematical objectives from papers into functional Python.
-* **Master Core Engines**: Write foundational Deep RL algorithms (DQN, DDPG, PPO, and SAC) from scratch.
-* **Build Reasoning Pipelines**: Understand planned GRPO implementations for incentivizing self-correction in models.
+* **Master Core Engines**: Write foundational Deep RL algorithms (DQN, DDPG, PPO, SAC, and GRPO) from scratch.
+* **Build Reasoning Pipelines**: Train a base language model with GRPO against a rule-based reward — the algorithm behind DeepSeek-R1, with no critic and no demonstrations.
 * **Navigate Sim-to-Real**: Prepare agents for deployment on physical humanoid hardware.
 
 ## 🧪 Verification
 
 The automated tests cover the Chapter 2 environments, algorithms and notebook,
 the Chapter 3 DQN modules and notebook, the Chapter 4 DDPG modules and
-notebook, the Chapter 5 PPO modules and notebook, and the Chapter 6 SAC modules
-and notebook. A separate suite checks the chapter READMEs themselves — every
+notebook, the Chapter 5 PPO modules and notebook, the Chapter 6 SAC modules
+and notebook, and the Chapter 7 GRPO modules and notebook. A separate suite
+checks the chapter READMEs themselves — every
 module listed, every `make` target documented, every class attributed to the
 file that defines it. The PyTorch chapters' tests are skipped when PyTorch is
 not installed, allowing the foundation tests to run with the lightweight
@@ -224,6 +245,12 @@ setup:
 make test        # fast suite
 make test-all    # also executes the chapter notebooks top to bottom
 ```
+
+Chapter 7's suite is split by dependency rather than skipped wholesale: its
+reward function and dataset import nothing outside the standard library and are
+tested on the lightweight setup, its objective is skipped without PyTorch, and
+its notebook-execution test skips itself unless the model weights are already
+cached — so `make test-all` never triggers a gigabyte of downloads.
 
 Every notebook suite executes its chapter's notebook cell by cell, which is
 how a broken paste in a notebook gets caught before a reader hits it. Chapter 2

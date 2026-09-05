@@ -19,6 +19,10 @@ PACKAGES = [
     ("torch", "torch", "requirements-deep.txt"),
     ("cv2", "opencv-python", "requirements-deep.txt"),
     ("ale_py", "ale-py", "requirements-atari.txt (optional)"),
+    # Chapter 7 only, and optional the same way Atari is: chapters 1-6 have no
+    # use for it, and two of Chapter 7's three targets run without it.
+    ("transformers", "transformers", "requirements-llm.txt (optional)"),
+    ("peft", "peft", "requirements-llm.txt (optional)"),
 ]
 
 
@@ -104,6 +108,8 @@ def main():
             print("  make install-full")
         if any(f.startswith("requirements-atari") for f in files):
             print("  make install-atari      # optional, Chapter 3 Atari only")
+        if any(f.startswith("requirements-llm") for f in files):
+            print("  make install-llm        # optional, Chapter 7 only")
         print()
         print("  If those install into the wrong interpreter, activate your")
         print("  virtualenv first, or pass one explicitly:")
