@@ -246,6 +246,11 @@ make test        # fast suite
 make test-all    # also executes the chapter notebooks top to bottom
 ```
 
+Both commands also run on GitHub for every push and pull request
+(`.github/workflows/tests.yml`), across Python 3.10 and 3.12. The workflow runs
+the full suite, notebooks included, because the notebook-execution tests are
+marked slow and are exactly the ones a reader hits first.
+
 Chapter 7's suite is split by dependency rather than skipped wholesale: its
 reward function and dataset import nothing outside the standard library and are
 tested on the lightweight setup, its objective is skipped without PyTorch, and

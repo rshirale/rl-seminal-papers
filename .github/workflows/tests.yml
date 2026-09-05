@@ -1,0 +1,85 @@
+# The test suite, run on GitHub's machines on every push and pull request.
+#
+# Until this existed the tests ran only when someone typed `make test` on a
+# laptop, which docs/README.md said in as many words: "There is no build: the
+# only workflow is the chapter 6 ablation dispatch, so the README checks fire
+# when someone types make test and not on push." This is that build.
+#
+# It runs `make test-all` rather than `make test`, and that choice is the
+# whole point. Every notebook execution test in the suite is marked slow, so
+# the fast target skips precisely the check a reader depends on most -- whether
+# the notebook they open in Colab actually runs top to bottom. Chapter 2
+# shipped a KeyError that every reader hit on their first or second episode,
+# and a fast-suite-only workflow would have gone green on it.
+#
+# It deliberately does NOT install requirements-llm.txt. Chapter 7's tests fake
+# the transformers and peft constructors instead of importing them, and its
+# notebook execution test skips itself unless the model weights are already in
+# the huggingface cache -- so the whole suite runs without half a gigabyte of
+# packages or a gigabyte of weights. The chapter's dependency split is a design
+# property rather than an accident, and this is where it pays.
+
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# A second push while the first is still running cancels it rather than paying
+# for both. Only the newest commit's answer is worth anything.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    # The full suite is about five and a half minutes on the machine these were
+    # written on. A runner is slower, and the notebook executions are the part
+    # that stretches, so this is deliberately loose rather than tight.
+    timeout-minutes: 45
+
+    strategy:
+      # A failure on one interpreter should still report the other. Knowing
+      # that 3.10 broke and 3.12 did not is most of the diagnosis.
+      fail-fast: false
+      matrix:
+        # The floor of the range README.md advertises, and the version the
+        # book is developed on. 3.13 is advertised too and is deliberately not
+        # here yet: adding it is one line, and it is worth adding the day
+        # someone confirms the wheels resolve, rather than opening with a red
+        # check nobody has diagnosed.
+        python-version: ["3.10", "3.12"]
+
+    env:
+      # The runner is headless and the notebooks call plt.show(). Matplotlib
+      # would pick Agg on its own here; saying so removes the guesswork.
+      MPLBACKEND: Agg
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install
+        # The reader's own documented commands rather than raw pip, so this
+        # step fails if the install path in README.md stops working. install-full
+        # brings requirements.txt, torch, opencv and gymnasium[atari], which is
+        # what lets the chapter 3 Atari wrapper tests run instead of skipping.
+        run: |
+          python -m pip install --upgrade pip
+          make install-full
+          make install-test
+
+      - name: Report the environment
+        # First thing worth knowing when a leg goes red for a reason that is
+        # not in the diff.
+        run: make doctor
+
+      - name: Run the full suite, notebooks included
+        run: make test-all

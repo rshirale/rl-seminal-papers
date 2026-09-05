@@ -78,11 +78,13 @@ drift the same way `index.html` does. All six now carry the same shape:
 ```
 
 Five rules, each of them written down because it was broken. The first four
-are enforced by `tests/test_readmes.py`, which fails if a chapter drifts. Note
-that nothing runs it for you: the only workflow in `.github/workflows/` is the
-Chapter 6 ablation dispatch, so these checks fire when someone types `make
-test`, not on push. The fifth rule cannot be enforced at all, and is the one to
-be careful about:
+are enforced by `tests/test_readmes.py`, which fails if a chapter drifts. Since
+the Chapter 7 landing, `.github/workflows/tests.yml` runs the whole suite on
+every push and pull request, so these checks now fire without anyone typing
+`make test`. It runs `make test-all` rather than `make test` on purpose: every
+notebook execution test is marked slow, and those are the ones that catch what
+a reader hits first. The fifth rule cannot be enforced at all, and is the one
+to be careful about:
 
 - **List every file.** Chapter 3's README described six files in a directory of
   eight; `ablation.py` and `seeding.py` were undocumented, and the ablation was
