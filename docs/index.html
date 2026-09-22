@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reinforcement Learning – The Seminal Papers | Rahul Shirale</title>
-  <meta name="description" content="The companion site for a Manning Publications book translating seminal reinforcement learning papers into clear, runnable Python code. Chapters 1–7 are available now." />
+  <meta name="description" content="The companion site for a Manning Publications book translating seminal reinforcement learning papers into clear, runnable Python code. Chapters 1–8 are available now." />
 
   <!-- Canonical & crawl policy -->
   <link rel="canonical" href="https://rshirale.github.io/rl-seminal-papers/" />
@@ -23,13 +23,13 @@
   <meta property="og:type"        content="book" />
   <meta property="og:url"         content="https://rshirale.github.io/rl-seminal-papers/" />
   <meta property="og:title"       content="Reinforcement Learning – The Seminal Papers" />
-  <meta property="og:description" content="The companion site for a Manning Publications book translating seminal reinforcement learning papers into clear, runnable Python code. Chapters 1–7 are available now." />
+  <meta property="og:description" content="The companion site for a Manning Publications book translating seminal reinforcement learning papers into clear, runnable Python code. Chapters 1–8 are available now." />
   <meta property="og:locale"      content="en_US" />
   <meta property="book:author"    content="Rahul Vasant Shirale" />
   <meta name="twitter:card"       content="summary" />
   <meta name="twitter:site"       content="@rshirale" />
   <meta name="twitter:title"      content="Reinforcement Learning – The Seminal Papers" />
-  <meta name="twitter:description" content="Seminal reinforcement learning papers translated into runnable Python. Chapters 1–7 are available now; more are planned through 2027." />
+  <meta name="twitter:description" content="Seminal reinforcement learning papers translated into runnable Python. Chapters 1–8 are available now; more are planned through 2027." />
 
   <!-- Google Analytics: loaded only after explicit analytics consent -->
   <script>
@@ -70,7 +70,10 @@
         {"@type": "Thing", "name": "Proximal Policy Optimization"},
         {"@type": "Thing", "name": "Soft Actor-Critic"},
         {"@type": "Thing", "name": "Group Relative Policy Optimization"},
-        {"@type": "Thing", "name": "AlphaGo"}
+        {"@type": "Thing", "name": "Monte Carlo Tree Search"},
+        {"@type": "Thing", "name": "Self-Play"},
+        {"@type": "Thing", "name": "AlphaGo"},
+        {"@type": "Thing", "name": "AlphaZero"}
       ],
       "author": {
         "@type": "Person",
@@ -314,7 +317,7 @@
           </div>
           <div>
             <h3>Core Algorithms</h3>
-            <p>Build DQN, DDPG, PPO, SAC, and GRPO from scratch today.</p>
+            <p>Build DQN, DDPG, PPO, SAC, GRPO, and AlphaZero from scratch today.</p>
           </div>
         </div>
         <div class="learn-card">
@@ -341,7 +344,7 @@
           </div>
           <div>
             <h3>Real-World Systems</h3>
-            <p>Apply RL to AlphaGo, AlphaZero, RLHF alignment, AlphaDev, and humanoid robotics with sim-to-real transfer.</p>
+            <p>Train AlphaZero by self-play against a game with a proven answer today, then follow the roadmap into offline RL, deployment, and sim-to-real transfer.</p>
           </div>
         </div>
         <div class="learn-card">
@@ -374,6 +377,7 @@
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="ppo">PPO</button>
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="sac">SAC</button>
         <button class="paper-tab" role="tab" aria-selected="false" data-paper="grpo">GRPO</button>
+        <button class="paper-tab" role="tab" aria-selected="false" data-paper="alphazero">AlphaZero</button>
       </div>
 
       <div class="math-code-grid">
@@ -410,6 +414,7 @@
         <span class="tag">PPO Clip Objective</span>
         <span class="tag">SAC Entropy Bonus</span>
         <span class="tag">GRPO Group Baseline</span>
+        <span class="tag">PUCT Selection</span>
         <span class="tag-more">+47 more →</span>
       </div>
     </div>
@@ -462,7 +467,7 @@
         <button class="filter-button active" type="button" data-filter="all">All</button>
         <button class="filter-button" type="button" data-filter="live">Available now</button>
         <button class="filter-button" type="button" data-filter="planned">Coming soon</button>
-        <span class="progress-line" id="progressLine">0 of 7 live chapters completed</span>
+        <span class="progress-line" id="progressLine">0 of 8 live chapters completed</span>
       </div>
 
       <div class="roadmap-grid">
@@ -533,6 +538,11 @@
               <div class="ch-body"><div class="ch-title"><a href="https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/Chapter7_GRPO.ipynb" target="_blank" rel="noopener noreferrer">GRPO</a></div><div class="ch-sub">Shao et al. (2024)</div></div>
               <div class="ch-status"><span class="badge-live" style="background:rgba(255,183,77,0.13);color:var(--primary)">Live</span><button class="complete-button" type="button" aria-label="Mark Chapter 7 complete">Done</button></div>
             </div>
+            <div class="chapter-row" data-status="live" data-chapter="8">
+              <div class="ch-num done" style="background:var(--primary);color:var(--on-primary)">✓</div>
+              <div class="ch-body"><div class="ch-title"><a href="https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/Chapter8_AlphaZero.ipynb" target="_blank" rel="noopener noreferrer">AlphaGo &amp; AlphaZero</a></div><div class="ch-sub">Silver et al. (2016, 2018)</div></div>
+              <div class="ch-status"><span class="badge-live" style="background:rgba(255,183,77,0.13);color:var(--primary)">Live</span><button class="complete-button" type="button" aria-label="Mark Chapter 8 complete">Done</button></div>
+            </div>
           </div>
         </div>
 
@@ -544,38 +554,33 @@
           </div>
           <div class="part-chapters">
             <div class="chapter-row">
-              <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">8</div>
-              <div class="ch-body"><div class="ch-title">AlphaGo</div><div class="ch-sub">Silver et al. (2016)</div></div>
-              <div class="ch-status"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-            </div>
-            <div class="chapter-row">
               <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">9</div>
-              <div class="ch-body"><div class="ch-title">AlphaZero</div><div class="ch-sub">Silver et al. (2017)</div></div>
+              <div class="ch-body"><div class="ch-title">Offline RL</div><div class="ch-sub">Kumar et al. (2020) — Conservative Q-Learning</div></div>
               <div class="ch-status"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             </div>
             <div class="chapter-row">
               <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">10</div>
-              <div class="ch-body"><div class="ch-title">RLHF</div><div class="ch-sub">Christiano et al. (2017)</div></div>
+              <div class="ch-body"><div class="ch-title">RL in Production</div><div class="ch-sub">Serving, monitoring, and updating a policy</div></div>
               <div class="ch-status"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             </div>
             <div class="chapter-row">
               <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">11</div>
-              <div class="ch-body"><div class="ch-title">Dexterous Manipulation</div><div class="ch-sub">Andrychowicz et al. (2019)</div></div>
+              <div class="ch-body"><div class="ch-title">Sim-to-Real</div><div class="ch-sub">Domain randomization and transfer to hardware</div></div>
               <div class="ch-status"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             </div>
             <div class="chapter-row">
               <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">12</div>
-              <div class="ch-body"><div class="ch-title">AlphaDev</div><div class="ch-sub">Mankowitz et al. (2023)</div></div>
+              <div class="ch-body"><div class="ch-title">Decision Transformers</div><div class="ch-sub">Chen et al. (2021)</div></div>
               <div class="ch-status"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             </div>
             <div class="chapter-row">
               <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">13</div>
-              <div class="ch-body"><div class="ch-title">Humanoid Locomotion</div><div class="ch-sub">Radosavovic et al. (2024)</div></div>
+              <div class="ch-body"><div class="ch-title">RLHF</div><div class="ch-sub">Christiano et al. (2017)</div></div>
               <div class="ch-status"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             </div>
             <div class="chapter-row">
               <div class="ch-num" style="background:var(--sc-high);color:var(--outline)">14</div>
-              <div class="ch-body"><div class="ch-title">DeepSeek-R1</div><div class="ch-sub">RL-Only Reasoning (2025)</div></div>
+              <div class="ch-body"><div class="ch-title">Agentic RL</div><div class="ch-sub">Tool use, planning, and long-horizon agents</div></div>
               <div class="ch-status"><svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             </div>
             <div class="chapter-row">
@@ -599,8 +604,8 @@
       </div>
       <div class="path-grid">
         <div class="path-card" tabindex="0" data-path="beginner"><h3>New to RL</h3><p>Start with Chapters 1–2 to learn the agent loop, MDPs, and tabular methods.</p></div>
-        <div class="path-card" tabindex="0" data-path="deep"><h3>Deep RL practitioner</h3><p>Jump into Chapters 3–7 and compare DQN, DDPG, PPO, SAC, and GRPO implementations.</p></div>
-        <div class="path-card" tabindex="0" data-path="research"><h3>Research explorer</h3><p>Start with Papers → Code, then read Chapter 7 — GRPO on a real language model — and follow the roadmap onward.</p></div>
+        <div class="path-card" tabindex="0" data-path="deep"><h3>Deep RL practitioner</h3><p>Jump into Chapters 3–8 and compare DQN, DDPG, PPO, SAC, GRPO, and AlphaZero implementations.</p></div>
+        <div class="path-card" tabindex="0" data-path="research"><h3>Research explorer</h3><p>Start with Papers → Code, then read Chapter 7 — GRPO on a real language model — and Chapter 8, where the agent is checked against a game with a proven answer.</p></div>
       </div>
     </div>
   </section>
@@ -626,7 +631,7 @@
           <div class="step-body">
             <h3>Install dependencies</h3>
             <div class="copy-wrap"><code>make install</code><button class="copy-button" type="button" data-copy="make install">Copy</button></div><span class="cmd-note">foundation stack for Chapters 1–2</span><br>
-            <div class="copy-wrap"><code>make install-full</code><button class="copy-button" type="button" data-copy="make install-full">Copy</button></div><span class="cmd-note">PyTorch stack for Chapters 3–6</span><br>
+            <div class="copy-wrap"><code>make install-full</code><button class="copy-button" type="button" data-copy="make install-full">Copy</button></div><span class="cmd-note">PyTorch stack for Chapters 3–6 and 8</span><br>
             <div class="copy-wrap"><code>make install-llm</code><button class="copy-button" type="button" data-copy="make install-llm">Copy</button></div><span class="cmd-note">transformers and peft, for the Chapter 7 trainer only; its reward function and group-size analysis need neither</span><br>
             <div class="copy-wrap"><code>make install-atari</code><button class="copy-button" type="button" data-copy="make install-atari">Copy</button></div><span class="cmd-note">optional; only for the Chapter 3 Atari run</span><br>
             <div class="copy-wrap"><code>make install-test</code><button class="copy-button" type="button" data-copy="make install-test">Copy</button></div><span class="cmd-note">then <code>make test</code> for the fast suite, or <code>make test-all</code> to execute the notebooks</span><br>
@@ -653,7 +658,12 @@
             <div class="copy-wrap"><code>make run-ch6-seeding</code><button class="copy-button" type="button" data-copy="make run-ch6-seeding">Copy</button></div><span class="cmd-note">SAC’s seed-to-seed spread — the threshold every table in the chapter should be read against</span><br>
             <div class="copy-wrap"><code>make run-ch7-reward</code><button class="copy-button" type="button" data-copy="make run-ch7-reward">Copy</button></div><span class="cmd-note">what GRPO’s rule-based reward pays or charges for each kind of model output; instant, and needs nothing installed</span><br>
             <div class="copy-wrap"><code>make run-ch7-group-size</code><button class="copy-button" type="button" data-copy="make run-ch7-group-size">Copy</button></div><span class="cmd-note">how often a group carries no gradient at all (the chapter’s exercise 3); also instant</span><br>
-            <div class="copy-wrap"><code>make run-ch7-train</code><button class="copy-button" type="button" data-copy="make run-ch7-train">Copy</button></div><span class="cmd-note">GRPO on strict JSON schema adherence — a base language model, a rule, and no critic; ~36 min on a CPU, and needs <code>make install-llm</code></span>
+            <div class="copy-wrap"><code>make run-ch7-train</code><button class="copy-button" type="button" data-copy="make run-ch7-train">Copy</button></div><span class="cmd-note">GRPO on strict JSON schema adherence — a base language model, a rule, and no critic; ~36 min on a CPU, and needs <code>make install-llm</code></span><br>
+            <div class="copy-wrap"><code>make run-ch8-sizes</code><button class="copy-button" type="button" data-copy="make run-ch8-sizes">Copy</button></div><span class="cmd-note">what the published AlphaGo and AlphaGo Zero networks cost, counted by instantiating them; instant</span><br>
+            <div class="copy-wrap"><code>make run-ch8-solve</code><button class="copy-button" type="button" data-copy="make run-ch8-solve">Copy</button></div><span class="cmd-note">reprove the small Connect Four boards exactly, against the published solved values; ~30 s</span><br>
+            <div class="copy-wrap"><code>make run-ch8-benchmark</code><button class="copy-button" type="button" data-copy="make run-ch8-benchmark">Copy</button></div><span class="cmd-note">AlphaGo’s 19×19 policy network against its rollout policy — the gap that forced AlphaGo to keep rollouts at all; ~15 s, and needs no dataset</span><br>
+            <div class="copy-wrap"><code>make run-ch8-train</code><button class="copy-button" type="button" data-copy="make run-ch8-train">Copy</button></div><span class="cmd-note">train AlphaZero from random weights by self-play on 6×6 Connect Four, a proven draw; one-hour budget by default</span><br>
+            <div class="copy-wrap"><code>make run-ch8-othello</code><button class="copy-button" type="button" data-copy="make run-ch8-othello">Copy</button></div><span class="cmd-note">the same agent and the same hyperparameters on 6×6 Othello, a proven <em>second</em>-player win — AlphaZero’s generality claim, checkable on a laptop</span>
             <p class="step-note">Chapter 6’s three exercises — the entropy ablation, fixed vs learned temperature, and the reward-scale run — take an hour or more between them. They also run on GitHub’s machines: <a href="https://github.com/rshirale/rl-seminal-papers/actions/workflows/ch06-ablations.yml" target="_blank" rel="noopener noreferrer">Actions → Chapter 6 SAC ablations → Run workflow</a> runs all three in parallel and attaches the tables and figures as artifacts. Absolute numbers from a CI runner will not match a local run, but every variant inside one run shares a machine, so the comparison holds.</p>
           </div>
         </div>
@@ -672,6 +682,8 @@
             <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 6: SAC</a>
             &nbsp;|&nbsp;
             <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/Chapter7_GRPO.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 7: GRPO</a>
+            &nbsp;|&nbsp;
+            <a href="https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/Chapter8_AlphaZero.ipynb" target="_blank" rel="noopener noreferrer">▶ Chapter 8: AlphaGo &amp; AlphaZero</a>
           </div>
         </div>
       </div>
@@ -689,7 +701,7 @@
             New chapters drop as the book progresses
           </div>
           <h2 class="cta-h2">Stay at the frontier</h2>
-          <p class="cta-sub">Chapters 1–7 are available now. Watch the repository to follow new implementations as the book progresses.</p>
+          <p class="cta-sub">Chapters 1–8 are available now. Watch the repository to follow new implementations as the book progresses.</p>
           <div class="cta-btns">
             <a class="btn-primary" href="https://github.com/rshirale/rl-seminal-papers/subscription" 
                onclick="gtag('event', 'click_github_watch', {'event_category': 'engagement'});"

@@ -64,7 +64,7 @@ Because nothing is compiled, this renders exactly what visitors get. Installing 
 ## Chapter READMEs
 
 Not site files, but they are the other half of what a reader lands on, and they
-drift the same way `index.html` does. All seven now carry the same shape:
+drift the same way `index.html` does. All eight now carry the same shape:
 
 ```
 # Chapter N: Title
@@ -122,6 +122,36 @@ rule is that every file appears somewhere, not that the heading matches.
 
 Nothing outstanding on the site itself. Everything previously recorded here is
 closed:
+
+- **Chapter 8 status** — now live, and the whole "When adding a chapter" list
+  below was worked through: the chapter row (Silver et al., 2016 and 2018, with
+  the Colab link), five quickstart commands, the `make install-full` note (now
+  "Chapters 3–6 and 8", because chapter 8 needs the deep stack and nothing
+  more — no dataset, no downloaded weights), the Colab link row in step 4, an
+  AlphaZero tab in Papers → Code with its `paperExamples` entry in `site.js`
+  (the PUCT selection rule, quoting `mcts.py` verbatim), the `progressLine`
+  first-paint text (`0 of 7` → `0 of 8`), the "Core Algorithms" and "Real-World
+  Systems" learn cards — the second of which still promised AlphaGo, AlphaZero,
+  AlphaDev and humanoid robotics as future work — the "Deep RL practitioner"
+  and "Research explorer" path cards and their `pathAdvice` strings, the JSON-LD
+  topic list (which gained Monte Carlo Tree Search, Self-Play and AlphaZero),
+  the three `<head>` descriptions, the CTA line, `llms.txt` (summary, chapter
+  line, and seventeen resource links), and `sitemap.xml`.
+
+  **The roadmap moved, and that was the larger part of this pass.** The book's
+  revised table of contents merges AlphaGo and AlphaZero into one chapter 8 and
+  restarts Part III at chapter 9 with Offline RL, so chapter 8 is the first
+  chapter to land in Part II of the site's roadmap rather than Part III. All
+  seven Part III rows were rewritten — Offline RL, RL in Production,
+  Sim-to-Real, Decision Transformers, RLHF, Agentic RL, Conclusion — replacing
+  a list that still advertised a separate chapter 9 AlphaZero alongside the
+  chapter 8 that now ships it. The count is unchanged at 15, so "15 chapters.
+  3 arcs." still holds.
+
+  The failure mode worth recording: a stale *planned* list is harder to notice
+  than a missing live one, because nothing links to it and nothing tests it. It
+  survived the entire chapter 7 pass.
+
 
 - **Chapter 7 status** — now live, and the whole "When adding a chapter" list
   below was worked through rather than the obvious two entries: the chapter row

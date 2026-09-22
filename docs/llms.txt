@@ -1,6 +1,6 @@
 # Reinforcement Learning – The Seminal Papers
 
-> A Manning Publications book by Rahul Vasant Shirale translating seminal reinforcement learning papers into runnable Python code. Chapters 1–7 are available now; later chapters are planned through 2027.
+> A Manning Publications book by Rahul Vasant Shirale translating seminal reinforcement learning papers into runnable Python code. Chapters 1–8 are available now; later chapters are planned through 2027.
 
 ## About the Book
 
@@ -24,15 +24,15 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 5: PPO — Schulman et al. (2017) (available now)
 - Chapter 6: SAC — Haarnoja et al. (2018) (available now)
 - Chapter 7: GRPO — Shao et al. (2024), DeepSeekMath; the algorithm behind DeepSeek-R1 (available now)
+- Chapter 8: AlphaGo and AlphaZero — Silver et al. (2016, 2018); deep networks inside a tree search, then self-play with everything hand-built removed (available now)
 
 **Part III — Real-World Applications** (planned)
-- Chapter 8: AlphaGo — Silver et al. (2016)
-- Chapter 9: AlphaZero — Silver et al. (2017)
-- Chapter 10: RLHF — Christiano et al. (2017)
-- Chapter 11: Dexterous Manipulation — Andrychowicz et al. (2019)
-- Chapter 12: AlphaDev — Mankowitz et al. (2023)
-- Chapter 13: Humanoid Locomotion — Radosavovic et al. (2024)
-- Chapter 14: DeepSeek-R1 — RL-Only Reasoning (2025)
+- Chapter 9: Offline RL — Kumar et al. (2020), Conservative Q-Learning
+- Chapter 10: RL in Production — serving, monitoring, and updating a deployed policy
+- Chapter 11: Sim-to-Real — domain randomization and transfer to physical hardware
+- Chapter 12: Decision Transformers — Chen et al. (2021); RL as sequence modelling
+- Chapter 13: RLHF — Christiano et al. (2017)
+- Chapter 14: Agentic RL — tool use, planning, and long-horizon agents
 - Chapter 15: Conclusion — Building Your Own Experiments
 
 ## Available Resources
@@ -99,6 +99,22 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 7 GRPO training script (Qwen2.5-0.5B on JSON schema adherence, no critic and no demonstrations): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/train_json.py
 - Chapter 7 Reward anatomy (what the rule pays or charges for each kind of model output): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/reward_anatomy.py
 - Chapter 7 Group-size analysis (how often a group carries no gradient; the chapter's exercise 3): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/group_size.py
+- Chapter 8 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/README.md
+- Chapter 8 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/Chapter8_AlphaZero.ipynb
+- Chapter 8 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/Chapter8_AlphaZero.ipynb
+- Chapter 8 Game interface (the contract that lets one unchanged agent play both domains): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/game.py
+- Chapter 8 Connect Four rules, with the published game-theoretic values of every small board: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/connect_four.py
+- Chapter 8 Othello 6x6 rules (pass handling and the eight symmetries of the square; a proven second-player win): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/othello.py
+- Chapter 8 AlphaZero network (one residual trunk, a policy head and a value head; 456,647 parameters): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/network.py
+- Chapter 8 PUCT search, batched across a fleet of games and evaluated by the network rather than by rollouts: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/mcts.py
+- Chapter 8 Self-play (a fleet of games in lockstep, with tree reuse and the outcome sign convention): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/selfplay.py
+- Chapter 8 Exact alpha-beta solver, the oracle a trained agent is checked against: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/solver.py
+- Chapter 8 Arena (random, depth-3 exact search, and the agent against itself; which of them to believe): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/arena.py
+- Chapter 8 Training loop, budgeted on wall clock rather than on iteration count: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/train.py
+- Chapter 8 Checkpoint inspector (what the agent believes about the opening, and a game against it): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/inspect_agent.py
+- Chapter 8 Search animations (one move's visit counts concentrating, and a whole game): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/animate.py
+- Chapter 8 The published 19x19 AlphaGo and AlphaGo Zero architectures, to read and measure rather than train: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/alphago.py
+- Chapter 8 Policy network vs rollout policy timing (the gap that forced AlphaGo to keep rollouts; no dataset needed): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/benchmark.py
 
 ## Author
 

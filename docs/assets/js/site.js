@@ -180,6 +180,12 @@ const paperExamples = {
     formula: 'A<sub>i</sub> = (s<sub>i</sub> \u2212 \u03bc<sub>G</sub>) / \u03c3<sub>G</sub>,\u2003{o<sub>1</sub>\u2026o<sub>G</sub>} \u223c \u03c0<sub>\u03b8</sub>(\u00b7|q)',
     note: 'The group\u2019s own mean and standard deviation replace the critic entirely \u2014 one trainable model in VRAM instead of two, and the cost moves from memory to sampling.',
     code: '<span class="c-comment"># Standardize the rewards within each group of G. This pair of</span>\n<span class="c-comment"># statistics is the whole replacement for a value network.</span>\n<span class="c-var">r_g = rewards.view(-1, group_size)</span>\n<span class="c-var">mean = r_g.mean(dim=1, keepdim=True)</span>\n<span class="c-var">std = r_g.std(dim=1, keepdim=True)</span>\n<span class="c-accent">adv</span><span class="c-var"> = ((r_g - mean) / (std + 1e-4)).view(-1)</span>'
+  },
+  alphazero: {
+    title: 'Silver et al. (2017, 2018) \u2014 PUCT Selection Rule', codeTitle: 'Python \u00b7 Chapter 8',
+    formula: 'a<sub>t</sub> = argmax<sub>a</sub> [ Q(s, a) + c<sub>puct</sub>\u00b7P(s, a)\u00b7\u221a(\u03a3<sub>b</sub> N(s, b)) / (1 + N(s, a)) ]',
+    note: 'The policy head\u2019s prior P shapes where the search looks first; the visit count N pulls it back toward breadth. An unvisited child scores on its prior alone, which is what makes the network\u2019s opinion the thing that shapes the tree.',
+    code: '<span class="c-comment"># max(1, ...) is the cold-start guard: on the first simulation the</span>\n<span class="c-comment"># parent has no visits, and every child would otherwise score zero.</span>\n<span class="c-var">exploration = c_puct * child.prior * math.sqrt(</span>\n<span class="c-var">    max(1, parent.visit_count)) / (1 + child.visit_count)</span>\n<span class="c-var">if child.visit_count == 0:</span>\n<span class="c-var">    return exploration</span>\n\n<span class="c-comment"># A child\u2019s Q is from the opponent\u2019s point of view, so it negates.</span>\n<span class="c-accent">return</span><span class="c-var"> -child.q_value() + exploration</span>'
   }
 };
 document.querySelectorAll('.paper-tab').forEach(tab => tab.addEventListener('click', () => {
@@ -408,8 +414,8 @@ document.querySelectorAll('.copy-button').forEach(button => button.addEventListe
 // ── Learning path guidance ──────────────────────────────────────────────
 const pathAdvice = {
   beginner: 'Recommended route: Chapter 1 → Chapter 2 → the Q-Learning playground above.',
-  deep: 'Recommended route: Chapter 3 DQN → Chapter 4 DDPG → Chapter 5 PPO → Chapter 6 SAC.',
-  research: 'Recommended route: compare the Paper → Code examples, then Chapter 7 GRPO, then follow the roadmap as new chapters arrive.'
+  deep: 'Recommended route: Chapter 3 DQN → Chapter 4 DDPG → Chapter 5 PPO → Chapter 6 SAC → Chapter 8 AlphaZero.',
+  research: 'Recommended route: compare the Paper → Code examples, then Chapter 7 GRPO and Chapter 8 AlphaZero, then follow the roadmap as new chapters arrive.'
 };
 document.querySelectorAll('.path-card').forEach(card => {
   const selectPath = () => {

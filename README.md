@@ -1,7 +1,7 @@
 # Reinforcement Learning – The Seminal Papers
 **Author: Rahul Vasant Shirale**
 
-This is the official companion repository for the book **Reinforcement Learning – The Seminal Papers** (Manning Publications). Chapters 1–7 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
+This is the official companion repository for the book **Reinforcement Learning – The Seminal Papers** (Manning Publications). Chapters 1–8 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
 
 ## 🌐 Companion Website
 
@@ -22,8 +22,9 @@ This repository includes a **Makefile** to simplify environment setup and runnin
 
 - Python **3.10–3.13** is recommended.
 - A virtual environment is strongly recommended.
-- Chapters 3–7 require PyTorch. PyTorch availability depends on your operating system, CPU architecture, and Python version.
+- Chapters 3–8 require PyTorch. PyTorch availability depends on your operating system, CPU architecture, and Python version.
 - Chapter 7 additionally needs `transformers` and `peft`, plus about a gigabyte of model weights on first run. Two of its three targets need neither.
+- Chapter 8 needs nothing beyond PyTorch: no dataset, no downloaded weights. Three of its five targets finish in under a minute.
 
 Create and activate a virtual environment before installing dependencies:
 
@@ -43,7 +44,7 @@ Lightweight setup. Installs NumPy, Matplotlib, Pandas, Gymnasium, and Jupyter.
 make install
 ```
 
-**Option B: Deep RL (Chapters 3–6)**
+**Option B: Deep RL (Chapters 3–6 and 8)**
 Installs PyTorch, classic-control environments, OpenCV, and the foundation dependencies.
 ```bash
 make install-full
@@ -158,6 +159,20 @@ make run-ch7-group-size
 # Chapter 7: GRPO on strict JSON schema adherence, no critic and no
 #   demonstrations. Needs `make install-llm`; about 36 min on a CPU.
 make run-ch7-train
+
+# Chapter 8: what the published networks cost, measured (instant)
+make run-ch8-sizes
+
+# Chapter 8: reprove the small Connect Four boards exactly (~30 s)
+make run-ch8-solve
+
+# Chapter 8: the policy network vs the rollout policy, the gap that
+#   forced AlphaGo to keep rollouts at all (~15 s, no dataset)
+make run-ch8-benchmark
+
+# Chapter 8: train AlphaZero from random weights on 6x6 Connect Four,
+#   a board with a proven answer. One-hour budget by default.
+make run-ch8-train
 ```
 
 `make help` lists every target, including the longer hyperparameter sweeps.
@@ -186,17 +201,17 @@ The repository follows the book’s three parts, from mathematical foundations t
 | **Ch 5** | **PPO** | *Proximal Policy Optimization Algorithms* (2017) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch05_ppo/Chapter5_PPO.ipynb) |
 | **Ch 6** | **SAC** | *Soft Actor-Critic: Off-Policy Maximum Entropy Deep RL with a Stochastic Actor* (2018) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch06_sac/Chapter6_SAC.ipynb) |
 | **Ch 7** | **GRPO** | *DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models* (2024) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/Chapter7_GRPO.ipynb) |
+| **Ch 8** | **AlphaGo / AlphaZero** | *Mastering the game of Go with deep neural networks and tree search* (2016) and *A general reinforcement learning algorithm that masters chess, shogi and Go through self-play* (2018) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/Chapter8_AlphaZero.ipynb) |
 
 ### Part III: Real-World Applications (planned)
 | Chapter | Application | Key Implementation | Status |
 | :--- | :--- | :--- | :--- |
-| **Ch 8** | **AlphaGo** | Deep Learning + Monte Carlo Tree Search | 🚧 Coming Soon |
-| **Ch 9** | **AlphaZero** | Self-play with Monte Carlo Tree Search | 🚧 Coming Soon |
-| **Ch 10** | **RLHF** | Alignment via Human Feedback (2017) | 🚧 Coming Soon |
-| **Ch 11** | **Dexterous Manipulation** | Robotics and Sim-to-Real transfer | 🚧 Coming Soon |
-| **Ch 12** | **AlphaDev** | Reinforcement learning for algorithm discovery | 🚧 Coming Soon |
-| **Ch 13** | **Humanoid Locomotion** | Learning-based control and transfer | 🚧 Coming Soon |
-| **Ch 14** | **DeepSeek-R1** | RL-only pipelines for Incentivizing Reasoning | 🚧 Coming Soon |
+| **Ch 9** | **Offline RL** | Learning from a fixed dataset, without exploration (CQL, 2020) | 🚧 Coming Soon |
+| **Ch 10** | **RL in Production** | Serving, monitoring and updating a deployed policy | 🚧 Coming Soon |
+| **Ch 11** | **Sim-to-Real** | Domain randomization and transfer to physical hardware | 🚧 Coming Soon |
+| **Ch 12** | **Decision Transformers** | RL as sequence modelling | 🚧 Coming Soon |
+| **Ch 13** | **RLHF** | Alignment via human feedback | 🚧 Coming Soon |
+| **Ch 14** | **Agentic RL** | Tool use, planning and long-horizon agents | 🚧 Coming Soon |
 | **Ch 15** | **Conclusion** | Building Your Own Experiments | 🚧 Coming Soon |
 
 ## 🌟 The Mathematical North Star: From Paper to Code
@@ -226,6 +241,7 @@ To run these experiments, you should be comfortable with:
 Upon finishing this book and exploring this code, you will be equipped to:
 * **Translate Research to Code**: Convert mathematical objectives from papers into functional Python.
 * **Master Core Engines**: Write foundational Deep RL algorithms (DQN, DDPG, PPO, SAC, and GRPO) from scratch.
+* **Search with a Network**: Build AlphaZero end to end — PUCT search evaluated by a residual tower, trained from random weights by self-play — and check it against a game whose value is a matter of published record.
 * **Build Reasoning Pipelines**: Train a base language model with GRPO against a rule-based reward — the algorithm behind DeepSeek-R1, with no critic and no demonstrations.
 * **Navigate Sim-to-Real**: Prepare agents for deployment on physical humanoid hardware.
 
@@ -234,7 +250,8 @@ Upon finishing this book and exploring this code, you will be equipped to:
 The automated tests cover the Chapter 2 environments, algorithms and notebook,
 the Chapter 3 DQN modules and notebook, the Chapter 4 DDPG modules and
 notebook, the Chapter 5 PPO modules and notebook, the Chapter 6 SAC modules
-and notebook, and the Chapter 7 GRPO modules and notebook. A separate suite
+and notebook, the Chapter 7 GRPO modules and notebook, and the Chapter 8
+AlphaGo/AlphaZero modules and notebook. A separate suite
 checks the chapter READMEs themselves — every
 module listed, every `make` target documented, every class attributed to the
 file that defines it. The PyTorch chapters' tests are skipped when PyTorch is
@@ -262,3 +279,8 @@ Every notebook suite executes its chapter's notebook cell by cell, which is
 how a broken paste in a notebook gets caught before a reader hits it. Chapter 2
 had no such suite until one was added, and shipped a `KeyError` in its first
 experiment for exactly as long.
+
+Chapter 8 takes that a step further and removes the duplication instead of
+testing around it: its notebook's code cells *are* its modules, with only their
+relative imports stripped, and the parity test is a character-for-character
+comparison rather than a numerical one.

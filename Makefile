@@ -9,6 +9,8 @@
         run-ch6-pendulum run-ch6-ablation run-ch6-temperature \
         run-ch6-reward-scale run-ch6-seeding \
         run-ch7-reward run-ch7-group-size run-ch7-train \
+        run-ch8-sizes run-ch8-benchmark run-ch8-solve run-ch8-train \
+        run-ch8-othello \
         install-llm notebook
 
 # Interpreter used by every target. Defaults to python3 because a bare `python`
@@ -30,7 +32,7 @@ help:
 	@echo "======================================"
 	@echo "Setup Commands:"
 	@echo "  make install             - Install Foundation stack (Chapters 1-2) - ~60MB"
-	@echo "  make install-full        - Install Deep RL stack (Chapters 3-6)"
+	@echo "  make install-full        - Install Deep RL stack (Chapters 3-6, 8)"
 	@echo "  make install-llm         - Install the LLM stack (Chapter 7)"
 	@echo "  make install-atari       - Install optional Atari dependencies"
 	@echo "  make install-test        - Install test dependencies"
@@ -76,6 +78,14 @@ help:
 	@echo "  make run-ch7-group-size  - How often a group carries no gradient (instant)"
 	@echo "  make run-ch7-train       - Train Qwen2.5-0.5B on JSON schema adherence (needs make install-llm)"
 	@echo "     ...add FIGURE_DIR=dir to the first two to write PNG + SVG"
+	@echo ""
+	@echo "Chapter 8: AlphaGo and AlphaZero"
+	@echo "  make run-ch8-sizes       - Parameter counts: the published nets vs this one (instant)"
+	@echo "  make run-ch8-benchmark   - AlphaGo policy net vs rollout policy timing (~15 s)"
+	@echo "  make run-ch8-solve       - Reprove the small Connect Four boards exactly (~30 s)"
+	@echo "  make run-ch8-train       - Train AlphaZero on 6x6 Connect Four (1 hour budget)"
+	@echo "  make run-ch8-othello     - The same agent on 6x6 Othello, nothing else changed"
+	@echo "     ...add EXTRA=\"--budget-seconds 900\" to shorten either training run"
 	@echo ""
 	@echo "Jupyter Notebooks:"
 	@echo "  make notebook            - Launch Jupyter Lab to view interactive chapters"
@@ -299,6 +309,50 @@ run-ch7-group-size:
 run-ch7-train:
 	@echo "Running Chapter 7: GRPO on strict JSON schema adherence..."
 	@$(PYTHON_ABS) -m src.part_2_methods.ch07_grpo.train_json $(EXTRA)
+
+# --- Chapter 8 Commands ---
+
+CH8_DIR = src/part_2_methods/ch08_alphazero
+
+# Instant, and the right thing to read before network.py. Instantiates all
+# three published architectures and the project's, and prints what each one
+# costs -- the 50x gap between the published tower and the one that fits in
+# an hour is the chapter's whole argument about budget versus algorithm.
+run-ch8-sizes:
+	@echo "Running Chapter 8: parameter counts, measured not quoted..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch08_alphazero.alphago $(EXTRA)
+
+# The one experiment from the AlphaGo half a reader can actually execute: it
+# needs no dataset and no training. Times the 19x19 policy network against a
+# fast rollout policy and reproduces the gap that forced AlphaGo to keep
+# rollouts at all. EXTRA="--device mps" (or cuda) also shows what batching
+# wins back, which is nothing on CPU.
+run-ch8-benchmark:
+	@echo "Running Chapter 8: policy network vs rollout policy timing..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch08_alphazero.benchmark $(EXTRA)
+
+# The oracle. Alpha-beta with a transposition table settles 4x4, 4x5 and 6x4
+# outright and checks them against van den Herik and colleagues (2002). Run it
+# before the trainer: it is what makes the agent's convergence measurable
+# rather than merely plausible.
+run-ch8-solve:
+	@echo "Running Chapter 8: reproving the small boards exactly..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch08_alphazero.solver $(EXTRA)
+
+# The project. Stops on wall clock rather than after a fixed iteration count,
+# so the budget is the parameter and the number of iterations is the outcome.
+# The default board is 6x6, a proven draw, which is what makes mirror_draw_rate
+# a signal a network cannot fake by learning to output zero.
+run-ch8-train:
+	@echo "Running Chapter 8: AlphaZero on 6x6 Connect Four..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch08_alphazero.train $(EXTRA)
+
+# The same agent, the same hyperparameters, a different game -- which is
+# AlphaZero's headline claim, at a scale a laptop can finish. 6x6 Othello is a
+# proven SECOND-player win, so a trained root value should go negative.
+run-ch8-othello:
+	@echo "Running Chapter 8: the same agent on 6x6 Othello..."
+	@$(PYTHON_ABS) -m src.part_2_methods.ch08_alphazero.train --game othello $(EXTRA)
 
 # --- Notebooks ---
 
