@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Notice | RL: The Foundational Ideas</title>
   <meta name="description" content="Privacy notice for the Reinforcement Learning: The Foundational Ideas companion site.">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <style>
     :root { color-scheme: dark; --bg:#141110; --surface:#231f1a; --text:#ede0d7; --muted:#cdbfb0; --accent:#ffb74d; }
     * { box-sizing:border-box; }
@@ -41,7 +42,7 @@
   </main>
   <script>
     document.getElementById('changeConsent').addEventListener('click', () => {
-      localStorage.removeItem('rl-seminal-papers-analytics-consent');
+      try { localStorage.removeItem('rl-seminal-papers-analytics-consent'); } catch (_) {}
       window.location.href = 'index.html';
     });
   </script>

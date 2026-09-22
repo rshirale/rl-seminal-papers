@@ -356,7 +356,8 @@ document.querySelectorAll('.part-card').forEach(card => partObserver.observe(car
 const roadmapRows = [...document.querySelectorAll('.chapter-row')];
 const liveRows = roadmapRows.filter(row => row.dataset.status === 'live');
 const progressKey = 'rl-seminal-papers-completed';
-let completedChapters = new Set(JSON.parse(localStorage.getItem(progressKey) || '[]'));
+let completedChapters = new Set();
+try { completedChapters = new Set(JSON.parse(localStorage.getItem(progressKey) || '[]')); } catch (_) {}
 function updateProgress() {
   document.getElementById('progressLine').textContent = `${completedChapters.size} of ${liveRows.length} live chapters completed`;
   liveRows.forEach(row => {
@@ -374,7 +375,7 @@ function updateProgress() {
 document.querySelectorAll('.complete-button').forEach(button => button.addEventListener('click', () => {
   const chapter = button.closest('.chapter-row').dataset.chapter;
   completedChapters.has(chapter) ? completedChapters.delete(chapter) : completedChapters.add(chapter);
-  localStorage.setItem(progressKey, JSON.stringify([...completedChapters]));
+  try { localStorage.setItem(progressKey, JSON.stringify([...completedChapters])); } catch (_) {}
   updateProgress();
   trackEvent('chapter_completion_toggled', { chapter: chapter, completed: completedChapters.has(chapter) });
 }));

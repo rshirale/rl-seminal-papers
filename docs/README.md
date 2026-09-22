@@ -23,6 +23,7 @@ Because nothing is compiled, this renders exactly what visitors get. Installing 
 | `index.html` | The entire site — hero, chapter list, quickstart, CTA. |
 | `assets/css/site.css` | Material 3 design tokens and all styling. |
 | `assets/js/site.js` | Theme toggle, copy buttons, progress marking. |
+| `assets/favicon.svg` | The nav's brain icon in `--primary` on the dark surface. SVG, so both pages link it explicitly; without the link, browsers ask for `/favicon.ico`, which on GitHub Pages is outside this repo. |
 | `llms.txt` | Structured summary of the book and its resources, for model consumption. Mirrors the chapter list and links in `index.html`. |
 | `sitemap.xml` | Two URLs — the root and `privacy.html`. |
 | `robots.txt` | Allow-all, including named AI crawlers. Points at the sitemap. |
@@ -139,6 +140,14 @@ closed:
   Chapter 8 keeps AlphaZero at 2018 — the Science paper the code implements —
   where the TOC says 2017, the preprint.
 
+- **Blocked storage broke half the page.** The saved-progress read and write in
+  `site.js` were the only `localStorage` calls without a `try`, so a browser
+  that blocks site data threw on load and never wired up anything after them:
+  Done buttons, roadmap search and filters, path cards, copy buttons and the
+  mobile menu all went dead without a visible error. `privacy.html`'s "change
+  consent" button had the same gap. Every access is guarded now; the rule is
+  that nothing on the page may depend on storage being available. The same
+  pass added `assets/favicon.svg`, whose absence was a 404 on every visit.
 
 - **Chapter 8 status** — now live, and the whole "When adding a chapter" list
   below was worked through: the chapter row (Silver et al., 2016 and 2018, with
