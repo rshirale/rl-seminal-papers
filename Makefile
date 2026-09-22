@@ -1,7 +1,7 @@
 # Makefile for "RL: The Seminal Papers"
 # ==========================================
 
-.PHONY: help install install-full install-atari install-test test test-all doctor clean \
+.PHONY: help install install-full install-atari install-test test test-all doctor site-check clean \
         run-ch1 run-ch2-gridworld run-ch2-cliff run-ch3-cartpole run-ch3-atari \
         run-ch3-ablation \
         run-ch4-pendulum run-ch4-ablation run-ch5-pendulum run-ch5-ablation \
@@ -39,6 +39,7 @@ help:
 	@echo "  make test                - Run fast tests (skips notebook execution)"
 	@echo "  make test-all            - Run all tests, including notebook execution"
 	@echo "  make doctor              - Report interpreter, platform, and package status"
+	@echo "  make site-check          - Check the companion site in headless Chrome (needs Node)"
 	@echo ""
 	@echo "Chapter 1: Introduction"
 	@echo "  make run-ch1             - Run minimal Agent-Environment loop (CartPole)"
@@ -129,6 +130,23 @@ test-all:
 # of every dependency. Start here when a chapter script does not run.
 doctor:
 	@$(PYTHON_ABS) tools/doctor.py
+
+# Serves docs/ on SITE_PORT and drives it in headless Chrome: every control,
+# a phone-width pass, a pass with localStorage blocked, and every external
+# link. Needs Node and Chrome. SITE_URL=https://... checks a deployment
+# instead of the local copy, and SHOTS=dir saves screenshots.
+SITE_PORT ?= 4173
+site-check:
+	@command -v node >/dev/null || { echo "site-check needs Node.js (https://nodejs.org)"; exit 1; }
+	@test -d tools/site-check/node_modules || (cd tools/site-check && npm install --silent)
+	@if [ -n "$(SITE_URL)" ]; then \
+		SITE_URL="$(SITE_URL)" SHOTS="$(SHOTS)" node tools/site-check/check.mjs; \
+	else \
+		$(PYTHON_ABS) -m http.server $(SITE_PORT) --bind 127.0.0.1 --directory docs >/dev/null 2>&1 & server=$$!; \
+		trap 'kill $$server 2>/dev/null' EXIT; \
+		for i in 1 2 3 4 5 6 7 8 9 10; do curl -s -o /dev/null http://127.0.0.1:$(SITE_PORT)/ && break; sleep 0.5; done; \
+		SITE_URL=http://127.0.0.1:$(SITE_PORT)/ SHOTS="$(SHOTS)" node tools/site-check/check.mjs; \
+	fi
 
 # --- Chapter 1 Commands ---
 

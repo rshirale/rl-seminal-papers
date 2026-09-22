@@ -207,3 +207,6 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# tools/site-check (Node)
+node_modules/

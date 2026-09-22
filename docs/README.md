@@ -16,6 +16,23 @@ python3 -m http.server 4000
 
 Because nothing is compiled, this renders exactly what visitors get. Installing Ruby and Jekyll is only worth it if the site later grows shared layouts or includes.
 
+## Checking it
+
+```bash
+make site-check                                                   # serves docs/ locally, then checks it
+make site-check SITE_URL=https://rshirale.github.io/rl-seminal-papers/   # checks the deployment
+```
+
+`tools/site-check/check.mjs` drives the page in headless Chrome: every
+interactive control, persistence across a reload, a 375px pass, a pass with
+`localStorage` throwing, and every external link. It needs Node and a local
+Chrome (`CHROME=` overrides the path; `SHOTS=dir` saves screenshots). The
+counts are cross-checked rather than hard-coded — the live rows must agree with
+the progress text, the three `<head>` descriptions, the CTA line and
+`llms.txt` — so a chapter landing without the full "When adding a chapter"
+pass below fails here instead of on the live site. It is not in CI: it needs a
+browser, and its external-link check depends on the network.
+
 ## Files
 
 | File | What it is |

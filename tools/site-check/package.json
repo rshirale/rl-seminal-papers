@@ -1,0 +1,9 @@
+{
+  "name": "rl-site-check",
+  "private": true,
+  "description": "Headless-Chrome checks for the companion site in docs/. Run via make site-check.",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": { "check": "node check.mjs" },
+  "dependencies": { "puppeteer-core": "^25.11.0" }
+}
