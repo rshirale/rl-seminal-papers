@@ -1,7 +1,7 @@
-# Reinforcement Learning – The Seminal Papers
+# Reinforcement Learning: The Foundational Ideas
 **Author: Rahul Vasant Shirale**
 
-This is the official companion repository for the book **Reinforcement Learning – The Seminal Papers** (Manning Publications). Chapters 1–8 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
+This is the official companion repository for the book **Reinforcement Learning: The Foundational Ideas** (Manning Publications). Chapters 1–8 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
 
 ## 🌐 Companion Website
 
@@ -173,6 +173,10 @@ make run-ch8-benchmark
 # Chapter 8: train AlphaZero from random weights on 6x6 Connect Four,
 #   a board with a proven answer. One-hour budget by default.
 make run-ch8-train
+
+# Chapter 8: the same agent, unchanged, on 6x6 Othello -- a proven
+#   second-player win, so the root value should go negative. Same budget.
+make run-ch8-othello
 ```
 
 `make help` lists every target, including the longer hyperparameter sweeps.
@@ -190,7 +194,7 @@ The repository follows the book’s three parts, from mathematical foundations t
 ### Part I: Foundations
 | Chapter | Topic | Focus | Interactive |
 | :--- | :--- | :--- | :--- |
-| **Ch 1** | **Introduction** | The RL Loop and the "code-first" mental model | [🔗 Script](src/part_1_foundations/ch01_intro/agent_loop_test.py) |
+| **Ch 1** | **Introduction** | Why reinforcement learning, why now: the RL loop and the "code-first" mental model | [🔗 Script](src/part_1_foundations/ch01_intro/agent_loop_test.py) |
 | **Ch 2** | **RL Fundamentals** | MDPs, Bellman Equations, and Tabular Methods | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_1_foundations/ch02_fundamentals/Chapter2_Fundamentals.ipynb) |
 
 ### Part II: Deep Reinforcement Learning (Methods)
@@ -203,16 +207,16 @@ The repository follows the book’s three parts, from mathematical foundations t
 | **Ch 7** | **GRPO** | *DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models* (2024) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/Chapter7_GRPO.ipynb) |
 | **Ch 8** | **AlphaGo / AlphaZero** | *Mastering the game of Go with deep neural networks and tree search* (2016) and *A general reinforcement learning algorithm that masters chess, shogi and Go through self-play* (2018) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/Chapter8_AlphaZero.ipynb) |
 
-### Part III: Real-World Applications (planned)
+### Part III: Real-World Applications & Modern Paradigms (planned)
 | Chapter | Application | Key Implementation | Status |
 | :--- | :--- | :--- | :--- |
-| **Ch 9** | **Offline RL** | Learning from a fixed dataset, without exploration (CQL, 2020) | 🚧 Coming Soon |
-| **Ch 10** | **RL in Production** | Serving, monitoring and updating a deployed policy | 🚧 Coming Soon |
-| **Ch 11** | **Sim-to-Real** | Domain randomization and transfer to physical hardware | 🚧 Coming Soon |
-| **Ch 12** | **Decision Transformers** | RL as sequence modelling | 🚧 Coming Soon |
-| **Ch 13** | **RLHF** | Alignment via human feedback | 🚧 Coming Soon |
-| **Ch 14** | **Agentic RL** | Tool use, planning and long-horizon agents | 🚧 Coming Soon |
-| **Ch 15** | **Conclusion** | Building Your Own Experiments | 🚧 Coming Soon |
+| **Ch 9** | **Offline RL** | Training entirely on a static dataset with Conservative Q-Learning (Kumar et al., 2020) | 🚧 Coming Soon |
+| **Ch 10** | **RL in Production** | Contextual bandits and recommenders: LinUCB with offline replay evaluation (Li et al., 2010) | 🚧 Coming Soon |
+| **Ch 11** | **Sim-to-Real** | Dynamics randomization for robust transfer to hardware (Peng et al., 2018) | 🚧 Coming Soon |
+| **Ch 12** | **Decision Transformers** | RL as sequence modeling: actions predicted from returns-to-go (Chen et al., 2021) | 🚧 Coming Soon |
+| **Ch 13** | **RLHF** | A reward model from pairwise human comparisons, optimized with PPO (Christiano et al., 2017; InstructGPT) | 🚧 Coming Soon |
+| **Ch 14** | **Agentic RL** | Multi-turn tool use: credit assignment across turns and reward hacking | 🚧 Coming Soon |
+| **Ch 15** | **Conclusion** | Building Your Own Seminal Experiments | 🚧 Coming Soon |
 
 ## 🌟 The Mathematical North Star: From Paper to Code
 What makes this repository unique is the direct, line-by-line mapping from academic math to Python. We don't just implement the "vibe" of a paper—we implement the **math**.
@@ -243,7 +247,7 @@ Upon finishing this book and exploring this code, you will be equipped to:
 * **Master Core Engines**: Write foundational Deep RL algorithms (DQN, DDPG, PPO, SAC, and GRPO) from scratch.
 * **Search with a Network**: Build AlphaZero end to end — PUCT search evaluated by a residual tower, trained from random weights by self-play — and check it against a game whose value is a matter of published record.
 * **Build Reasoning Pipelines**: Train a base language model with GRPO against a rule-based reward — the algorithm behind DeepSeek-R1, with no critic and no demonstrations.
-* **Navigate Sim-to-Real**: Prepare agents for deployment on physical humanoid hardware.
+* **Navigate Sim-to-Real**: Train policies under dynamics randomization so they survive transfer from simulator to hardware.
 
 ## 🧪 Verification
 

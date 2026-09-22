@@ -1,6 +1,6 @@
 # Companion site
 
-The source for <https://rshirale.github.io/rl-seminal-papers/>, the companion site for *RL: The Seminal Papers*.
+The source for <https://rshirale.github.io/rl-seminal-papers/>, the companion site for *Reinforcement Learning: The Foundational Ideas*.
 
 It is one hand-written HTML page. There is no build step, no framework, no templating, and no per-chapter pages. GitHub Pages serves this directory from `main` and runs its default Jekyll pass, but the site uses no Liquid tags and no front matter, so that pass copies the files through unchanged.
 
@@ -122,6 +122,23 @@ rule is that every file appears somewhere, not that the heading matches.
 
 Nothing outstanding on the site itself. Everything previously recorded here is
 closed:
+
+- **Revised table of contents and title** — the book is now *Reinforcement
+  Learning: The Foundational Ideas*, and the rename covers every `<title>`, the
+  og/twitter titles, both JSON-LD names, the nav brand, the author blurb, the
+  footer, `privacy.html`, `llms.txt` and the root `README.md`. Chapter READMEs,
+  notebooks, `__init__.py` docstrings and the `Makefile` banner still carry the
+  old name; they are not site files. The chapter order did not move, but Part
+  III's content did: Chapter 10 is now contextual bandits (Li et al., 2010,
+  LinUCB) rather than serving and monitoring, Chapter 11 cites Peng et al.
+  (2018) on dynamics randomization, Chapter 13 adds InstructGPT, and Chapter 14
+  is multi-turn tool use. The part titles gained "(Methods)" and "& Modern
+  Paradigms". The algorithm marquee in `site.js` lost AlphaDev, dexterous
+  manipulation and humanoid locomotion, none of which the book covers any more,
+  and gained CQL, LinUCB, Decision Transformer and dynamics randomization.
+  Chapter 8 keeps AlphaZero at 2018 — the Science paper the code implements —
+  where the TOC says 2017, the preprint.
+
 
 - **Chapter 8 status** — now live, and the whole "When adding a chapter" list
   below was worked through: the chapter row (Silver et al., 2016 and 2018, with

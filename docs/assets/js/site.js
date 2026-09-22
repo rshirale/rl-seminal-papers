@@ -316,8 +316,8 @@ renderPlayground();
 // ── Algorithm Marquee ────────────────────────────────────────────────────
 const algos = [
   'Q-Learning','DQN','PPO','SAC','DDPG','GRPO','AlphaGo','AlphaZero',
-  'RLHF','AlphaDev','DeepSeek-R1','TD(λ)','MCTS','Actor-Critic',
-  'Dexterous Manipulation','Humanoid Locomotion','Bellman Equations',
+  'RLHF','CQL','DeepSeek-R1','TD(λ)','MCTS','Actor-Critic',
+  'LinUCB','Decision Transformer','Dynamics Randomization','Bellman Equations',
 ];
 const repeated = [...algos, ...algos];
 ['marquee1','marquee2'].forEach(id => {
