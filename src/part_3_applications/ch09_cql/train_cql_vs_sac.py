@@ -1,7 +1,8 @@
 """Trains CQL and plain SAC offline on PointMaze UMaze for chapter 9's figure.
 
-Both runs use the chapter's listings unchanged (cql.py); the SAC run
-is CQL with cql_alpha=0, which is exercise 1. Like listing 9.1, that baseline
+Both runs use listings 9.1 and 9.2 unchanged (cql.py) and run listing 9.3's
+update inline, so the script can evaluate and checkpoint between steps; the
+SAC run is CQL with cql_alpha=0, which is exercise 1. Like listing 9.1, that baseline
 keeps the entropy term out of the critic target, so it is SAC without the
 entropy backup. Every --eval-every steps the
 script logs the mean Q-value the critic assigns to dataset actions, evaluates
@@ -11,8 +12,14 @@ The "plaza" evaluation starts the point in the bottom-left cell and puts the
 goal in the top-left cell. A single wall separates them, so the straight-line
 route goes through the wall and the real route goes around the U.
 
-Every --log-every steps it also appends the losses and the measured
-seconds per training step (evaluation excluded) to progress.csv.
+Every --log-every steps it also appends to progress.csv the losses, the
+measured seconds per training step (evaluation excluded), and, on a fixed
+probe of 4,096 dataset transitions, the average dataset Q-value with the
+critic loss split into its TD part and its CQL penalty (push_down - push_up,
+summed over both critics, before cql_alpha). Those are the curves exercise 6
+asks for. Every evaluation also keeps a checkpoint_<step>.pt with the actor
+and critic, so the checkpoint at the dataset Q-value's peak can be evaluated
+later; checkpoint.pt is always the latest full checkpoint, for --resume.
 
 Usage, from the repository root:
     python -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
@@ -76,16 +83,34 @@ def evaluate(env, actor, n_random=20):
     return plaza, rand
 
 
+def probe_metrics(critic, critic_target, actor, probe):
+    """Dataset Q, TD loss, and CQL penalty on the fixed probe batch.
+
+    Calls listing 9.1 twice with identical random draws: cql_alpha=0 gives
+    the TD loss alone, cql_alpha=1 adds the penalty once. The forked RNG
+    leaves training's random stream, and so --resume, untouched.
+    """
+    with torch.no_grad(), torch.random.fork_rng():
+        dq = torch.min(*critic(probe[0], probe[1])).mean().item()
+        torch.manual_seed(0)
+        td = L.cql_critic_loss(critic, critic_target, actor, probe,
+                               cql_alpha=0.0).item()
+        torch.manual_seed(0)
+        full = L.cql_critic_loss(critic, critic_target, actor, probe,
+                                 cql_alpha=1.0).item()
+    return dq, td, full - td
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--name", required=True)
     p.add_argument("--cql-alpha", type=float, required=True)
-    p.add_argument("--steps", type=int, default=200_000,
+    p.add_argument("--steps", type=int, default=50_000,
                    help="total steps to reach (counting resumed ones)")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--threads", type=int, default=8)
     p.add_argument("--log-every", type=int, default=5_000)
-    p.add_argument("--eval-every", type=int, default=25_000)
+    p.add_argument("--eval-every", type=int, default=12_500)
     p.add_argument("--resume", action="store_true",
                    help="continue from runs/<name>/checkpoint.pt")
     args = p.parse_args()
@@ -124,7 +149,9 @@ def main():
                  "random_success", "elapsed_s"])
         with open(progress_path, "w", newline="") as f:
             csv.writer(f).writerow(["step", "q_loss", "pi_loss",
-                                    "sec_per_step", "elapsed_s"])
+                                    "sec_per_step", "elapsed_s",
+                                    "dataset_q", "td_loss",
+                                    "cql_penalty"])
 
     t0 = time.time()
     train_time = 0.0
@@ -150,6 +177,8 @@ def main():
             sps = train_time / args.log_every
             row = [step, round(q_loss.item(), 4), round(pi_loss.item(), 4),
                    round(sps, 4), round(time.time() - t0)]
+            row += [round(x, 4) for x in
+                    probe_metrics(critic, critic_target, actor, probe)]
             with open(progress_path, "a", newline="") as f:
                 csv.writer(f).writerow(row)
             print("progress", " | ".join(str(x) for x in row), flush=True)
@@ -173,6 +202,10 @@ def main():
                         "actor_opt": actor_opt.state_dict(),
                         "torch_rng": torch.get_rng_state(),
                         "step": step}, ckpt_path)
+            torch.save({"actor": actor.state_dict(),
+                        "critic": critic.state_dict(),
+                        "step": step},
+                       os.path.join(out, f"checkpoint_{step:07d}.pt"))
             np.savez(os.path.join(out, f"paths_{step:07d}.npz"),
                      plaza=np.array([r[0] for r in plaza], dtype=object),
                      plaza_goal=plaza[0][1], allow_pickle=True)

@@ -87,7 +87,7 @@ def train_offline_cql(actor, critic, buffer, steps=50_000,
     critic_target = copy.deepcopy(critic)
     critic_opt = torch.optim.Adam(critic.parameters(), lr=3e-4)
     actor_opt = torch.optim.Adam(actor.parameters(),
-                                 lr=3e-5)            # <3>
+                                 lr=3e-5)            # <1>
 
     for step in range(steps):
         batch = buffer.sample(batch_size)
@@ -101,7 +101,7 @@ def train_offline_cql(actor, critic, buffer, steps=50_000,
         a_new, log_pi = actor(s)
         q1, q2 = critic(s, a_new)
         pi_loss = (ent_alpha * log_pi
-                   - torch.min(q1, q2)).mean()      # <4>
+                   - torch.min(q1, q2)).mean()      # <2>
         actor_opt.zero_grad()
         pi_loss.backward()
         actor_opt.step()
