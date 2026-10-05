@@ -37,9 +37,10 @@ The same runs execute on GitHub's machines through `.github/workflows/ch09-runs.
 
 - The actor and critic are chapter 6's `Actor` and `Critic`, imported from `src.part_2_methods.ch06_sac`, so CQL is literally SAC with the critic loss swapped, as the paper describes.
 - Chapter 6 uses alpha for the SAC entropy temperature and the CQL paper uses alpha for the conservative weight, so the code names them `ent_alpha` and `cql_alpha`.
+- The entropy term appears only in the actor loss, not in the critic's Bellman target. That follows the backup in the CQL paper's objective and Algorithm 1, and the one Kumar et al. (2021) assume. On PointMaze's 0/1 reward an entropy term in the target, at a fixed temperature of 0.2, outweighs the reward about a hundredfold once the policy turns nearly deterministic, and drags every Q-value steadily below zero.
 - The policy learning rate is 3e-5 against 3e-4 for the critic, the paper's setting.
 - `OfflineBuffer` replaces chapter 6's deque-based `ReplayBuffer`, whose random indexing is slow at 1,000,000 transitions.
-- The average Q-value on dataset actions is logged because Kumar et al. (2021), *A Workflow for Offline Model-Free Robotic RL*, use a falling dataset Q-value as their overfitting signal.
+- The average Q-value on dataset actions is logged because Kumar et al. (2021), *A Workflow for Offline Model-Free Robotic RL*, use a dataset Q-value that rises and then falls as their overfitting signal.
 
 ## Troubleshooting
 

@@ -1,7 +1,9 @@
 """Trains CQL and plain SAC offline on PointMaze UMaze for chapter 9's figure.
 
 Both runs use the chapter's listings unchanged (cql.py); the SAC run
-is CQL with cql_alpha=0, which is exercise 1. Every --eval-every steps the
+is CQL with cql_alpha=0, which is exercise 1. Like listing 9.1, that baseline
+keeps the entropy term out of the critic target, so it is SAC without the
+entropy backup. Every --eval-every steps the
 script logs the mean Q-value the critic assigns to dataset actions, evaluates
 the policy in the recovered environment, and saves a checkpoint.
 

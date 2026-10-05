@@ -22,7 +22,7 @@ concurrency:
 
 jobs:
   train:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Inside the 6-hour job ceiling even on a slow runner.
     timeout-minutes: 340
 
