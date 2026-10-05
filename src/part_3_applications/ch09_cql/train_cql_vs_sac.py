@@ -2,9 +2,9 @@
 
 Both runs use listings 9.1 and 9.2 unchanged (cql.py) and run listing 9.3's
 update inline, so the script can evaluate and checkpoint between steps; the
-SAC run is CQL with cql_alpha=0, which is exercise 1. Like listing 9.1, that baseline
-keeps the entropy term out of the critic target, so it is SAC without the
-entropy backup. Every --eval-every steps the
+SAC run is CQL with cql_alpha=0, which is exercise 1. Like listing 9.1, that
+baseline keeps the entropy term out of the critic target, so it is SAC
+without the entropy backup. Every --eval-every steps the
 script logs the mean Q-value the critic assigns to dataset actions, evaluates
 the policy in the recovered environment, and saves a checkpoint.
 
