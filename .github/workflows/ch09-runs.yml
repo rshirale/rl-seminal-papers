@@ -1,0 +1,84 @@
+# Chapter 9 offline RL runs, on GitHub's machines instead of a laptop.
+#
+# Trains SAC and CQL offline on Minari's D4RL/pointmaze/umaze-v2 at the
+# chapter's 50,000-step default, then checks fitted Q-evaluation against
+# measured discounted returns. The four runs execute in parallel, and each
+# uploads its logs, checkpoint, rollout paths, and FQE results as an artifact.
+#
+# Wired to pushes on the ch09-cql-runs branch only, so it never fires on main.
+# Every run in one workflow shares the runner type, so the comparison between
+# variants is sound; absolute timings will not match the laptop numbers in the
+# chapter's compute note.
+
+name: Chapter 9 CQL vs SAC runs
+
+on:
+  push:
+    branches: [ch09-cql-runs]
+
+concurrency:
+  group: ch09-runs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    # Inside the 6-hour job ceiling even on a slow runner.
+    timeout-minutes: 340
+
+    strategy:
+      # One failing run should not cancel the others: a partial result is
+      # still worth downloading.
+      fail-fast: false
+      matrix:
+        include:
+          - name: sac_s0
+            alpha: "0.0"
+            seed: 0
+          - name: cql_a5_s0
+            alpha: "5.0"
+            seed: 0
+          - name: cql_a1_s1
+            alpha: "1.0"
+            seed: 1
+          - name: cql_a1_s2
+            alpha: "1.0"
+            seed: 2
+
+    env:
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies (CPU PyTorch, Minari, Gymnasium Robotics)
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install "minari[hdf5,hf]" gymnasium-robotics numpy
+          python -c "import torch, minari, gymnasium_robotics; print(torch.__version__, minari.__version__)"
+          nproc
+
+      - name: Train ${{ matrix.name }} (alpha ${{ matrix.alpha }}, seed ${{ matrix.seed }}, 50k steps)
+        run: |
+          python -W ignore -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
+            --name ${{ matrix.name }} --cql-alpha ${{ matrix.alpha }} \
+            --seed ${{ matrix.seed }} --steps 50000 --eval-every 12500 \
+            --threads "$(nproc)"
+
+      - name: FQE versus measured returns
+        run: |
+          python -W ignore -m src.part_3_applications.ch09_cql.eval_fqe_vs_true \
+            ${{ matrix.name }} --out fqe_${{ matrix.name }}.json --threads "$(nproc)"
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: src/part_3_applications/ch09_cql/runs/
+          if-no-files-found: warn

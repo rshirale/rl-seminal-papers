@@ -210,3 +210,6 @@ Temporary Items
 
 # tools/site-check (Node)
 node_modules/
+
+# Chapter 9 training runs (logs, checkpoints, rollout paths, FQE results)
+src/part_3_applications/ch09_cql/runs/
