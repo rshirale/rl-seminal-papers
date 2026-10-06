@@ -1,4 +1,5 @@
-# Checks that --resume reproduces an uninterrupted run, for exercise 9.6.
+# Checks that --resume reproduces an uninterrupted run, for exercise 9.6
+# (first run: 2026-10-05).
 #
 # Two jobs on the same runner type: CQL alpha 1.0, seed 1, trained for
 # 100,000 steps in one go, and the same run stopped at 50,000 steps and
