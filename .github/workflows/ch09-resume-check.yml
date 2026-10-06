@@ -1,0 +1,69 @@
+# Checks that --resume reproduces an uninterrupted run, for exercise 9.6.
+#
+# Two jobs on the same runner type: CQL alpha 1.0, seed 1, trained for
+# 100,000 steps in one go, and the same run stopped at 50,000 steps and
+# continued with --resume. Their progress.csv, log.csv, and final weights
+# should match exactly. FQE is skipped; only training is under test.
+#
+# Fires only when this file changes, and ch09-runs.yml ignores changes to
+# it, so a push that touches only this file runs these two jobs alone.
+
+name: Chapter 9 resume check
+
+on:
+  push:
+    branches: [ch09-cql-runs]
+    paths: [.github/workflows/ch09-resume-check.yml]
+
+concurrency:
+  group: ch09-resume-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [uninterrupted, resumed]
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies (CPU PyTorch, Minari, Gymnasium Robotics)
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install "minari[hdf5,hf]" gymnasium-robotics numpy
+          nproc
+
+      - name: Train 100k steps in one go
+        if: matrix.mode == 'uninterrupted'
+        run: |
+          python -W ignore -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
+            --name cql_a1_s1_${{ matrix.mode }} --cql-alpha 1.0 --seed 1 \
+            --steps 100000 --eval-every 25000 --threads "$(nproc)"
+
+      - name: Train 50k steps, then resume to 100k
+        if: matrix.mode == 'resumed'
+        run: |
+          python -W ignore -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
+            --name cql_a1_s1_${{ matrix.mode }} --cql-alpha 1.0 --seed 1 \
+            --steps 50000 --eval-every 25000 --threads "$(nproc)"
+          python -W ignore -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
+            --name cql_a1_s1_${{ matrix.mode }} --cql-alpha 1.0 --seed 1 \
+            --steps 100000 --eval-every 25000 --threads "$(nproc)" --resume
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resume_check_${{ matrix.mode }}
+          path: src/part_3_applications/ch09_cql/runs/
+          if-no-files-found: warn
