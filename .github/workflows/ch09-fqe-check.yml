@@ -10,6 +10,8 @@
 #
 # Fires only when this file changes, and ch09-runs.yml ignores changes to
 # it, so a push that touches only this file runs these four jobs alone.
+#
+# Run 1: 2026-10-10.
 
 name: Chapter 9 FQE check
 
