@@ -26,8 +26,14 @@ Usage, from the repository root:
         --name cql --cql-alpha 5.0
     python -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
         --name sac --cql-alpha 0.0
+
+Exercise 6: train at alpha 1 for 50,000 steps, then continue the same run
+to 200,000. --resume reads runs/<name>/checkpoint.pt and stops if
+--cql-alpha differs from the run's, so repeat the same --name and alpha.
     python -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
-        --name cql --cql-alpha 5.0 --steps 400000 --resume
+        --name cql_a1 --cql-alpha 1.0
+    python -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
+        --name cql_a1 --cql-alpha 1.0 --steps 200000 --resume
 """
 import argparse
 import copy
@@ -135,6 +141,10 @@ def main():
     start = 0
     if args.resume:
         ck = torch.load(ckpt_path)
+        saved = ck.get("cql_alpha")  # absent in older checkpoints
+        if saved is not None and saved != args.cql_alpha:
+            raise SystemExit(f"{ckpt_path} was trained with --cql-alpha "
+                             f"{saved}, not {args.cql_alpha}")
         actor.load_state_dict(ck["actor"])
         critic.load_state_dict(ck["critic"])
         critic_target.load_state_dict(ck["critic_target"])
@@ -201,6 +211,7 @@ def main():
                         "critic_opt": critic_opt.state_dict(),
                         "actor_opt": actor_opt.state_dict(),
                         "torch_rng": torch.get_rng_state(),
+                        "cql_alpha": args.cql_alpha,
                         "step": step}, ckpt_path)
             torch.save({"actor": actor.state_dict(),
                         "critic": critic.state_dict(),
