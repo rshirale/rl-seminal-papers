@@ -19,9 +19,6 @@ name: Chapter 9 CQL vs SAC runs
 on:
   push:
     branches: [ch09-cql-runs]
-    # The FQE check has its own workflow; a push that only changes it
-    # should not start these runs.
-    paths-ignore: [.github/workflows/ch09-fqe-check.yml]
 
 concurrency:
   group: ch09-runs-${{ github.ref }}
