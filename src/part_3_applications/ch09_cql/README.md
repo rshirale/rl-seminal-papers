@@ -29,7 +29,7 @@ python -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
     --name sac --cql-alpha 0.0 --steps 50000 --eval-every 12500
 python -m src.part_3_applications.ch09_cql.eval_fqe_vs_true cql sac
 ```
-Results land in `src/part_3_applications/ch09_cql/runs/<name>/`. On a recent laptop CPU (8 threads) a training step takes about 0.04-0.05 seconds, so 50,000 steps take about 40 minutes; FQE takes a few minutes more.
+Results land in `src/part_3_applications/ch09_cql/runs/<name>/`. To continue a run, as exercise 9.6 does from 50,000 to 200,000 steps, repeat its `--name` and `--cql-alpha` and add `--resume --steps 200000`; the script stops if the alpha doesn't match the checkpoint's. On a recent laptop CPU (8 threads) a training step takes about 0.04-0.05 seconds, so 50,000 steps take about 40 minutes; FQE takes a few minutes more.
 
 The same runs execute on GitHub's machines through `.github/workflows/ch09-runs.yml`, which trains SAC, CQL with alpha 5.0, and CQL with alpha 1.0 on two seeds in parallel and uploads each run's results as an artifact.
 
