@@ -58,7 +58,6 @@ def main():
                    help="results file name under runs/")
     args = p.parse_args()
     torch.set_num_threads(args.threads)
-    torch.manual_seed(0)
 
     buffer = L.load_minari(T.DATASET_ID)
     dataset = L.minari.load_dataset(T.DATASET_ID)
@@ -67,6 +66,7 @@ def main():
     results = {}
 
     for name in args.runs:
+        torch.manual_seed(0)  # per run, so a run's FQE fit ignores the order
         ck = torch.load(os.path.join(CODE_DIR, "runs", name, "checkpoint.pt"))
         actor = T.Actor(6, 2)
         actor.load_state_dict(ck["actor"])
@@ -74,7 +74,8 @@ def main():
 
         s0, g_true = true_returns(env, actor, seeds, args.horizon)
         fqe = T.Critic(6, 2)
-        L.fitted_q_evaluation(actor, buffer, fqe, steps=args.fqe_steps)
+        L.fitted_q_evaluation(actor, buffer, fqe, steps=args.fqe_steps,
+                              gamma=GAMMA)
         with torch.no_grad():
             st = torch.as_tensor(s0)
             a0, _ = actor(st, deterministic=True)
