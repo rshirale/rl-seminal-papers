@@ -1,0 +1,120 @@
+# Runs exercise 9.7 (a behavior-cloning baseline) before the chapter ships.
+#
+# The exercise trains chapter 6's actor on D4RL/pointmaze/umaze-v2 with no
+# critic, minimizing the squared error between its deterministic action and
+# the logged action, then evaluates it on the plaza task next to the CQL and
+# SAC agents. Nobody has run it yet, so this checks that it works, what it
+# scores, and how long it takes (for review item B7).
+#
+# Same budget and evaluation as train_cql_vs_sac.py: 50,000 steps, batch
+# 256, an evaluation every 12,500 steps (10 plaza rollouts, 20 random
+# goals). Two seeds. Learning rate 3e-4, the critic's rate in listing 9.3.
+#
+# Fires only when this file changes, and ch09-runs.yml ignores changes to
+# it, so a push that touches only this file runs these jobs alone.
+
+name: Chapter 9 BC check
+
+on:
+  push:
+    branches: [ch09-cql-runs]
+    paths: [.github/workflows/ch09-bc-check.yml]
+
+concurrency:
+  group: ch09-bc-check-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [0, 1]
+    env:
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies (CPU PyTorch, Minari, Gymnasium Robotics)
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install "minari[hdf5,hf]" gymnasium-robotics numpy
+          nproc
+
+      - name: Behavior cloning, seed ${{ matrix.seed }}
+        run: |
+          mkdir -p out
+          python -W ignore - <<'EOF'
+          import csv, json, os, time
+          import numpy as np
+          import torch
+          import torch.nn.functional as F
+          from src.part_3_applications.ch09_cql import cql as L
+          from src.part_3_applications.ch09_cql import train_cql_vs_sac as T
+
+          SEED = ${{ matrix.seed }}
+          STEPS, EVAL_EVERY, BATCH = 50_000, 12_500, 256
+
+          torch.manual_seed(SEED)
+          np.random.seed(SEED)
+          torch.set_num_threads(os.cpu_count())
+
+          buffer = L.load_minari(T.DATASET_ID)
+          env = T.make_eval_env()
+          actor = T.Actor(6, 2)
+          opt = torch.optim.Adam(actor.parameters(), lr=3e-4)
+
+          rows, train_time, t0 = [], 0.0, time.time()
+          for step in range(STEPS + 1):
+              t = time.time()
+              s, a, *_ = buffer.sample(BATCH)
+              pred, _ = actor(s, deterministic=True)
+              loss = F.mse_loss(pred, a)
+              opt.zero_grad()
+              loss.backward()
+              opt.step()
+              train_time += time.time() - t
+
+              if step % EVAL_EVERY == 0:
+                  plaza, rand = T.evaluate(env, actor)
+                  row = {"step": step, "bc_loss": loss.item(),
+                         "plaza_success": float(np.mean([r[2] for r in plaza])),
+                         "random_success": float(np.mean([r[2] for r in rand])),
+                         "plaza_steps": [len(r[0]) - 1 for r in plaza],
+                         "plaza_ends": [r[0][-1].round(2).tolist() for r in plaza],
+                         "train_s": round(train_time, 1),
+                         "elapsed_s": round(time.time() - t0, 1)}
+                  rows.append(row)
+                  print(json.dumps(row), flush=True)
+                  if step == STEPS:
+                      np.savez(f"out/bc_s{SEED}_paths_{step:07d}.npz",
+                               plaza=np.array([r[0] for r in plaza],
+                                              dtype=object),
+                               plaza_goal=plaza[0][1], allow_pickle=True)
+
+          summary = {"seed": SEED, "steps": STEPS,
+                     "sec_per_step": train_time / STEPS,
+                     "total_s": round(time.time() - t0, 1), "evals": rows}
+          with open(f"out/bc_s{SEED}.json", "w") as f:
+              json.dump(summary, f, indent=2)
+          print("sec/step", round(summary["sec_per_step"], 4),
+                "total", summary["total_s"])
+          EOF
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bc_s${{ matrix.seed }}
+          path: out/
+          if-no-files-found: warn
