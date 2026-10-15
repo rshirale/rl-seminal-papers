@@ -5,13 +5,15 @@ what the text claims about them rather than how they are written. The critic
 loss must reduce to the plain TD loss at ``cql_alpha=0`` -- exercise 9.1's SAC
 baseline depends on it -- and must be linear in ``cql_alpha``, which is what
 lets ``probe_metrics`` read the penalty off as the difference of two calls.
-FQE must recover a value it can know exactly. And a resumed training run must
+FQE must recover a value it can know exactly, and the single-critic variant
+must train ``q1`` alone. And a resumed training run must
 not log the same steps twice.
 
 None of this needs the PointMaze dataset, so Minari is stubbed when it is not
 installed; ``load_minari`` is the only code that touches it.
 """
 
+import copy
 import csv
 import sys
 import types
@@ -28,6 +30,9 @@ except ImportError:
 from src.part_2_methods.ch06_sac.actor import Actor
 from src.part_2_methods.ch06_sac.critic import Critic
 from src.part_3_applications.ch09_cql import cql as L
+from src.part_3_applications.ch09_cql.eval_fqe_vs_true import (
+    fqe_single_critic,
+)
 from src.part_3_applications.ch09_cql.train_cql_vs_sac import truncate_log
 
 STATE_DIM, ACTION_DIM = 6, 2
@@ -92,17 +97,36 @@ def test_offline_buffer_samples_aligned_columns():
     assert torch.equal(b, a * 10)
 
 
-def test_fqe_recovers_a_known_value():
+def terminal_buffer():
     # Every transition ends the episode with reward 1, so the true value of
     # every start state is exactly 1 whatever the policy does.
     torch.manual_seed(0)
     s, a, r, s2, d = make_batch(b=64, done=1.0)
-    buf = L.OfflineBuffer([s.numpy()], [a.numpy()], [torch.ones(64, 1).numpy()],
+    ones = torch.ones(64, 1)
+    buf = L.OfflineBuffer([s.numpy()], [a.numpy()], [ones.numpy()],
                           [s2.numpy()], [d.numpy()])
     buf.starts = s[:8]
+    return buf
+
+
+def test_fqe_recovers_a_known_value():
+    buf = terminal_buffer()
     estimate = L.fitted_q_evaluation(Actor(STATE_DIM, ACTION_DIM), buf,
                                      Critic(STATE_DIM, ACTION_DIM), steps=500)
     assert estimate.item() == pytest.approx(1.0, abs=0.05)
+
+
+def test_single_critic_fqe_fits_q1_and_leaves_q2_alone():
+    buf = terminal_buffer()
+    critic = Critic(STATE_DIM, ACTION_DIM)
+    q2_before = copy.deepcopy(critic.q2.state_dict())
+    actor = Actor(STATE_DIM, ACTION_DIM)
+    fqe_single_critic(actor, buf, critic, steps=500)
+    with torch.no_grad():
+        q1, _ = critic(buf.starts, actor(buf.starts, deterministic=True)[0])
+    assert q1.mean().item() == pytest.approx(1.0, abs=0.05)
+    for k, v in critic.q2.state_dict().items():
+        assert torch.equal(v, q2_before[k])
 
 
 def test_truncate_log_drops_rows_a_resume_would_repeat(tmp_path):

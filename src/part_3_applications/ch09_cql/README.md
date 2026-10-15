@@ -8,7 +8,7 @@ Every algorithm before this chapter learns by acting and watching what happens. 
 
 - `cql.py`: listings 9.1-9.4 exactly as printed. `cql_critic_loss` is the CQL(H) critic loss with the importance-sampled soft maximum over 10 uniform and 10 policy actions per state; `OfflineBuffer` and `load_minari` load a Minari dataset into tensors; `train_offline_cql` is the training loop; `fitted_q_evaluation` estimates a policy's value from the logs alone.
 - `train_cql_vs_sac.py`: the runnable experiment. Trains CQL (or plain SAC with `--cql-alpha 0`) on PointMaze, logging losses, seconds per step, and the average dataset Q-value with the TD loss and CQL penalty on a fixed probe batch every `--log-every` steps (`progress.csv`) and, every `--eval-every` steps, success rates on random goals and on the "plaza" task, where the straight line to the goal runs into a wall (`log.csv`). Keeps an actor-and-critic checkpoint per evaluation (`checkpoint_<step>.pt`) for picking the peak-Q checkpoint, plus a full `checkpoint.pt` for `--resume`. Defaults to the chapter's 50,000 steps.
-- `eval_fqe_vs_true.py`: fits FQE (listing 9.4) to a trained agent and compares, start state by start state, its predicted discounted return with the return the policy actually earns in the environment.
+- `eval_fqe_vs_true.py`: fits FQE (listing 9.4) to a trained agent and compares, start state by start state, its predicted discounted return with the return the policy actually earns in the environment. `--single-critic` fits and reads `q1` alone instead of the twin minimum, the comparison exercise 9.2 suggests.
 - `__init__.py`: package marker.
 
 ## Installation
