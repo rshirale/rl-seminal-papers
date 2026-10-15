@@ -1,4 +1,4 @@
-# Chapter 9: Offline RL with Conservative Q-Learning (CQL)
+# Chapter 9: Offline RL: Learning from static datasets
 
 This directory contains the Python implementations for Chapter 9 of **"RL: The Seminal Papers"**. It implements the continuous, SAC-based CQL(H) of Kumar et al. (2020), *Conservative Q-Learning for Offline Reinforcement Learning*, trains it on Minari's `D4RL/pointmaze/umaze-v2` dataset with no environment interaction, and checks the trained policy with fitted Q-evaluation (FQE).
 
