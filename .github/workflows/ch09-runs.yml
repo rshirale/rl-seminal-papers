@@ -66,9 +66,9 @@ jobs:
       PYTHONUNBUFFERED: "1"
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
 
@@ -95,7 +95,7 @@ jobs:
 
       - name: Upload results
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.name }}
           path: src/part_3_applications/ch09_cql/runs/
