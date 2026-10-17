@@ -39,7 +39,7 @@ concurrency:
 
 jobs:
   ablation:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Well inside the 6-hour job ceiling even if a runner is half the speed of
     # the laptop these budgets were measured on.
     timeout-minutes: 330
