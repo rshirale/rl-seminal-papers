@@ -1,6 +1,8 @@
-# Optional dependencies for the Chapter 3 Atari training script.
-# This is intentionally separate from requirements-deep.txt because Atari
-# packages require additional native libraries on some operating systems.
+# The Atari packages for the Chapter 3 Atari training script, on their own.
+# requirements-deep.txt (make install-full) already includes every line below,
+# so that the Chapter 3 Atari tests run in CI; this file exists for a setup
+# that brings torch some other way and wants only the Atari stack. Atari
+# packages can need native libraries (SDL2, a C++ toolchain) on some systems.
 #
 # The gymnasium bound must match requirements.txt and requirements-deep.txt --
 # when the ranges disagree, installing one file after the other silently

@@ -1,0 +1,19 @@
+# Chapter 9 only: offline RL on Minari's PointMaze dataset. Install on top of
+# requirements-deep.txt (make install-full), which provides torch.
+#
+# 0.5.2 is the first release with the hf extra; the namespaced dataset IDs the
+# chapter uses (D4RL/pointmaze/umaze-v2) arrived in 0.5.0. hdf5 reads the
+# dataset, hf downloads it (about 530 MB, cached under ~/.minari/datasets).
+minari[hdf5,hf]>=0.5.2
+
+# Provides the PointMaze environment the trained policies are evaluated in.
+# The gymnasium bound in requirements.txt and requirements-deep.txt still holds.
+gymnasium-robotics
+
+# Gymnasium Robotics pulls in MuJoCo, which ships no x86_64 macOS wheels after
+# 3.10.0; without this cap pip tries a source build there and fails.
+mujoco<=3.10.0; sys_platform == "darwin" and platform_machine == "x86_64"
+
+# The same platform split as requirements-deep.txt, repeated so that this file
+# cannot move Intel macOS (torch 2.2.x) onto NumPy 2.
+numpy>=1.21.0,<2.0.0; sys_platform == "darwin" and platform_machine == "x86_64"

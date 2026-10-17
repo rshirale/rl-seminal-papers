@@ -1,4 +1,4 @@
-# Makefile for "RL: The Seminal Papers"
+# Makefile for "Reinforcement Learning: The Foundational Ideas"
 # ==========================================
 
 .PHONY: help install install-full install-atari install-test test test-all doctor site-check clean \
@@ -11,7 +11,8 @@
         run-ch7-reward run-ch7-group-size run-ch7-train \
         run-ch8-sizes run-ch8-benchmark run-ch8-solve run-ch8-train \
         run-ch8-othello \
-        install-llm notebook
+        run-ch9-cql run-ch9-sac run-ch9-fqe \
+        install-llm install-offline notebook
 
 # Interpreter used by every target. Defaults to python3 because a bare `python`
 # does not exist on most Linux distributions or on macOS 12.3+. Override it to
@@ -28,13 +29,14 @@ PYTHON_ABS := $(if $(findstring /,$(PYTHON)),$(abspath $(PYTHON)),$(PYTHON))
 
 # Default command: show help
 help:
-	@echo "RL: The Seminal Papers - Command Menu"
+	@echo "Reinforcement Learning: The Foundational Ideas - Command Menu"
 	@echo "======================================"
 	@echo "Setup Commands:"
 	@echo "  make install             - Install Foundation stack (Chapters 1-2) - ~60MB"
 	@echo "  make install-full        - Install Deep RL stack (Chapters 3-6, 8)"
 	@echo "  make install-llm         - Install the LLM stack (Chapter 7)"
-	@echo "  make install-atari       - Install optional Atari dependencies"
+	@echo "  make install-offline     - Install the offline RL stack (Chapter 9: Minari, PointMaze)"
+	@echo "  make install-atari       - Install the Atari packages alone (install-full includes them)"
 	@echo "  make install-test        - Install test dependencies"
 	@echo "  make test                - Run fast tests (skips notebook execution)"
 	@echo "  make test-all            - Run all tests, including notebook execution"
@@ -50,7 +52,7 @@ help:
 	@echo ""
 	@echo "Chapter 3: DQN"
 	@echo "  make run-ch3-cartpole    - Train DQN on CartPole-v1 (~3 min on CPU)"
-	@echo "  make run-ch3-atari       - Train DQN on Atari Pong (needs make install-atari)"
+	@echo "  make run-ch3-atari       - Train DQN on Atari Pong (hours on CPU)"
 	@echo "  make run-ch3-ablation    - Ablate replay and the target network (~20 min)"
 	@echo ""
 	@echo "Chapter 4: DDPG"
@@ -88,6 +90,12 @@ help:
 	@echo "  make run-ch8-othello     - The same agent on 6x6 Othello, nothing else changed"
 	@echo "     ...add EXTRA=\"--budget-seconds 900\" to shorten either training run"
 	@echo ""
+	@echo "Chapter 9: Offline RL (needs make install-offline)"
+	@echo "  make run-ch9-cql         - Train CQL offline on PointMaze, alpha 5.0 (~40 min on CPU)"
+	@echo "  make run-ch9-sac         - Train plain SAC on the same logs, the baseline (~40 min)"
+	@echo "  make run-ch9-fqe         - FQE from the logs vs true returns, for both runs"
+	@echo "     ...add EXTRA=\"--steps 12500\" to shorten a training run"
+	@echo ""
 	@echo "Jupyter Notebooks:"
 	@echo "  make notebook            - Launch Jupyter Lab to view interactive chapters"
 	@echo ""
@@ -105,7 +113,7 @@ install-full: install
 	$(PYTHON_ABS) -m pip install -r requirements-deep.txt
 
 install-atari:
-	@echo "Installing optional Atari dependencies..."
+	@echo "Installing the Atari packages (install-full already includes them)..."
 	$(PYTHON_ABS) -m pip install -r requirements-atari.txt
 
 # Chapter 7 only. Deliberately not part of install-full: it is half a gigabyte
@@ -114,6 +122,13 @@ install-atari:
 install-llm:
 	@echo "Installing the LLM stack (transformers, peft) for Chapter 7..."
 	$(PYTHON_ABS) -m pip install -r requirements-llm.txt
+
+# Chapter 9 only. Minari for the offline dataset and Gymnasium Robotics for
+# the PointMaze environment, on top of the deep stack, which provides torch.
+# Separate from install-full because chapters 3-8 have no use for it.
+install-offline: install-full
+	@echo "Installing the offline RL stack (Minari, Gymnasium Robotics) for Chapter 9..."
+	$(PYTHON_ABS) -m pip install -r requirements-offline.txt
 
 install-test:
 	$(PYTHON_ABS) -m pip install -r requirements-test.txt
@@ -176,7 +191,7 @@ run-ch3-cartpole:
 	@echo "Running Chapter 3: DQN on CartPole-v1..."
 	@cd $(CH3_DIR) && $(PYTHON_ABS) train_cartpole.py
 
-# Requires the optional Atari stack: make install-atari
+# Needs the Atari packages, which install-full includes.
 run-ch3-atari:
 	@echo "Running Chapter 3: DQN on Atari Pong..."
 	@cd $(CH3_DIR) && $(PYTHON_ABS) train_atari.py
@@ -371,6 +386,30 @@ run-ch8-train:
 run-ch8-othello:
 	@echo "Running Chapter 8: the same agent on 6x6 Othello..."
 	@$(PYTHON_ABS) -m src.part_2_methods.ch08_alphazero.train --game othello $(EXTRA)
+
+# --- Chapter 9 Commands ---
+
+# CQL and its baseline train on the same 1,000,000 logged transitions with no
+# environment interaction, logging the dataset Q-value, TD loss and CQL penalty
+# every 5,000 steps and evaluating on the plaza task every 12,500. Results go
+# to src/part_3_applications/ch09_cql/runs/<name>/ (git-ignored). The first
+# run downloads the dataset, about 530 MB. To continue a run, as exercise 9.6
+# does: EXTRA="--steps 200000 --resume".
+run-ch9-cql:
+	@echo "Running Chapter 9: CQL (alpha 5.0) offline on PointMaze..."
+	@$(PYTHON_ABS) -m src.part_3_applications.ch09_cql.train_cql_vs_sac --name cql --cql-alpha 5.0 $(EXTRA)
+
+# Exercise 9.1: CQL with cql_alpha=0, which is SAC without the entropy backup.
+run-ch9-sac:
+	@echo "Running Chapter 9: plain SAC on the same logs..."
+	@$(PYTHON_ABS) -m src.part_3_applications.ch09_cql.train_cql_vs_sac --name sac --cql-alpha 0.0 $(EXTRA)
+
+# Exercise 9.2: fitted Q-evaluation (listing 9.4) from the logs alone, compared
+# start state by start state with the return each policy actually earns. Needs
+# both runs above. EXTRA="--single-critic" fits q1 alone.
+run-ch9-fqe:
+	@echo "Running Chapter 9: FQE against true returns..."
+	@$(PYTHON_ABS) -m src.part_3_applications.ch09_cql.eval_fqe_vs_true cql sac $(EXTRA)
 
 # --- Notebooks ---
 

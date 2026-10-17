@@ -144,9 +144,10 @@ closed:
 - **Revised table of contents and title** — the book is now *Reinforcement
   Learning: The Foundational Ideas*, and the rename covers every `<title>`, the
   og/twitter titles, both JSON-LD names, the nav brand, the author blurb, the
-  footer, `privacy.html`, `llms.txt` and the root `README.md`. Chapter READMEs,
-  notebooks, `__init__.py` docstrings and the `Makefile` banner still carry the
-  old name; they are not site files. The chapter order did not move, but Part
+  footer, `privacy.html`, `llms.txt` and the root `README.md`. The chapter
+  READMEs, notebook title cells, docstrings and the `Makefile` banner followed
+  on 2026-10-16; only the repository name, `rl-seminal-papers`, keeps the old
+  one, because every link depends on it. The chapter order did not move, but Part
   III's content did: Chapter 10 is now contextual bandits (Li et al., 2010,
   LinUCB) rather than serving and monitoring, Chapter 11 cites Peng et al.
   (2018) on dynamics randomization, Chapter 13 adds InstructGPT, and Chapter 14
@@ -165,6 +166,25 @@ closed:
   consent" button had the same gap. Every access is guarded now; the rule is
   that nothing on the page may depend on storage being available. The same
   pass added `assets/favicon.svg`, whose absence was a 404 on every visit.
+
+- **Chapter 9 status** — now live, the first Part III chapter to land. The
+  "When adding a chapter" list was worked through: the chapter row (linking
+  `Chapter9_CQL.ipynb`), the Colab link row in step 4, a CQL tab in Papers →
+  Code with its `paperExamples` entry in `site.js` (`soft_lse` and the last two
+  lines of listing 9.1, quoting `cql.py` verbatim), the `progressLine`
+  first-paint text (`0 of 8` → `0 of 9`), the "Core Algorithms" and
+  "Real-World Systems" learn cards, the "Deep RL practitioner" path card and its
+  `pathAdvice` string, the JSON-LD topic list, the three `<head>` descriptions,
+  the CTA line, `llms.txt` (summary, Part III heading, chapter line and six
+  resource links), and `sitemap.xml`, plus the `Makefile`: three run targets
+  (`run-ch9-cql`, `run-ch9-sac`, `run-ch9-fqe`) and `install-offline`. That
+  last one is the difference from earlier chapters. Chapter 9 needs packages
+  beyond `make install-full`, so step 2 gained a command of its own rather
+  than a change to the `install-full` note: `requirements-offline.txt`, with
+  Minari, Gymnasium Robotics and the `mujoco<=3.10.0` pin Intel macOS needs.
+  The same pass corrected the Atari notes in step 2 and step 3, which called
+  `make install-atari` a requirement for the Atari run; `install-full`
+  already includes those packages.
 
 - **Chapter 8 status** — now live, and the whole "When adding a chapter" list
   below was worked through: the chapter row (Silver et al., 2016 and 2018, with

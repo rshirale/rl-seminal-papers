@@ -1,6 +1,6 @@
 # Chapter 3: Deep Q-Networks (DQN)
 
-This directory contains the Python implementations for Chapter 3 of **"RL: The Seminal Papers"**. It implements the Deep Q-Network from Mnih et al. (2013, 2015) and the two innovations that made deep RL stable: **experience replay** and a **target network**. The runnable experiment verifies the full pipeline on `CartPole-v1` in about three minutes on a CPU.
+This directory contains the Python implementations for Chapter 3 of **"Reinforcement Learning: The Foundational Ideas"**. It implements the Deep Q-Network from Mnih et al. (2013, 2015) and the two innovations that made deep RL stable: **experience replay** and a **target network**. The runnable experiment verifies the full pipeline on `CartPole-v1` in about three minutes on a CPU.
 
 Q-learning with a neural network had been tried before and it diverged. The 2015 paper's contribution is less a new algorithm than a diagnosis of *why*: a network trained on consecutive frames sees a stream of nearly identical, highly correlated inputs, and a network that bootstraps from itself is chasing a target that moves every time it takes a step. Replay fixes the first by sampling the past uniformly. The target network fixes the second by freezing the thing being chased for `C` steps at a time. Everything else — the CNN, the Huber loss, RMSprop — is scaffolding around those two ideas.
 
@@ -25,7 +25,7 @@ Chapter 3 is the first Deep RL chapter, so it needs the full stack (PyTorch + Gy
 make install-full
 ```
 
-Atari is a separate, optional install — it pulls `ale-py` and OpenCV:
+`make install-full` already includes the Atari packages, `ale-py` and OpenCV, so `train_atari.py` needs nothing more. `make install-atari` installs those packages alone, for a setup that gets PyTorch some other way:
 ```bash
 make install-atari
 ```

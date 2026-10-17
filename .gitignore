@@ -213,3 +213,9 @@ node_modules/
 
 # Chapter 9 training runs (logs, checkpoints, rollout paths, FQE results)
 src/part_3_applications/ch09_cql/runs/
+
+# Chapter 8 training runs (checkpoints and logs). train.py writes runs/ under
+# the working directory: the repository root from `make run-ch8-train`, the
+# chapter directory from the notebook.
+/runs/
+src/part_2_methods/ch08_alphazero/runs/

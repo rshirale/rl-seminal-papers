@@ -475,6 +475,9 @@
     .chapter-row.is-hidden { display: none; }
     .chapter-row.is-complete .ch-title a, .chapter-row.is-complete .ch-title { color: var(--tertiary); }
     .copy-wrap { display: inline-flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    /* Long commands (chapter 9's python -m lines) wrap instead of widening a phone screen. */
+    .copy-wrap { max-width: 100%; }
+    .copy-wrap code { min-width: 0; overflow-wrap: anywhere; }
     .copy-button { padding: 0.32rem 0.65rem; font-size: 0.75rem; }
     .path-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
     .path-card { background: var(--sc-low); border: 1px solid var(--outline-var); border-radius: var(--radius-lg); padding: 1.1rem; cursor: pointer; }
