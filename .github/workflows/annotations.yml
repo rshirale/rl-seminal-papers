@@ -9,8 +9,10 @@
 # as a notice on the Tests runs, two days before it took effect. Notices
 # count as well as warnings for that reason.
 #
-# GitHub's own Pages build (event "dynamic") is left out: it runs GitHub's
-# workflow, not one in this repository, so nothing here can fix its warnings.
+# Only workflows whose file is on the default branch count. A one-off check
+# deleted after it answered its question (ch09-fqe-check.yml, for one) cannot
+# run again, and neither can GitHub's own Pages and Dependabot workflows be
+# edited here, so their warnings are nothing this repository can act on.
 #
 # Only warnings and notices are listed. Failures (a test that broke, a run
 # cancelled by a newer push) already show as a red run.
@@ -38,9 +40,13 @@ jobs:
           REPO: ${{ github.repository }}
         run: |
           since=$(date -u -d '8 days ago' +%Y-%m-%d)
+          branch=$(gh api "repos/$REPO" --jq .default_branch)
+          gh api "repos/$REPO/contents/.github/workflows?ref=$branch" \
+            --jq '.[].path' > current.txt
           gh api --paginate "repos/$REPO/actions/runs?created=>=$since&per_page=100" \
-            --jq '.workflow_runs[] | select(.status == "completed" and .event != "dynamic")
-                  | "\(.workflow_id) \(.created_at) \(.id)"' \
+            --jq '.workflow_runs[] | select(.status == "completed")
+                  | "\(.path) \(.created_at) \(.id)"' \
+            | awk 'NR == FNR { current[$1]; next } $1 in current' current.txt - \
             | sort -k1,1 -k2,2r | awk '!seen[$1]++ { print $3 }' > runs.txt
           for run in $(cat runs.txt); do
             gh api --paginate "repos/$REPO/actions/runs/$run/jobs?per_page=100" \
