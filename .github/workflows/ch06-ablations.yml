@@ -72,10 +72,10 @@ jobs:
             echo "::notice::Skipping ${{ matrix.experiment }} (dispatcher chose '$want')."
           fi
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         if: steps.gate.outputs.run == 'true'
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         if: steps.gate.outputs.run == 'true'
         with:
           python-version: "3.12"
@@ -139,7 +139,7 @@ jobs:
 
       - name: Upload tables and figures
         if: always() && steps.gate.outputs.run == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ch06-${{ matrix.experiment }}
           path: |

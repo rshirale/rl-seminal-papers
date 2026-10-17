@@ -38,9 +38,9 @@ jobs:
       CH9_FAST: ${{ inputs.fast && '1' || '' }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -76,7 +76,7 @@ jobs:
 
       - name: Upload the executed notebook and its runs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ch09-notebook${{ inputs.fast && '-fast' || '' }}
           path: |
