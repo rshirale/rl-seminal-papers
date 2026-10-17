@@ -1,6 +1,6 @@
 # Chapter 5: Proximal Policy Optimization (PPO)
 
-This directory contains the Python implementations for Chapter 5 of **"RL: The Seminal Papers"**. It implements PPO from Schulman et al. (2017), *Proximal Policy Optimization Algorithms*. The runnable experiment verifies the full pipeline on `Pendulum-v1` in about four minutes on a CPU.
+This directory contains the Python implementations for Chapter 5 of **"Reinforcement Learning: The Foundational Ideas"**. It implements PPO from Schulman et al. (2017), *Proximal Policy Optimization Algorithms*. The runnable experiment verifies the full pipeline on `Pendulum-v1` in about four minutes on a CPU.
 
 TRPO got its stability by solving a constrained optimisation problem: maximise the surrogate objective subject to a hard KL bound, which needs a conjugate-gradient solve and a Fisher-vector product on every update. PPO's claim is that you can keep almost all of that stability and throw away all of that machinery. Clip the probability ratio to `[1 − ε, 1 + ε]` and take the pessimistic minimum, and an ordinary first-order optimiser stops taking the step that would have destroyed the policy — because past the clip the objective goes flat and the gradient goes to zero.
 

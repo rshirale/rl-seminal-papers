@@ -1,6 +1,6 @@
 # Chapter 4: Deep Deterministic Policy Gradient (DDPG)
 
-This directory contains the Python implementations for Chapter 4 of **"RL: The Seminal Papers"**. It implements DDPG from Lillicrap et al. (2015), *Continuous control with deep reinforcement learning* — the algorithm that carried Chapter 3's replay buffer and target networks across from discrete action menus to continuous control. The runnable experiment verifies the full pipeline on `Pendulum-v1` in a few minutes on a CPU.
+This directory contains the Python implementations for Chapter 4 of **"Reinforcement Learning: The Foundational Ideas"**. It implements DDPG from Lillicrap et al. (2015), *Continuous control with deep reinforcement learning* — the algorithm that carried Chapter 3's replay buffer and target networks across from discrete action menus to continuous control. The runnable experiment verifies the full pipeline on `Pendulum-v1` in a few minutes on a CPU.
 
 DQN picks actions with `argmax_a Q(s, a)`. That is a table lookup over two actions on CartPole and an intractable optimisation over ℝᴺ on a robot arm. DDPG's answer is to make the argmax a network: a deterministic actor μ(s) proposes the action, a critic Q(s, a) scores it, and the actor is trained by pushing the critic's gradient back through the action it was given.
 

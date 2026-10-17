@@ -1,6 +1,6 @@
 # Chapter 7: Group Relative Policy Optimization (GRPO)
 
-This directory contains the Python implementations for Chapter 7 of **"RL: The Seminal Papers"**. It implements GRPO from Shao et al. (2024), *DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models*, the algorithm that a year later trained DeepSeek-R1. The runnable experiment trains a base language model to emit strict-schema JSON on a laptop CPU, with a rule as its only training signal.
+This directory contains the Python implementations for Chapter 7 of **"Reinforcement Learning: The Foundational Ideas"**. It implements GRPO from Shao et al. (2024), *DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models*, the algorithm that a year later trained DeepSeek-R1. The runnable experiment trains a base language model to emit strict-schema JSON on a laptop CPU, with a rule as its only training signal.
 
 Chapter 5's PPO divided the work between an actor that generates and a critic that estimates what a state is worth. That division is affordable when the actor is a small multilayer perceptron. It stops being affordable when the actor is a language model, because scoring a reasoning trace is about as hard as producing one, so the critic is initialized from a model of the same size — a seven-billion parameter actor implies a seven-billion parameter critic, and fourteen billion parameters resident in VRAM to train seven.
 

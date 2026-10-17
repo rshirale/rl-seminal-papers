@@ -1,4 +1,4 @@
-"""AlphaGo and AlphaZero -- Chapter 8 of "RL: The Seminal Papers".
+"""AlphaGo and AlphaZero -- Chapter 8 of "Reinforcement Learning: The Foundational Ideas".
 
 AlphaGo (Silver et al., 2016) put a neural network inside a tree search:
 a policy network to say which moves are worth looking at, a value network to

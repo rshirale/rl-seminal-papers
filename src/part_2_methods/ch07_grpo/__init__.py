@@ -1,4 +1,4 @@
-"""Group Relative Policy Optimization -- Chapter 7 of "RL: The Seminal Papers".
+"""Group Relative Policy Optimization -- Chapter 7 of "Reinforcement Learning: The Foundational Ideas".
 
 GRPO (Shao et al., 2024) deletes PPO's critic. Instead of learning a value
 network to say what a good response would have been worth, it samples a group
