@@ -30,9 +30,11 @@ jobs:
     # Inside the 6-hour job ceiling even on a slow runner.
     timeout-minutes: 340
 
+    # No MPLBACKEND=Agg here, unlike the Tests workflow: it would replace the
+    # kernel's inline backend, and plt.show() would leave the figure cells of
+    # the executed notebook empty.
     env:
       PYTHONUNBUFFERED: "1"
-      MPLBACKEND: Agg
       CH9_FAST: ${{ inputs.fast && '1' || '' }}
 
     steps:
