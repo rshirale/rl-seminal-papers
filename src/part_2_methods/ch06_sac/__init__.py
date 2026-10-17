@@ -1,4 +1,4 @@
-"""Soft Actor-Critic (SAC-v2) -- Chapter 6 of "RL: The Seminal Papers"."""
+"""Soft Actor-Critic (SAC-v2) -- Chapter 6 of "Reinforcement Learning: The Foundational Ideas"."""
 
 # `seeding` is deliberately not imported here. It is runnable as
 # `python -m src.part_2_methods.ch06_sac.seeding`, and importing it at package

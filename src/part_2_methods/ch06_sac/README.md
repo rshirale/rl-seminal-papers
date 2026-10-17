@@ -1,6 +1,6 @@
 # Chapter 6: Soft Actor-Critic (SAC)
 
-This directory contains the Python implementations for Chapter 6 of **"RL: The Seminal Papers"**. It implements SAC-v2 from Haarnoja et al. (2018b), *Soft Actor-Critic Algorithms and Applications*, with the stochastic actor and twin critics of Haarnoja et al. (2018a). The runnable experiment converges on `Pendulum-v1` in about ten minutes on a CPU.
+This directory contains the Python implementations for Chapter 6 of **"Reinforcement Learning: The Foundational Ideas"**. It implements SAC-v2 from Haarnoja et al. (2018b), *Soft Actor-Critic Algorithms and Applications*, with the stochastic actor and twin critics of Haarnoja et al. (2018a). The runnable experiment converges on `Pendulum-v1` in about ten minutes on a CPU.
 
 Chapter 4's DDPG was data-efficient and brittle: a deterministic actor with noise bolted on the outside, prone to committing to one behavior and never finding a better one. Chapter 5's PPO was stable and wasteful: every gradient step burned a fresh batch of experience. SAC's claim is that you do not have to choose. Keep the replay buffer, make the actor stochastic, and then — this is the part that matters — put the policy's own entropy *into the objective*, so the agent is paid to keep its options open rather than talked into it by an external noise schedule.
 

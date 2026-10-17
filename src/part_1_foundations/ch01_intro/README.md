@@ -1,6 +1,6 @@
 # Chapter 1: Why Reinforcement Learning, Why Now?
 
-This directory contains the minimal agent-environment loop for Chapter 1 of **"RL: The Seminal Papers"**. It is the smallest complete RL program in the book: an agent, an environment, and the cycle between them, with no learning at all.
+This directory contains the minimal agent-environment loop for Chapter 1 of **"Reinforcement Learning: The Foundational Ideas"**. It is the smallest complete RL program in the book: an agent, an environment, and the cycle between them, with no learning at all.
 
 That omission is the point. Every algorithm in the rest of the book — DQN, DDPG, PPO, SAC — is a different answer to the question of what to put where the "choose an action" line currently picks at random. Getting the loop itself clear first means the later chapters are only ever changing one thing.
 

@@ -1,0 +1,16 @@
+# Opens a pull request when an action the workflows use has a new release,
+# so a deprecation like Node 20's arrives as a PR rather than as a warning on
+# every run. One grouped PR a week instead of one per action; each opens the
+# Tests workflow on its pull_request trigger.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci

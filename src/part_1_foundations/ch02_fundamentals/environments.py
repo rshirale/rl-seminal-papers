@@ -3,7 +3,7 @@ import numpy as np
 class GridWorld:
     """
     Standard 4x3 Grid World MDP used for TD(0) and value estimation.
-    Matches Listing 2.1 in "RL: The Seminal Papers".
+    Matches Listing 2.1 in "Reinforcement Learning: The Foundational Ideas".
     """
     def __init__(self, width=4, height=3):
         self.width = width

@@ -3,7 +3,7 @@ import numpy as np
 def td0(env, episodes=500, alpha=0.1, gamma=0.99):
     """
     Temporal Difference (TD(0)) value estimation.
-    Matches Listing 2.2 in "RL: The Seminal Papers".
+    Matches Listing 2.2 in "Reinforcement Learning: The Foundational Ideas".
     """
     V = {s: 0.0 for x in range(env.width) for y in range(env.height) for s in [(x, y)]}
 
@@ -24,7 +24,7 @@ def td0(env, episodes=500, alpha=0.1, gamma=0.99):
 def run_agent(env, mode='qlearning', episodes=500, alpha=0.1, gamma=0.99, epsilon=0.1):
     """
     generic runner for Q-Learning and SARSA agents.
-    Matches Listing 2.3 in "RL: The Seminal Papers".
+    Matches Listing 2.3 in "Reinforcement Learning: The Foundational Ideas".
     """
     # Initialize Q-values to zero
     Q = {}

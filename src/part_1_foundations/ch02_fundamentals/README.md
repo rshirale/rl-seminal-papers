@@ -1,6 +1,6 @@
 # Chapter 2: Reinforcement Learning Fundamentals
 
-This directory contains the Python implementations and benchmarks for Chapter 2 of **"RL: The Seminal Papers"**. It covers the tabular methods the rest of the book generalizes: TD(0) for value estimation, and Q-Learning and SARSA for control, on two classic gridworlds.
+This directory contains the Python implementations and benchmarks for Chapter 2 of **"Reinforcement Learning: The Foundational Ideas"**. It covers the tabular methods the rest of the book generalizes: TD(0) for value estimation, and Q-Learning and SARSA for control, on two classic gridworlds.
 
 These are the last algorithms in the book with no neural network in them. A table of values, one entry per state, is enough when the state space is twelve squares — and holding onto that mental picture is what makes the function approximation of Chapter 3 legible, because a Q-network is doing the same job as this dictionary, only for a state space too large to enumerate.
 

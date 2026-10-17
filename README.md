@@ -1,7 +1,7 @@
 # Reinforcement Learning: The Foundational Ideas
 **Author: Rahul Vasant Shirale**
 
-This is the official companion repository for the book **Reinforcement Learning: The Foundational Ideas** (Manning Publications). Chapters 1–8 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
+This is the official companion repository for the book **Reinforcement Learning: The Foundational Ideas** (Manning Publications). Chapters 1–9 are currently implemented, providing a functional bridge between academic research and production-ready Python code. Additional algorithms and applications are planned as the book progresses.
 
 ## 🌐 Companion Website
 
@@ -22,9 +22,10 @@ This repository includes a **Makefile** to simplify environment setup and runnin
 
 - Python **3.10–3.13** is recommended.
 - A virtual environment is strongly recommended.
-- Chapters 3–8 require PyTorch. PyTorch availability depends on your operating system, CPU architecture, and Python version.
+- Chapters 3–9 require PyTorch. PyTorch availability depends on your operating system, CPU architecture, and Python version.
 - Chapter 7 additionally needs `transformers` and `peft`, plus about a gigabyte of model weights on first run. Two of its three targets need neither.
 - Chapter 8 needs nothing beyond PyTorch: no dataset, no downloaded weights. Three of its five targets finish in under a minute.
+- Chapter 9 also needs Minari and Gymnasium Robotics (`make install-offline`), plus a one-time dataset download of about 530 MB.
 
 Create and activate a virtual environment before installing dependencies:
 
@@ -59,15 +60,16 @@ make install-llm
 Chapter 7's reward function and its group-size analysis run without any of this,
 on a bare interpreter. Only the trainer and the notebook need it.
 
-The Atari training script is optional and has additional native dependencies.
-Install it separately only if you plan to run Atari experiments:
+Option B already installs the Atari packages (`gymnasium[atari]`, `ale-py` and
+OpenCV), so the Chapter 3 Atari run needs nothing more. `make install-atari`
+installs just those packages, for a setup that gets PyTorch some other way:
 
 ```bash
 make install-atari
 ```
 
 Atari installation may require platform-specific tools such as SDL2 and a C++
-toolchain. The CartPole and Pendulum chapters do not require Atari.
+toolchain. The CartPole and Pendulum chapters do not use Atari.
 
 If anything fails to install or a chapter script will not start, run:
 
@@ -95,7 +97,18 @@ not provide PyTorch. Use the
 [official PyTorch installation selector](https://pytorch.org/get-started/locally/)
 for a platform-specific install command, then run `make install-full` again.
 
-**Option D: Tests**
+**Option D: Offline RL (Chapter 9)**
+Adds Minari, which hosts the offline datasets, and Gymnasium Robotics, which
+provides the PointMaze environment, on top of Option B (it runs
+`make install-full` first). The PointMaze dataset downloads on first use and is
+cached under `~/.minari/datasets`.
+```bash
+make install-offline
+```
+`requirements-offline.txt` caps MuJoCo at 3.10.0 on Intel macOS, the last
+release with wheels for that platform.
+
+**Option E: Tests**
 Install pytest and run the automated checks:
 ```bash
 make install-test
@@ -118,7 +131,7 @@ make run-ch2-cliff
 # Chapter 3: DQN on CartPole-v1 (~3 min on CPU)
 make run-ch3-cartpole
 
-# Chapter 3: DQN on Atari Pong (needs `make install-atari`; hours on CPU)
+# Chapter 3: DQN on Atari Pong (hours on CPU)
 make run-ch3-atari
 
 # Chapter 3: the paper's replay / target-network ablation, on CartPole
@@ -177,6 +190,16 @@ make run-ch8-train
 # Chapter 8: the same agent, unchanged, on 6x6 Othello -- a proven
 #   second-player win, so the root value should go negative. Same budget.
 make run-ch8-othello
+
+# Chapter 9: CQL trained offline on PointMaze, with no environment
+#   interaction (~40 min on a CPU; needs `make install-offline`)
+make run-ch9-cql
+
+# Chapter 9: plain SAC on the same logs, the baseline (~40 min)
+make run-ch9-sac
+
+# Chapter 9: FQE from the logs alone, checked against the true returns
+make run-ch9-fqe
 ```
 
 `make help` lists every target, including the longer hyperparameter sweeps.
@@ -207,10 +230,10 @@ The repository follows the book’s three parts, from mathematical foundations t
 | **Ch 7** | **GRPO** | *DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models* (2024) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch07_grpo/Chapter7_GRPO.ipynb) |
 | **Ch 8** | **AlphaGo / AlphaZero** | *Mastering the game of Go with deep neural networks and tree search* (2016) and *A general reinforcement learning algorithm that masters chess, shogi and Go through self-play* (2018) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/Chapter8_AlphaZero.ipynb) |
 
-### Part III: Real-World Applications & Modern Paradigms (planned)
-| Chapter | Application | Key Implementation | Status |
+### Part III: Real-World Applications & Modern Paradigms
+| Chapter | Application | Key Implementation | Interactive |
 | :--- | :--- | :--- | :--- |
-| **Ch 9** | **Offline RL** | Training entirely on a static dataset with Conservative Q-Learning (Kumar et al., 2020) | 🚧 Coming Soon |
+| **Ch 9** | **Offline RL** | Training entirely on a static dataset with Conservative Q-Learning (Kumar et al., 2020) | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_3_applications/ch09_cql/Chapter9_CQL.ipynb) |
 | **Ch 10** | **RL in Production** | Contextual bandits and recommenders: LinUCB with offline replay evaluation (Li et al., 2010) | 🚧 Coming Soon |
 | **Ch 11** | **Sim-to-Real** | Dynamics randomization for robust transfer to hardware (Peng et al., 2018) | 🚧 Coming Soon |
 | **Ch 12** | **Decision Transformers** | RL as sequence modeling: actions predicted from returns-to-go (Chen et al., 2021) | 🚧 Coming Soon |
@@ -254,8 +277,9 @@ Upon finishing this book and exploring this code, you will be equipped to:
 The automated tests cover the Chapter 2 environments, algorithms and notebook,
 the Chapter 3 DQN modules and notebook, the Chapter 4 DDPG modules and
 notebook, the Chapter 5 PPO modules and notebook, the Chapter 6 SAC modules
-and notebook, the Chapter 7 GRPO modules and notebook, and the Chapter 8
-AlphaGo/AlphaZero modules and notebook. A separate suite
+and notebook, the Chapter 7 GRPO modules and notebook, the Chapter 8
+AlphaGo/AlphaZero modules and notebook, and the Chapter 9 CQL modules and
+notebook. A separate suite
 checks the chapter READMEs themselves — every
 module listed, every `make` target documented, every class attributed to the
 file that defines it. The PyTorch chapters' tests are skipped when PyTorch is
@@ -286,5 +310,15 @@ experiment for exactly as long.
 
 Chapter 8 takes that a step further and removes the duplication instead of
 testing around it: its notebook's code cells *are* its modules, with only their
-relative imports stripped, and the parity test is a character-for-character
+relative imports and `__main__` guards stripped, and the parity test is a character-for-character
 comparison rather than a numerical one.
+
+Chapter 9's notebook is built the same way: its code cells are chapter 6's actor
+and critic, the four printed listings, and the two experiment scripts, with one
+fixed transformation for the scripts (package imports, `CODE_DIR` and the
+`__main__` guard removed) that the test defines and checks. Its
+notebook-execution test runs the cells the way a Jupyter kernel does, as
+`__main__` with the kernel's own command line, and skips itself unless Minari,
+Gymnasium Robotics and the PointMaze dataset are already installed. The GitHub
+workflow installs none of them, so there the parity checks run and the
+execution test skips.

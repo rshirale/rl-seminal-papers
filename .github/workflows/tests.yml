@@ -35,7 +35,9 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Pinned rather than ubuntu-latest, which moves to Ubuntu 26 from October
+    # 19, 2026 (actions/runner-images#14748). Moving is a commit, not a surprise.
+    runs-on: ubuntu-24.04
     # The full suite is about five and a half minutes on the machine these were
     # written on. A runner is slower, and the notebook executions are the part
     # that stretches, so this is deliberately loose rather than tight.
@@ -58,9 +60,9 @@ jobs:
       MPLBACKEND: Agg
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip

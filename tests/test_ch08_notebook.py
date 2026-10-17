@@ -6,12 +6,21 @@ and every one of those duplications has drifted from its modules at least once
 ``KeyError`` that every reader hit on the first experiment.
 
 Chapter 8 removes the duplication rather than testing around it. Its notebook
-cells *are* the module files, with their relative imports stripped and nothing
-else changed, so the parity test below is a string comparison rather than a
+cells *are* the module files, with their relative imports and their
+``if __name__ == "__main__":`` guards stripped and nothing else changed, so the
+parity test below is a string comparison rather than a
 numerical one. That is a stronger guarantee than any of the earlier chapters
 can make: there is no "the notebook is a simplified version" escape hatch, and
 a change to ``mcts.py`` that is not carried into the notebook fails here
 immediately.
+
+The guards go because a Jupyter kernel runs every cell as ``__main__``. With
+them in place, "Run all" called ``solver.main()`` the moment its cell was
+defined, argparse read the kernel's own ``-f kernel.json`` argument, and the
+notebook stopped with ``SystemExit: 2``. Had argparse accepted it, the
+``train.py`` cell would have started an hour of training at its defaults. The
+execution test ran the cells as ``__notebook__`` and never saw it; it now runs
+them as ``__main__``, with a kernel's argv.
 
 Three kinds of check:
 
@@ -21,6 +30,7 @@ Three kinds of check:
 """
 
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -66,11 +76,15 @@ def find_cell(marker):
 def inlined(name):
     """A module's source as the notebook should carry it.
 
-    One transformation, deliberately: relative imports are dropped, because
+    Two transformations, deliberately. Relative imports are dropped, because
     the notebook has no package to import from and every name they would bind
-    is already in the flat namespace by the time the cell runs.
+    is already in the flat namespace by the time the cell runs. And the
+    ``if __name__ == "__main__":`` guard is dropped, because a kernel runs
+    every cell as ``__main__`` and the guard would fire (module docstring).
     """
-    lines = (CH8 / name).read_text().splitlines()
+    text = (CH8 / name).read_text()
+    text = text.replace('\n\nif __name__ == "__main__":\n    main()\n', "\n")
+    lines = text.splitlines()
     kept = [ln for ln in lines if not ln.lstrip().startswith("from .")]
     return "\n".join(kept).rstrip() + "\n"
 
@@ -129,6 +143,12 @@ def test_the_training_cell_holds_on_to_the_right_main():
     assert code_cells().index(training) < code_cells().index(benchmark)
 
 
+def test_no_cell_keeps_a_main_guard():
+    """Regression: "Run all" stopped at the solver cell in a real kernel."""
+    for source in code_cells():
+        assert '__name__ == "__main__"' not in source
+
+
 def test_the_fast_hook_exists_so_the_execution_test_can_finish():
     assert "CH8_FAST" in find_cell("FAST =")
 
@@ -180,7 +200,8 @@ def test_notebook_runs_top_to_bottom(monkeypatch, tmp_path):
     would resolve the ``python3`` kernelspec, which can point at a different
     interpreter than the one running the tests -- silently validating some
     other environment's packages. Every magic in this notebook is commented
-    out, so in-process execution covers the same ground.
+    out, and the cells run as ``__main__`` with a kernel's argv, so in-process
+    execution covers the same ground.
 
     ``CH8_FAST`` shrinks the board, the fleet and the search depth. It changes
     no code path: the same self-play, the same loop, the same evaluation, on a
@@ -193,12 +214,16 @@ def test_notebook_runs_top_to_bottom(monkeypatch, tmp_path):
     # The loop writes runs/<game>_<timestamp>/ relative to the working
     # directory. Somewhere disposable, so a test run does not litter src/.
     monkeypatch.chdir(tmp_path)
+    # What a kernel does differently from exec(): every cell runs as
+    # __main__, and sys.argv is the kernel launcher's.
+    monkeypatch.setattr(sys, "argv",
+                        ["ipykernel_launcher.py", "-f", "kernel-test.json"])
 
-    namespace = {"__name__": "__notebook__"}
+    namespace = {"__name__": "__main__"}
     for index, source in enumerate(code_cells()):
         try:
             exec(compile(source, f"<notebook cell {index}>", "exec"), namespace)
-        except Exception as exc:
+        except BaseException as exc:  # SystemExit included, on purpose
             pytest.fail(
                 f"Notebook cell {index} raised {type(exc).__name__}: {exc}\n"
                 f"--- cell source ---\n{source[:600]}"

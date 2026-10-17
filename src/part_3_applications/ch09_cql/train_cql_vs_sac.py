@@ -2,11 +2,11 @@
 
 Both runs use listings 9.1 and 9.2 unchanged (cql.py) and run listing 9.3's
 update inline, so the script can evaluate and checkpoint between steps; the
-SAC run is CQL with cql_alpha=0, which is exercise 1. Like listing 9.1, that
-baseline keeps the entropy term out of the critic target, so it is SAC
-without the entropy backup. Every --eval-every steps the
-script logs the mean Q-value the critic assigns to dataset actions, evaluates
-the policy in the recovered environment, and saves a checkpoint.
+SAC run is CQL with cql_alpha=0, which is exercise 9.1. Like listing 9.1,
+that baseline keeps the entropy term out of the critic target, so it is SAC
+without the entropy backup. Every --eval-every steps the script logs the
+mean Q-value the critic assigns to dataset actions, evaluates the policy in
+the recovered environment, and saves a checkpoint.
 
 The "plaza" evaluation starts the point in the bottom-left cell and puts the
 goal in the top-left cell. A single wall separates them, so the straight-line
@@ -16,10 +16,11 @@ Every --log-every steps it also appends to progress.csv the losses, the
 measured seconds per training step (evaluation excluded), and, on a fixed
 probe of 4,096 dataset transitions, the average dataset Q-value with the
 critic loss split into its TD part and its CQL penalty (push_down - push_up,
-summed over both critics, before cql_alpha). Those are the curves exercise 6
-asks for. Every evaluation also keeps a checkpoint_<step>.pt with the actor
-and critic, so the checkpoint at the dataset Q-value's peak can be evaluated
-later; checkpoint.pt is always the latest full checkpoint, for --resume.
+summed over both critics, before cql_alpha). Those are the curves exercise
+9.6 asks for. Every evaluation also keeps a checkpoint_<step>.pt with the
+actor and critic, so the checkpoint at the dataset Q-value's peak can be
+evaluated later; checkpoint.pt is always the latest full checkpoint, for
+--resume.
 
 Usage, from the repository root:
     python -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
@@ -27,7 +28,7 @@ Usage, from the repository root:
     python -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
         --name sac --cql-alpha 0.0
 
-Exercise 6: train at alpha 1 for 50,000 steps, then continue the same run
+Exercise 9.6: train at alpha 1 for 50,000 steps, then continue the same run
 to 200,000. --resume reads runs/<name>/checkpoint.pt and stops if
 --cql-alpha differs from the run's, so repeat the same --name and alpha.
     python -m src.part_3_applications.ch09_cql.train_cql_vs_sac \
@@ -107,6 +108,15 @@ def probe_metrics(critic, critic_target, actor, probe):
     return dq, td, full - td
 
 
+def truncate_log(path, last_step):
+    """Drops rows logged after last_step, which a resumed run logs again."""
+    with open(path, newline="") as f:
+        rows = list(csv.reader(f))
+    with open(path, "w", newline="") as f:
+        csv.writer(f).writerows(
+            rows[:1] + [r for r in rows[1:] if int(r[0]) <= last_step])
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("--name", required=True)
@@ -152,6 +162,8 @@ def main():
         actor_opt.load_state_dict(ck["actor_opt"])
         torch.set_rng_state(ck["torch_rng"])
         start = ck["step"] + 1
+        truncate_log(log_path, ck["step"])
+        truncate_log(progress_path, ck["step"])
     else:
         with open(log_path, "w", newline="") as f:
             csv.writer(f).writerow(
@@ -164,7 +176,7 @@ def main():
                                     "cql_penalty"])
 
     t0 = time.time()
-    train_time = 0.0
+    train_time, timed_steps = 0.0, 0
     for step in range(start, args.steps + 1):
         t_step = time.time()
         batch = buffer.sample(256)
@@ -182,9 +194,10 @@ def main():
         actor_opt.step()
         L.soft_update(critic_target, critic)
         train_time += time.time() - t_step
+        timed_steps += 1
 
         if step > start and step % args.log_every == 0:
-            sps = train_time / args.log_every
+            sps = train_time / timed_steps
             row = [step, round(q_loss.item(), 4), round(pi_loss.item(), 4),
                    round(sps, 4), round(time.time() - t0)]
             row += [round(x, 4) for x in
@@ -192,7 +205,7 @@ def main():
             with open(progress_path, "a", newline="") as f:
                 csv.writer(f).writerow(row)
             print("progress", " | ".join(str(x) for x in row), flush=True)
-            train_time = 0.0
+            train_time, timed_steps = 0.0, 0
 
         if step % args.eval_every == 0 or step == args.steps:
             with torch.no_grad():
@@ -219,7 +232,7 @@ def main():
                        os.path.join(out, f"checkpoint_{step:07d}.pt"))
             np.savez(os.path.join(out, f"paths_{step:07d}.npz"),
                      plaza=np.array([r[0] for r in plaza], dtype=object),
-                     plaza_goal=plaza[0][1], allow_pickle=True)
+                     plaza_goal=plaza[0][1])
 
 
 if __name__ == "__main__":

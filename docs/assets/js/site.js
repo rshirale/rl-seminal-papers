@@ -186,6 +186,12 @@ const paperExamples = {
     formula: 'a<sub>t</sub> = argmax<sub>a</sub> [ Q(s, a) + c<sub>puct</sub>\u00b7P(s, a)\u00b7\u221a(\u03a3<sub>b</sub> N(s, b)) / (1 + N(s, a)) ]',
     note: 'The policy head\u2019s prior P shapes where the search looks first; the visit count N pulls it back toward breadth. An unvisited child scores on its prior alone, which is what makes the network\u2019s opinion the thing that shapes the tree.',
     code: '<span class="c-comment"># max(1, ...) is the cold-start guard: on the first simulation the</span>\n<span class="c-comment"># parent has no visits, and every child would otherwise score zero.</span>\n<span class="c-var">exploration = c_puct * child.prior * math.sqrt(</span>\n<span class="c-var">    max(1, parent.visit_count)) / (1 + child.visit_count)</span>\n<span class="c-var">if child.visit_count == 0:</span>\n<span class="c-var">    return exploration</span>\n\n<span class="c-comment"># A child\u2019s Q is from the opponent\u2019s point of view, so it negates.</span>\n<span class="c-accent">return</span><span class="c-var"> -child.q_value() + exploration</span>'
+  },
+  cql: {
+    title: 'Kumar et al. (2020) \u2014 CQL(H) Critic Objective', codeTitle: 'Python \u00b7 Chapter 9',
+    formula: '\u03b1\u00b7E<sub>s\u223cD</sub>[log \u03a3<sub>a</sub> exp Q(s, a) \u2212 E<sub>a\u223cD</sub> Q(s, a)] + \u00bd\u00b7E<sub>D</sub>[(Q(s, a) \u2212 B\u0302<sup>\u03c0</sup>Q\u0304(s, a))<sup>2</sup>]',
+    note: 'Push down a soft maximum over all actions, push up the actions the logs contain. The pessimism lives in the critic, so no model of the logging policy is needed \u2014 and the soft maximum lands hardest on whatever the critic overvalues.',
+    code: '<span class="c-comment"># Importance-sampled soft maximum over 10 uniform and 10 policy</span>\n<span class="c-comment"># actions per state: subtracting a log-density divides by it.</span>\n<span class="c-var">def soft_lse(q_rand, q_pi, log_pi, log_unif):</span>\n<span class="c-var">    cat = torch.cat([q_rand - log_unif, q_pi - log_pi], 1)</span>\n<span class="c-var">    return torch.logsumexp(cat, dim=1).mean()</span>\n\n<span class="c-comment"># The dataset\u2019s own actions are pushed up; the TD target has no entropy term.</span>\n<span class="c-var">push_up = q1.mean() + q2.mean()</span>\n<span class="c-accent">return</span><span class="c-var"> td_loss + cql_alpha * (push_down - push_up)</span>'
   }
 };
 document.querySelectorAll('.paper-tab').forEach(tab => tab.addEventListener('click', () => {
@@ -415,7 +421,7 @@ document.querySelectorAll('.copy-button').forEach(button => button.addEventListe
 // ── Learning path guidance ──────────────────────────────────────────────
 const pathAdvice = {
   beginner: 'Recommended route: Chapter 1 → Chapter 2 → the Q-Learning playground above.',
-  deep: 'Recommended route: Chapter 3 DQN → Chapter 4 DDPG → Chapter 5 PPO → Chapter 6 SAC → Chapter 8 AlphaZero.',
+  deep: 'Recommended route: Chapter 3 DQN → Chapter 4 DDPG → Chapter 5 PPO → Chapter 6 SAC → Chapter 8 AlphaZero → Chapter 9 CQL.',
   research: 'Recommended route: compare the Paper → Code examples, then Chapter 7 GRPO and Chapter 8 AlphaZero, then follow the roadmap as new chapters arrive.'
 };
 document.querySelectorAll('.path-card').forEach(card => {

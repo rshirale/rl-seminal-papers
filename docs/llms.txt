@@ -1,6 +1,6 @@
 # Reinforcement Learning: The Foundational Ideas
 
-> A Manning Publications book by Rahul Vasant Shirale translating seminal reinforcement learning papers into runnable Python code. Chapters 1–8 are available now; later chapters are planned through 2027.
+> A Manning Publications book by Rahul Vasant Shirale translating seminal reinforcement learning papers into runnable Python code. Chapters 1–9 are available now; later chapters are planned through 2027.
 
 ## About the Book
 
@@ -26,8 +26,8 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 7: GRPO — Shao et al. (2024), DeepSeekMath; the algorithm behind DeepSeek-R1 (available now)
 - Chapter 8: AlphaGo and AlphaZero — Silver et al. (2016, 2018); deep networks inside a tree search, then self-play with everything hand-built removed (available now)
 
-**Part III — Real-World Applications & Modern Paradigms** (planned)
-- Chapter 9: Offline RL — Kumar et al. (2020), Conservative Q-Learning; training entirely on a static dataset
+**Part III — Real-World Applications & Modern Paradigms** (Chapter 9 available now; the rest planned)
+- Chapter 9: Offline RL — Kumar et al. (2020), Conservative Q-Learning; training entirely on a static dataset (available now)
 - Chapter 10: RL in Production — Li et al. (2010); contextual bandits (LinUCB) and recommenders, evaluated offline by replay
 - Chapter 11: Sim-to-Real — Peng et al. (2018); dynamics randomization so a policy survives transfer to hardware
 - Chapter 12: RL as Sequence Modeling — Chen et al. (2021), Decision Transformer; actions predicted from returns-to-go
@@ -115,6 +115,12 @@ The book takes a "Papers + Code" approach across 15 chapters and 3 parts:
 - Chapter 8 Search animations (one move's visit counts concentrating, and a whole game): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/animate.py
 - Chapter 8 The published 19x19 AlphaGo and AlphaGo Zero architectures, to read and measure rather than train: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/alphago.py
 - Chapter 8 Policy network vs rollout policy timing (the gap that forced AlphaGo to keep rollouts; no dataset needed): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_2_methods/ch08_alphazero/benchmark.py
+- Chapter 9 README: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_3_applications/ch09_cql/README.md
+- Chapter 9 Jupyter notebook: https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_3_applications/ch09_cql/Chapter9_CQL.ipynb
+- Chapter 9 Run in Colab: https://colab.research.google.com/github/rshirale/rl-seminal-papers/blob/main/src/part_3_applications/ch09_cql/Chapter9_CQL.ipynb
+- Chapter 9 Listings 9.1-9.4 exactly as printed (the CQL critic loss, the Minari offline buffer, the offline training loop, fitted Q-evaluation): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_3_applications/ch09_cql/cql.py
+- Chapter 9 CQL vs SAC training script (PointMaze, dataset Q-value and CQL penalty logging, plaza-task evaluation, resumable checkpoints): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_3_applications/ch09_cql/train_cql_vs_sac.py
+- Chapter 9 FQE against true returns (exercise 9.2; twin minimum or a single critic): https://github.com/rshirale/rl-seminal-papers/blob/main/src/part_3_applications/ch09_cql/eval_fqe_vs_true.py
 
 ## Author
 

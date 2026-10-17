@@ -1,0 +1,85 @@
+# Executes the Chapter 9 notebook top to bottom on GitHub's machines.
+#
+# The Tests workflow checks the notebook's cells against the modules on every
+# push but cannot execute it: it installs neither Minari nor the 530 MB
+# PointMaze dataset. This workflow does, in a real Jupyter kernel rather than
+# in-process, so it also covers what only a kernel does (cells run as
+# __main__, sys.argv is the kernel launcher's). The executed notebook, with
+# its outputs and figures, is uploaded as an artifact next to the runs it
+# produced.
+#
+# Manual only (Actions -> Chapter 9 notebook -> Run workflow), so it never
+# fires on a push. "fast" sets CH9_FAST=1, a few minutes end to end; the
+# default runs the chapter's 50,000-step SAC and CQL runs and 100,000-step
+# FQE, which takes hours on a runner. Absolute timings will not match the
+# laptop numbers in the notebook.
+
+name: Chapter 9 notebook
+
+on:
+  workflow_dispatch:
+    inputs:
+      fast:
+        description: "CH9_FAST: a few minutes instead of the full chapter run"
+        type: boolean
+        default: false
+
+jobs:
+  execute:
+    runs-on: ubuntu-24.04
+    # Inside the 6-hour job ceiling even on a slow runner.
+    timeout-minutes: 340
+
+    # No MPLBACKEND=Agg here, unlike the Tests workflow: it would replace the
+    # kernel's inline backend, and plt.show() would leave the figure cells of
+    # the executed notebook empty.
+    env:
+      PYTHONUNBUFFERED: "1"
+      CH9_FAST: ${{ inputs.fast && '1' || '' }}
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies (CPU PyTorch, the offline stack, a kernel)
+        run: |
+          python -m pip install --upgrade pip
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt -r requirements-offline.txt
+          pip install nbclient nbformat ipykernel
+          python -c "import torch, minari, gymnasium_robotics; print(torch.__version__, minari.__version__)"
+          nproc
+
+      - name: Execute Chapter9_CQL.ipynb
+        # Run from the notebook's own folder, as a reader opening it would,
+        # so its runs/ lands in the chapter's git-ignored runs/ directory.
+        working-directory: src/part_3_applications/ch09_cql
+        run: |
+          python - <<'EOF'
+          import time
+          import nbformat
+          from nbclient import NotebookClient
+
+          nb = nbformat.read("Chapter9_CQL.ipynb", as_version=4)
+          client = NotebookClient(nb, timeout=-1, kernel_name="python3",
+                                  resources={"metadata": {"path": "."}})
+          started = time.time()
+          try:
+              client.execute()
+          finally:
+              nbformat.write(nb, "Chapter9_CQL.executed.ipynb")
+              print(f"elapsed {time.time() - started:.0f} s")
+          EOF
+
+      - name: Upload the executed notebook and its runs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ch09-notebook${{ inputs.fast && '-fast' || '' }}
+          path: |
+            src/part_3_applications/ch09_cql/Chapter9_CQL.executed.ipynb
+            src/part_3_applications/ch09_cql/runs/
+          if-no-files-found: warn

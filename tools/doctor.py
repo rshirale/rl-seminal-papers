@@ -6,7 +6,9 @@ Most "it doesn't run for me" reports come down to the wrong interpreter being
 active, which the first two lines of output make obvious.
 """
 
+import contextlib
 import importlib
+import io
 import platform
 import sys
 
@@ -17,12 +19,20 @@ PACKAGES = [
     ("pandas", "pandas", "requirements.txt"),
     ("gymnasium", "gymnasium", "requirements.txt"),
     ("torch", "torch", "requirements-deep.txt"),
+    # requirements-deep.txt includes the Atari stack too -- gymnasium[atari],
+    # ale-py and opencv -- so the Chapter 3 Atari tests run after
+    # install-full. requirements-atari.txt installs the same packages on their
+    # own, for a machine that wants Atari without the rest of the deep stack.
     ("cv2", "opencv-python", "requirements-deep.txt"),
-    ("ale_py", "ale-py", "requirements-atari.txt (optional)"),
+    ("ale_py", "ale-py", "requirements-deep.txt"),
     # Chapter 7 only, and optional the same way Atari is: chapters 1-6 have no
     # use for it, and two of Chapter 7's three targets run without it.
     ("transformers", "transformers", "requirements-llm.txt (optional)"),
     ("peft", "peft", "requirements-llm.txt (optional)"),
+    # Chapter 9 only: the offline dataset and the PointMaze environment.
+    ("minari", "minari", "requirements-offline.txt (optional)"),
+    ("gymnasium_robotics", "gymnasium-robotics",
+     "requirements-offline.txt (optional)"),
 ]
 
 
@@ -49,13 +59,16 @@ def main():
     missing = []
     for import_name, pip_name, source in PACKAGES:
         try:
-            module = importlib.import_module(import_name)
+            # Some packages print notices on import (gymnasium_robotics lists
+            # its changed Adroit rewards); they would interleave with the report.
+            with contextlib.redirect_stderr(io.StringIO()):
+                module = importlib.import_module(import_name)
         except ImportError:
-            print(f"  {pip_name:<16} MISSING   (from {source})")
+            print(f"  {pip_name:<18} MISSING   (from {source})")
             missing.append((pip_name, source))
         else:
             found[import_name] = _version(module)
-            print(f"  {pip_name:<16} {found[import_name]}")
+            print(f"  {pip_name:<18} {found[import_name]}")
     print()
 
     warnings = []
@@ -106,10 +119,10 @@ def main():
             print("  make install")
         if any(f.startswith("requirements-deep") for f in files):
             print("  make install-full")
-        if any(f.startswith("requirements-atari") for f in files):
-            print("  make install-atari      # optional, Chapter 3 Atari only")
         if any(f.startswith("requirements-llm") for f in files):
             print("  make install-llm        # optional, Chapter 7 only")
+        if any(f.startswith("requirements-offline") for f in files):
+            print("  make install-offline    # optional, Chapter 9 only")
         print()
         print("  If those install into the wrong interpreter, activate your")
         print("  virtualenv first, or pass one explicitly:")
