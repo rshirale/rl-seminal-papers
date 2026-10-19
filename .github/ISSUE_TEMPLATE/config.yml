@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/rshirale/rl-seminal-papers/security/advisories/new
+    about: Please report security problems privately, not as a public issue.
+  - name: Companion website
+    url: https://rshirale.github.io/rl-seminal-papers/
+    about: Interactive playground, roadmap and Colab notebooks.

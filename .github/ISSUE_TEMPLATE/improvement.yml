@@ -1,0 +1,15 @@
+name: Improvement
+description: Suggest a clearer explanation, a missing piece, or a better way to do something.
+labels: [enhancement]
+body:
+  - type: input
+    id: chapter
+    attributes:
+      label: Chapter or file
+      placeholder: Ch 6, src/part_2_methods/ch06_sac/sac.py
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you'd change, and why
+    validations:
+      required: true

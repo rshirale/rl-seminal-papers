@@ -1,0 +1,62 @@
+name: Bug report
+description: A script, make target or notebook fails, or gives a wrong result.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. For a security problem, please use the
+        private report described in SECURITY.md instead.
+  - type: dropdown
+    id: chapter
+    attributes:
+      label: Chapter
+      options:
+        - Ch 1 (Introduction)
+        - Ch 2 (Fundamentals)
+        - Ch 3 (DQN)
+        - Ch 4 (DDPG)
+        - Ch 5 (PPO)
+        - Ch 6 (SAC)
+        - Ch 7 (GRPO)
+        - Ch 8 (AlphaGo / AlphaZero)
+        - Ch 9 (Offline RL / CQL)
+        - Setup / installation
+        - Companion website
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: What you ran
+      description: The make target, script, or notebook cell.
+      placeholder: make run-ch5-pendulum
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The full error or traceback, or how the result differs from what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: Output of `make doctor`
+      description: Shows your interpreter, platform and dependency versions. It usually pinpoints setup problems right away.
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where you ran it
+      options:
+        - Local machine
+        - Google Colab
+        - Other
+    validations:
+      required: true
