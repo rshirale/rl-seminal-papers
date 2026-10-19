@@ -437,7 +437,12 @@
       <div class="tool-card">
         <div class="lab-grid">
           <div>
-            <div class="play-grid" id="playGrid" role="img" aria-label="Six by six Q-Learning grid world. The agent starts at the bottom-right and learns to reach the goal at the top-left."></div>
+            <div class="play-grid" id="playGrid" aria-hidden="true"></div>
+            <div class="sr-only">
+              <table id="playTable">
+                <caption>Six by six Q-Learning grid world. The agent starts at row 6, column 6 and learns to reach the goal at row 1, column 1. Each cell gives the action with the highest learned Q-value and that value.</caption>
+              </table>
+            </div>
             <p class="code-panel-note">● Agent &nbsp; ★ Goal &nbsp; Brighter cells indicate higher learned value.</p>
             <div class="tool-controls">
               <label>Learning rate α <input id="alphaInput" type="range" min="0.1" max="1" step="0.1" value="0.6"><span id="alphaValue">0.6</span></label>

@@ -171,8 +171,24 @@ try {
   await page.click('#runButton');
   await page.waitForFunction(() => document.getElementById('labMessage').textContent.includes('reached the goal'), { timeout: 10000 }).catch(() => {});
   check('playground: learned path reaches the goal', (await page.$eval('#labMessage', e => e.textContent)).includes('reached the goal'));
+  // Screen-reader table: mirrors the hidden visual grid as text.
+  const table = await page.evaluate(() => {
+    const cells = [...document.querySelectorAll('#playTable tbody td')].map(td => td.textContent);
+    return {
+      gridHidden: document.getElementById('playGrid').getAttribute('aria-hidden'),
+      headers: document.querySelectorAll('#playTable th[scope="col"], #playTable th[scope="row"]').length,
+      cells, agent: cells.filter(t => t.startsWith('Agent')).length,
+    };
+  });
+  check('playground: visual grid hidden from screen readers', table.gridHidden === 'true');
+  check('playground: table has 36 cells and 12 headers', table.cells.length === 36 && table.headers === 12, `${table.cells.length}/${table.headers}`);
+  check('playground: table marks goal, agent and learned values',
+    table.cells[0] === 'Agent; Goal' && table.agent === 1 && table.cells.some(t => /^(Agent; )?(Up|Down|Left|Right), Q -?\d+\.\d\d; on learned path$/.test(t)),
+    table.cells.slice(0, 3).join(' | '));
   await page.click('#resetButton');
   check('playground: resets', (await page.$eval('#episodeValue', e => e.textContent)) === '0');
+  const resetCells = await page.$$eval('#playTable tbody td', tds => tds.map(td => td.textContent));
+  check('playground: table resets', resetCells[0] === 'Goal' && resetCells[35] === 'Agent; Not yet learned' && resetCells.slice(1, 35).every(t => t === 'Not yet learned'), resetCells[35]);
   await page.$eval('#alphaInput', e => { e.value = e.max; e.dispatchEvent(new Event('input')); });
   check('playground: slider updates its label', (await page.$eval('#alphaValue', e => e.textContent)) === (await page.$eval('#alphaInput', e => e.value)));
 

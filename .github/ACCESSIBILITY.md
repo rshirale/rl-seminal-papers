@@ -17,14 +17,13 @@ assistive technology they use.
 - **Light and dark themes**, switched with the button in the header. Your
   choice is remembered on that device.
 - **Screen readers.** The page declares its language, controls have
-  accessible names, the Q-Learning playground grid has a text description, and
-  its readout is announced as it updates.
+  accessible names, and the Q-Learning playground's readout is announced as it
+  updates. The playground grid is also provided as a table that screen readers
+  can move through cell by cell, giving each cell's best action and Q-value
+  and marking the agent, the goal and the learned path.
 
 ## Known limitations
 
-- The **Q-Learning playground** shows its learning progress mostly visually.
-  The grid has a summary description, but individual cell values aren't
-  available to screen readers.
 - **Figures** in the notebooks and chapter scripts are images with no text
   alternative beyond the explanation around them.
 - The site hasn't been formally audited against WCAG.

@@ -256,9 +256,35 @@ function bestAction(state) {
 function chooseAction(state, epsilon) {
   return Math.random() < epsilon ? Math.floor(Math.random() * 4) : bestAction(state);
 }
+// The coloured grid is hidden from assistive technology; this table carries the
+// same state as text. Its cells are built once and updated in place, so a
+// screen reader keeps its position while the learned path animates.
+const playTable = document.getElementById('playTable');
+const playCells = [];
+const actionNames = ['Up', 'Down', 'Left', 'Right'];
+const headRow = playTable.createTHead().insertRow();
+headRow.appendChild(document.createElement('td'));
+for (let col = 1; col <= 6; col++) {
+  const th = document.createElement('th'); th.scope = 'col'; th.textContent = `Column ${col}`; headRow.appendChild(th);
+}
+const playBody = playTable.createTBody();
+for (let row = 1; row <= 6; row++) {
+  const tr = playBody.insertRow();
+  const th = document.createElement('th'); th.scope = 'row'; th.textContent = `Row ${row}`; tr.appendChild(th);
+  for (let col = 1; col <= 6; col++) playCells.push(tr.insertCell());
+}
+function describeCell(index, values) {
+  if (index === goalState) return index === playAgent ? 'Agent; Goal' : 'Goal';
+  const parts = [];
+  if (index === playAgent) parts.push('Agent');
+  parts.push(values.every(v => v === 0) ? 'Not yet learned' : `${actionNames[bestAction(index)]}, Q ${Math.max(...values).toFixed(2)}`);
+  if (learnedPath.includes(index)) parts.push('on learned path');
+  return parts.join('; ');
+}
 function renderPlayground() {
   playGrid.innerHTML = '';
   qTable.forEach((values, index) => {
+    playCells[index].textContent = describeCell(index, values);
     const cell = document.createElement('div');
     const value = Math.max(...values);
     cell.className = 'play-cell' + (index === playAgent ? ' agent' : '') + (index === goalState ? ' goal' : '');
