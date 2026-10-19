@@ -141,6 +141,24 @@ try {
     }));
     check(`Papers → Code tab "${t}"`, s.active === t && s.title && s.code > 20, s.title);
   }
+  // Keyboard: arrows wrap, Home/End jump, and only the selected tab is tabbable.
+  const tabState = () => page.evaluate(() => ({
+    focused: document.activeElement?.dataset.paper,
+    active: document.querySelector('.paper-tab.active')?.dataset.paper,
+    tabbable: [...document.querySelectorAll('.paper-tab')].filter(t => t.tabIndex === 0).map(t => t.dataset.paper),
+    labelledBy: document.getElementById('paper-panel').getAttribute('aria-labelledby'),
+  }));
+  const paperIds = await page.$$eval('.paper-tab', ts => ts.map(t => t.dataset.paper));
+  const first = paperIds[0], last = paperIds.at(-1);
+  await page.focus(`.paper-tab[data-paper="${last}"]`);
+  const keySteps = [['ArrowRight', first], ['ArrowLeft', last], ['Home', first], ['ArrowRight', paperIds[1]], ['End', last]];
+  for (const [key, want] of keySteps) {
+    await page.keyboard.press(key);
+    const s = await tabState();
+    check(`Papers → Code ${key} selects "${want}"`,
+      s.focused === want && s.active === want && s.tabbable.join() === want && s.labelledBy === `paper-tab-${want}`,
+      JSON.stringify(s));
+  }
 
   // Q-learning playground
   await page.click('#resetButton');

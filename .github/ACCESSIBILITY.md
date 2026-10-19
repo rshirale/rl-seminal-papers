@@ -8,7 +8,9 @@ assistive technology they use.
 
 - **Keyboard navigation.** A "Skip to main content" link comes first in the
   tab order, every interactive element shows a visible focus outline, and the
-  reading-path cards respond to Enter and Space.
+  reading-path cards respond to Enter and Space. In the paper-to-code tabs,
+  the arrow keys move between papers and Home and End jump to the first and
+  last.
 - **Reduced motion.** If your system asks for reduced motion, the site turns
   off its decorative animations and starts the Q-value animation paused. A
   Play/Pause button controls it either way.
@@ -20,8 +22,6 @@ assistive technology they use.
 
 ## Known limitations
 
-- The **paper-to-code tabs** can be reached with Tab and activated with Enter,
-  but they don't yet support arrow-key movement between tabs.
 - The **Q-Learning playground** shows its learning progress mostly visually.
   The grid has a summary description, but individual cell values aren't
   available to screen readers.

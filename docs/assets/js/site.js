@@ -194,20 +194,41 @@ const paperExamples = {
     code: '<span class="c-comment"># Importance-sampled soft maximum over 10 uniform and 10 policy</span>\n<span class="c-comment"># actions per state: subtracting a log-density divides by it.</span>\n<span class="c-var">def soft_lse(q_rand, q_pi, log_pi, log_unif):</span>\n<span class="c-var">    cat = torch.cat([q_rand - log_unif, q_pi - log_pi], 1)</span>\n<span class="c-var">    return torch.logsumexp(cat, dim=1).mean()</span>\n\n<span class="c-comment"># The dataset\u2019s own actions are pushed up; the TD target has no entropy term.</span>\n<span class="c-var">push_up = q1.mean() + q2.mean()</span>\n<span class="c-accent">return</span><span class="c-var"> td_loss + cql_alpha * (push_down - push_up)</span>'
   }
 };
-document.querySelectorAll('.paper-tab').forEach(tab => tab.addEventListener('click', () => {
+// WAI-ARIA tabs pattern: only the selected tab is in the Tab order, and the
+// arrow keys, Home and End move between tabs, selecting as they go.
+const paperTabs = [...document.querySelectorAll('.paper-tab')];
+const paperPanel = document.getElementById('paper-panel');
+const selectPaper = tab => {
   const example = paperExamples[tab.dataset.paper];
-  document.querySelectorAll('.paper-tab').forEach(item => {
+  paperTabs.forEach(item => {
     const active = item === tab;
     item.classList.toggle('active', active);
     item.setAttribute('aria-selected', active);
+    item.tabIndex = active ? 0 : -1;
   });
+  paperPanel.setAttribute('aria-labelledby', tab.id);
   document.getElementById('paper-title').textContent = example.title;
   document.getElementById('paper-code-title').textContent = example.codeTitle;
   document.getElementById('paper-formula').innerHTML = example.formula;
   document.getElementById('paper-note').textContent = example.note;
   document.getElementById('paper-code').innerHTML = example.code;
   trackEvent('paper_example_selected', { example: tab.dataset.paper });
-}));
+};
+paperTabs.forEach((tab, i) => {
+  tab.id = `paper-tab-${tab.dataset.paper}`;
+  tab.setAttribute('aria-controls', 'paper-panel');
+  tab.tabIndex = tab.classList.contains('active') ? 0 : -1;
+  if (tab.classList.contains('active')) paperPanel.setAttribute('aria-labelledby', tab.id);
+  tab.addEventListener('click', () => selectPaper(tab));
+  tab.addEventListener('keydown', event => {
+    const n = paperTabs.length;
+    const target = { ArrowRight: (i + 1) % n, ArrowLeft: (i - 1 + n) % n, Home: 0, End: n - 1 }[event.key];
+    if (target === undefined) return;
+    event.preventDefault();
+    paperTabs[target].focus();
+    selectPaper(paperTabs[target]);
+  });
+});
 
 // ── Small Q-Learning playground ─────────────────────────────────────────
 const playGrid = document.getElementById('playGrid');
