@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import os
 from environments import CliffWalking
 from algorithms import run_agent
 
