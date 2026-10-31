@@ -219,3 +219,6 @@ src/part_3_applications/ch09_cql/runs/
 # chapter directory from the notebook.
 /runs/
 src/part_2_methods/ch08_alphazero/runs/
+
+# Chapter 2 notebook figures
+fig_2_*.png

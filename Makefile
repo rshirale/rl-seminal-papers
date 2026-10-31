@@ -424,4 +424,5 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.py[co]" -delete
 	find . -type f -name "cliff_results.png" -delete
+	find . -type f -name "fig_2_*.png" -delete
 	@echo "✓ Done."

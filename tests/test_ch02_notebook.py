@@ -167,7 +167,7 @@ def test_notebook_run_agent_matches_the_module(notebook_ns, mode):
     from algorithms import run_agent as module_run_agent
 
     np.random.seed(3)
-    _, nb_history, nb_falls = notebook_ns["run_agent"](
+    _, nb_history, nb_falls, _ = notebook_ns["run_agent"](
         notebook_ns["CliffWalking"](), mode=mode, episodes=20)
     np.random.seed(3)
     _, mod_history, mod_falls = module_run_agent(
@@ -182,7 +182,7 @@ def test_notebook_run_agent_matches_the_module(notebook_ns, mode):
 # --------------------------------------------------------------------------
 
 @pytest.mark.slow
-def test_notebook_runs_top_to_bottom():
+def test_notebook_runs_top_to_bottom(tmp_path, monkeypatch):
     """Executes every code cell in order, exactly as a reader would.
 
     Runs in-process rather than through a Jupyter kernel on purpose: a kernel
@@ -190,9 +190,13 @@ def test_notebook_runs_top_to_bottom():
     interpreter than the one running the tests -- silently validating some
     other environment's packages. This notebook uses no magics, so in-process
     execution covers the same ground.
+
+    The figure cells save into the working directory, so the test runs from
+    ``tmp_path`` to keep them out of the repository root.
     """
     import matplotlib
     matplotlib.use("Agg")
+    monkeypatch.chdir(tmp_path)
 
     namespace = {"__name__": "__notebook__"}
     for index, source in enumerate(code_cells()):
