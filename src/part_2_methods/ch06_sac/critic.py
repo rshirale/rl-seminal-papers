@@ -32,3 +32,19 @@ class Critic(nn.Module):
     def forward(self, state: torch.Tensor, action: torch.Tensor):
         sa = torch.cat([state, action], dim=-1)
         return self.q1(sa), self.q2(sa)
+
+
+if __name__ == "__main__":
+    torch.manual_seed(42)
+    state_dim = 3
+    action_dim = 1
+    critic = Critic(state_dim, action_dim)
+
+    s = torch.randn(1, state_dim)
+    a = torch.tensor([[1.0]])
+    q1, q2 = critic(s, a)
+
+    print("--- Critic Smoke Test ---")
+    print("Q1 shape:", q1.shape, "| Q2 shape:", q2.shape)
+    print(f"Q1: {q1.item():.4f} | Q2: {q2.item():.4f} | Min Q: {torch.min(q1, q2).item():.4f}")
+

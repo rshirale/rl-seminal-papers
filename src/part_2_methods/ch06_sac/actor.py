@@ -83,3 +83,24 @@ class Actor(nn.Module):
         log_prob = log_prob - correction
 
         return action * self.max_action, log_prob
+
+
+if __name__ == "__main__":
+    torch.manual_seed(42)
+    state_dim = 3
+    action_dim = 1
+    max_action = 2.0
+
+    actor = Actor(state_dim, action_dim, max_action=max_action)
+    s = torch.randn(1, state_dim)
+
+    stochastic_action, log_prob = actor(s)
+    deterministic_action, _ = actor(s, deterministic=True)
+
+    print("--- Actor Smoke Test ---")
+    print("Stochastic action: ", stochastic_action)
+    print("Log-probability:   ", log_prob)
+    print("Action shape:      ", stochastic_action.shape)
+    print("Log-prob shape:    ", log_prob.shape)
+    print("Deterministic mean:", deterministic_action)
+

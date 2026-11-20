@@ -233,3 +233,25 @@ class SACAgent:
         self.critic_target.load_state_dict(ckpt["critic_target"])
         with torch.no_grad():
             self.log_alpha.copy_(ckpt["log_alpha"].to(self.device))
+
+
+if __name__ == "__main__":
+    torch.manual_seed(42)
+    state_dim = 3
+    action_dim = 1
+    max_action = 2.0
+
+    agent = SACAgent(state_dim, action_dim, max_action, batch_size=8)
+    for _ in range(16):
+        agent.store(
+            np.zeros(state_dim, dtype=np.float32),
+            np.array([0.5], dtype=np.float32),
+            -1.0,
+            np.zeros(state_dim, dtype=np.float32),
+            False,
+        )
+
+    loss_c, loss_a, alpha = agent.train()
+    print("--- SACAgent Smoke Test ---")
+    print(f"Critic Loss: {loss_c:.4f} | Actor Loss: {loss_a:.4f} | Alpha: {alpha:.4f}")
+

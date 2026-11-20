@@ -48,3 +48,17 @@ class ReplayBuffer:
 
     def __len__(self) -> int:
         return len(self.buf)
+
+
+if __name__ == "__main__":
+    buffer = ReplayBuffer(capacity=1000)
+    for _ in range(10):
+        buffer.push(np.zeros(3), np.zeros(1), 1.0, np.zeros(3), 0.0)
+
+    s_b, a_b, r_b, ns_b, d_b = buffer.sample(batch_size=4)
+    print("--- ReplayBuffer Smoke Test ---")
+    print("Sampled states shape: ", s_b.shape)
+    print("Sampled actions shape:", a_b.shape)
+    print("Sampled rewards shape:", r_b.shape)
+    print("Sampled dones shape:  ", d_b.shape)
+
